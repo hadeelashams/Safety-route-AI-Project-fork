@@ -2,7 +2,7 @@
 Title: SafeRouteAI: Smart Travel Planner and Safety
  
 ABSTRACT
- 
+
 The Safe Route AI Travel Assistant is a web-based application developed to help
 travelers plan safe and personalized trips within Kerala. It utilizes artificial
 intelligence and machine learning to detect safety risks and provide smart destination
