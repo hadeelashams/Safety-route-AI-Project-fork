@@ -17,5 +17,5 @@ evaluation, the system uses a Random Forest classification algorithm, a supervis
 ML technique well-suited for multi-feature classification problems. It analyzes recent
 weather updates, historical disasters, and health-related concerns, helping the system
 avoid unsafe routes. Users can mark favourite destinations and receive personalized suggestions based on their previous travel history. These features provide more relevant recommendations and enhance the overall travel planning experience. By integrating AI, ML, and chatbot technology, the offers a practical, safety-aware travel planner that supports informed and confident decision-making for modern travelers.
-
+ 
  
