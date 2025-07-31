@@ -5,7 +5,7 @@ ABSTRACT
 
 The Safe Route AI Travel Assistant is a web-based application developed to help
 travelers plan safe and personalized trips within Kerala. It utilizes artificial
-intelligence and machine learning to detect safety risks and provide smart destination
+intelligence and machine learning to detect safety risks and provide smart destination 
 suggestions based on user preferences like budget and interests. This system is helpful
 for tourists, local travelers, and trip planners who want support in choosing safe and
 smart travel options. The system is built using HTML and CSS for the frontend,
