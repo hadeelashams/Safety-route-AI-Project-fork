@@ -1,187 +1,160 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SafeRoute – Login</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" />
+{% extends "base.html" %}
+
+{% block title %}Safe RouteAI - Login{% endblock %}
+
+{% block content %}
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Inter', sans-serif;
+    /* Specific styling for the login page */
+    body { /* These styles will override or supplement base.html body styles */
+      font-family: 'Poppins', sans-serif; /* Using Poppins specific to login page */
       margin: 0;
-      background-color: #f9fafb;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem 2rem;
-      background-color: #fff;
-      border-bottom: 1px solid #e5e7eb;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      font-weight: 600;
-      font-size: 1.1rem;
-      color: #111827;
-    }
-
-    .logo svg {
-      width: 20px;
-      height: 20px;
-      margin-right: 0.5rem;
-    }
-
-    .signup-btn {
-      background-color: #e5e7eb;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    main {
-      flex: 1;
+      background: #F9FAF9; /* Specific background color for login page */
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 2rem;
+      height: 100vh;
+      overflow: hidden;
     }
 
-    .login-box {
-      background-color: #fff;
-      padding: 2rem;
+    /* Decorative Background Circles (can remain here) */
+    .bg-circle {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.2;
+      z-index: -1;
+    }
+    .circle1 {
+      width: 300px;
+      height: 300px;
+      background: #A7C8A7;
+      top: -80px;
+      left: -80px;
+    }
+    .circle2 {
+      width: 200px;
+      height: 200px;
+      background: #2E4F4F;
+      bottom: -50px;
+      right: -50px;
+    }
+
+    /* Login Box (can remain here) */
+    .login-container {
+      background: white;
+      padding: 40px;
       border-radius: 12px;
-      width: 100%;
-      max-width: 400px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.03);
-    }
-
-    .login-box h2 {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 350px;
       text-align: center;
-      font-size: 24px;
-      font-weight: 700;
-      color: #111827;
-      margin-bottom: 1.5rem;
     }
 
-    .form-group {
-      margin-bottom: 1.25rem;
+    .login-container h2 {
+      color: #2E4F4F;
+      margin-bottom: 10px;
     }
 
-    label {
-      display: block;
-      margin-bottom: 0.5rem;
-      color: #111827;
-      font-weight: 500;
+    .login-container p {
+      color: #555;
+      margin-bottom: 25px;
     }
 
-    input[type="text"],
-    input[type="password"] {
+    .login-container input {
       width: 100%;
-      padding: 12px;
-      border: 1px solid #d1d5db;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
       border-radius: 8px;
-      font-size: 1rem;
-      color: #111827;
+      font-size: 14px;
     }
 
-    input::placeholder {
-      color: #9ca3af;
-    }
-
-    .remember {
-      display: flex;
-      align-items: center;
-      font-size: 0.9rem;
-      color: #111827;
-      margin-bottom: 1rem;
-    }
-
-    .remember input {
-      margin-right: 0.5rem;
-    }
-
-    .login-btn {
+    .login-container button {
       width: 100%;
       padding: 12px;
-      background-color: #bfdbfe;
-      color: #111827;
-      font-weight: 600;
+      background: #2E4F4F;
+      color: white;
+      font-size: 16px;
       border: none;
       border-radius: 8px;
       cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .login-container button:hover { background: #1d3d3d; }
+
+    .login-container .links {
+      margin-top: 15px;
+      font-size: 14px;
+    }
+    .login-container .links a {
+      color: #2E4F4F;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .login-container .links a:hover { text-decoration: underline; }
+
+    /* Logo Styling (specific to this container, not the header logo) */
+    .login-container .logo { /* Scoped to the login-container */
+      font-size: 24px;
+      font-weight: bold;
+      color: #2E4F4F;
+      margin-bottom: 20px;
     }
 
-    .links {
-      margin-top: 1rem;
-      text-align: center;
-      font-size: 0.9rem;
+    /* Flask Flash Messages */
+    /* These styles can be defined in base.html for consistency, or here to override */
+    .flashes {
+        list-style-type: none;
+        padding: 0;
+        margin-bottom: 15px;
+        text-align: left;
     }
-
-    .links a {
-      display: block;
-      color: #2563eb;
-      text-decoration: underline;
-      margin-top: 4px;
-      
+    .flashes li {
+        margin-bottom: 8px;
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-size: 0.95rem;
+    }
+    .flashes .success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    .flashes .danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
     }
   </style>
-</head>
-<body>
-  <!-- Header -->
-  <header>
-    <div class="logo">
-      <svg viewBox="0 0 48 48" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-        <path fill-rule="evenodd" clip-rule="evenodd" d="M24 4H42V17.3333V30.6667H24V44H6V30.6667V17.3333H24V4Z" />
-      </svg>
-      SafeRoute
+
+  <!-- Background Circles -->
+  <div class="bg-circle circle1"></div>
+  <div class="bg-circle circle2"></div>
+
+  <!-- Login Box -->
+  <div class="login-container">
+    <div class="logo">Safe RouteAI</div>
+    <h2>Login to Your Account</h2>
+
+    <!-- Flash Messages from Flask -->
+    <!-- This block is moved to base.html for global visibility, but can also remain here if you want it only within the login box -->
+    <!-- {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class="flashes">
+          {% for category, message in messages %}
+            <li class="{{ category }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %} -->
+
+    <form action="{{ url_for('auth.login') }}" method="POST">
+      <input type="text" name="username" placeholder="Username" required>
+      <input type="password" name="password" placeholder="Password" required>
+      <button type="submit">Login</button>
+    </form>
+
+    <div class="links">
+      <p><a href="{{ url_for('auth.signup') }}">Sign Up</a></p>
+      <p><a href="#"></a></p>
     </div>
-    <button class="signup-btn" onclick="window.location.href='/signup'">Sign Up</button>
-  </header>
-
-  <!-- Main Content -->
-  <main>
-    <div class="login-box">
-      <h2>Welcome Back</h2>
-      <form method="POST" action="{{ url_for('login') }}">
-        <div class="form-group">
-          <label for="email">Username or Email</label>
-          <input type="text" id="email" name="email" placeholder="Enter your username or email" />
-        </div>
-
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input type="password" id="password" name="password" placeholder="Enter your password" />
-        </div>
-
-        <div class="remember">
-          <input type="checkbox" id="remember" />
-          <label for="remember">Remember Me</label>
-        </div>
-
-        <button type="submit" class="login-btn">Log In</button>
-        {% if error %}
-          <div style="color: red; text-align: center; margin-top: 10px;">{{ error }}</div>
-        {% endif %}
-        <div class="links">
-          <a href="#">Forgot Password?</a>
-          <a href="/signup">Don't have an account? Sign up</a>
-        </div>
-      </form>
-    </div>
-  </main>
-</body>
-</html>
+  </div>
+{% endblock %}

@@ -1,33 +1,16 @@
-import mysql.connector
-import hashlib
+from db import db
+import datetime
 
-# MySQL configuration (moved from app.py)
-db_config = {
-    'user': 'root',
-    'password': '12345678',
-    'host': 'localhost',
-    'database': 'saferouteai'
-}
+class User(db.Model):
+    __tablename__ = 'User_table'
 
-def get_db_connection():
-    return mysql.connector.connect(**db_config)
+    User_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    Username = db.Column(db.String(45), nullable=False)
+    name = db.Column(db.String(45), nullable=False)
+    Email = db.Column(db.String(45), unique=True, nullable=False)
+    Password = db.Column(db.String(45), nullable=False)  # plain text (insecure)
+    Create_id = db.Column(db.DateTime, nullable=False, default=datetime.datetime.now)
+    role = db.Column(db.String(45), nullable=False)
 
-def create_user(username, password):
-    hashed_pw = hashlib.sha256(password.encode()).hexdigest()
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    query = "INSERT INTO users (username, password) VALUES (%s, %s)"
-    cursor.execute(query, (username, hashed_pw))
-    conn.commit()
-    cursor.close()
-    conn.close()
-
-def get_user_by_username(username_or_email):
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    query = "SELECT * FROM users WHERE username = %s OR email = %s"
-    cursor.execute(query, (username_or_email, username_or_email))
-    user = cursor.fetchone()
-    cursor.close()
-    conn.close()
-    return user
+    def __repr__(self):
+        return f'<User {self.Username}>'

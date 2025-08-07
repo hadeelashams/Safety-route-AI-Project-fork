@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Safe RouteAI - Your AI-Powered Guide{% endblock %}
+
+{% block content %}
+    <section class="hero-section">
+      <h1>Your AI-Powered Guide to Safer Journeys</h1>
+      <p>Navigate the world with confidence. Safe RouteAI uses cutting-edge artificial intelligence to analyze routes and identify the safest paths for your travels.</p>
+      <div class="cta-buttons">
+        <a href="{{ url_for('auth.login') }}">Login</a>
+        <a href="#features">Learn More</a>
+      </div>
+    </section>
+
+    <section id="features" class="features-section">
+      <div class="feature-card">
+        <h3>Smart Route Optimization</h3>
+        <p>Our AI analyzes various data points to suggest the safest and most efficient routes based on real-time conditions.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Personalized Safety Profiles</h3>
+        <p>Customize your safety preferences and receive alerts tailored to your specific concerns and travel style.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Real-time Incident Alerts</h3>
+        <p>Stay informed with instant notifications about potential hazards, road closures, or safety incidents along your route.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Community-Powered Insights</h3>
+        <p>Benefit from the collective knowledge of our user community, contributing to and enhancing safety data.</p>
+      </div>
+    </section>
+
+    <style>
+      /* Specific styles for landing.html content, can be put here or in a separate CSS file */
+      .hero-section {
+        max-width: 800px;
+        margin-bottom: 4rem;
+      }
+
+      .hero-section h1 {
+        font-size: 3.5rem;
+        color: #2E4F4F;
+        margin-bottom: 1rem;
+        line-height: 1.2;
+      }
+
+      .hero-section p {
+        font-size: 1.3rem;
+        color: #555;
+        margin-bottom: 2rem;
+      }
+
+      .cta-buttons a {
+        background-color: #2E4F4F;
+        color: white;
+        padding: 14px 28px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin: 0 10px;
+        transition: background-color 0.3s ease;
+      }
+
+      .cta-buttons a:hover {
+        background-color: #1d3d3d;
+      }
+
+      .features-section {
+        width: 100%;
+        max-width: 1000px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+      }
+
+      .feature-card {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        text-align: left;
+      }
+
+      .feature-card h3 {
+        color: #2E4F4F;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .feature-card p {
+        color: #666;
+        font-size: 1rem;
+      }
+    </style>
+{% endblock %}
