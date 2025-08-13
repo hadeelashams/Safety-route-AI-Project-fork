@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Manage Destinations</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8fbf9;
+      margin: 0;
+      padding: 20px;
+      color: #222;
+    }
+    h2 {
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    .add-btn {
+      float: right;
+      padding: 8px 14px;
+      background-color: #e5f3ec;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      z-index: 10;
+      position: relative;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 14px;
+      text-align: left;
+    }
+    th {
+      background-color: #f1f8f4;
+      font-weight: bold;
+      font-size: 0.95rem;
+    }
+    tr:not(:last-child) {
+      border-bottom: 1px solid #e6ece9;
+    }
+    .badge {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: inline-block;
+    }
+    .high { background-color: #d4f1db; color: #1b7c33; }
+    .medium { background-color: #fdf4d5; color: #9f7a14; }
+    .low { background-color: #fde0e0; color: #a73333; }
+    a.action {
+      color: #2f855a;
+      text-decoration: none;
+      margin: 0 4px;
+      font-size: 0.9rem;
+    }
+    a.action:hover { text-decoration: underline; }
+
+    /* Popup Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.4);
+    }
+    .modal-content {
+      background-color: #fff;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 10px;
+      width: 400px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .modal-content h3 { margin-top: 0; }
+    .modal-content label { display: block; margin-top: 10px; font-size: 0.9rem; }
+    .modal-content input, .modal-content select, .modal-content textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 4px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+    .modal-actions { margin-top: 15px; text-align: right; }
+    .btn {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .btn-primary { background-color: #2f855a; color: white; }
+    .btn-secondary { background-color: #ccc; color: #222; margin-right: 8px; }
+  </style>
+</head>
+<body>
+
+<h2>Manage Destinations
+  <button class="add-btn" onclick="openModal()">Add Destination</button>
+</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Kerala Places</th>
+      <th>Safety Level</th>
+      <th>Description</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody id="destinationTableBody">
+    <!-- Table rows will be added here -->
+  </tbody>
+</table>
+
+<!-- Modal -->
+<div id="destinationModal" class="modal">
+  <div class="modal-content">
+    <h3>Add Destination</h3>
+    <label>Place Name:</label>
+    <input type="text" id="placeName">
+
+    <label>Safety Level:</label>
+    <select id="safetyLevel">
+      <option value="High">High</option>
+      <option value="Medium">Medium</option>
+      <option value="Low">Low</option>
+    </select>
+
+    <label>Description:</label>
+    <textarea id="description" rows="3"></textarea>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveDestination()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let editingRow = null;
+
+function openModal() {
+  document.getElementById('destinationModal').style.display = 'block';
+  if(!editingRow) {
+    // clear form for new destination
+    document.getElementById('placeName').value = '';
+    document.getElementById('safetyLevel').value = 'High';
+    document.getElementById('description').value = '';
+  }
+}
+
+function closeModal() {
+  document.getElementById('destinationModal').style.display = 'none';
+  editingRow = null;
+}
+
+function saveDestination() {
+  const place = document.getElementById('placeName').value.trim();
+  const safety = document.getElementById('safetyLevel').value;
+  const desc = document.getElementById('description').value.trim();
+
+  if(!place || !desc) {
+    alert("Please fill all fields.");
+    return;
+  }
+
+  const tbody = document.getElementById('destinationTableBody');
+
+  if(editingRow) {
+    // update existing row
+    editingRow.cells[0].innerText = place;
+    editingRow.cells[1].innerHTML = `<span class="badge ${safety.toLowerCase()}">${safety}</span>`;
+    editingRow.cells[2].innerText = desc;
+  } else {
+    // add new row
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${place}</td>
+      <td><span class="badge ${safety.toLowerCase()}">${safety}</span></td>
+      <td>${desc}</td>
+      <td>
+        <a href="#" class="action" onclick="editRow(this)">Edit</a> |
+        <a href="#" class="action" onclick="deleteRow(this)">Delete</a>
+      </td>
+    `;
+    tbody.appendChild(row);
+  }
+
+  closeModal();
+}
+
+function editRow(el) {
+  editingRow = el.parentElement.parentElement;
+  document.getElementById('placeName').value = editingRow.cells[0].innerText;
+  document.getElementById('safetyLevel').value = editingRow.cells[1].innerText;
+  document.getElementById('description').value = editingRow.cells[2].innerText;
+
+  openModal();
+}
+
+function deleteRow(el) {
+  if(confirm("Are you sure you want to delete this destination?")) {
+    el.parentElement.parentElement.remove();
+  }
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+  if(event.target == document.getElementById('destinationModal')) {
+    closeModal();
+  }
+}
+</script>
+
+</body>
+</html>
