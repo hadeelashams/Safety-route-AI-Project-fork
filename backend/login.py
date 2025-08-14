@@ -16,8 +16,14 @@ def login_routes():
 
             if user and user.Password == password: # Direct comparison (WARNING: HIGH SECURITY RISK)
                 flash('Login successful!', 'success')
-                # TODO: Implement session management (e.g., using Flask-Login's login_user)
-                return redirect(url_for('dashboard'))
+                # Redirect based on role
+                if user.role == 'admin':
+                    return redirect(url_for('admin_dashboard'))
+                elif user.role == 'user':
+                    return redirect(url_for('dashboard'))
+                else:
+                    flash('Unknown user role.', 'danger')
+                    return render_template('login.html')
             else:
                 flash('Invalid username or password', 'danger')
 

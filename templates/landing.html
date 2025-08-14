@@ -1,98 +1,62 @@
 {% extends "base.html" %}
 
-{% block title %}Safe RouteAI - Your AI-Powered Guide{% endblock %}
+{% block title %}Safe RouteAI{% endblock %}
 
 {% block content %}
-    <section class="hero-section">
-      <h1>Your AI-Powered Guide to Safer Journeys</h1>
-      <p>Navigate the world with confidence. Safe RouteAI uses cutting-edge artificial intelligence to analyze routes and identify the safest paths for your travels.</p>
-      <div class="cta-buttons">
-        <a href="{{ url_for('auth.login') }}">Login</a>
-        <a href="#features">Learn More</a>
-      </div>
-    </section>
+<section class="hero">
+  <h1>SAFE ROUTEAI</h1>
+  <p>Plan your journeys with AI-powered safety and smart routing.</p>
+  <a href="{{ url_for('auth.login') }}" class="btn">GET STARTED</a>
+</section>
 
-    <section id="features" class="features-section">
-      <div class="feature-card">
-        <h3>Smart Route Optimization</h3>
-        <p>Our AI analyzes various data points to suggest the safest and most efficient routes based on real-time conditions.</p>
-      </div>
-      <div class="feature-card">
-        <h3>Personalized Safety Profiles</h3>
-        <p>Customize your safety preferences and receive alerts tailored to your specific concerns and travel style.</p>
-      </div>
-      <div class="feature-card">
-        <h3>Real-time Incident Alerts</h3>
-        <p>Stay informed with instant notifications about potential hazards, road closures, or safety incidents along your route.</p>
-      </div>
-      <div class="feature-card">
-        <h3>Community-Powered Insights</h3>
-        <p>Benefit from the collective knowledge of our user community, contributing to and enhancing safety data.</p>
-      </div>
-    </section>
+<style>
+  body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #d6f5e3, #b2e0c9);
+    color: #1a3d2f;
+    height: 100vh;
+  }
 
-    <style>
-      /* Specific styles for landing.html content, can be put here or in a separate CSS file */
-      .hero-section {
-        max-width: 800px;
-        margin-bottom: 4rem;
-      }
+  .hero {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 0 1rem;
+  }
 
-      .hero-section h1 {
-        font-size: 3.5rem;
-        color: #2E4F4F;
-        margin-bottom: 1rem;
-        line-height: 1.2;
-      }
+  .hero h1 {
+    font-size: 2.5rem;
+    letter-spacing: 4px;
+    margin-bottom: 1rem;
+    color: #1a3d2f;
+  }
 
-      .hero-section p {
-        font-size: 1.3rem;
-        color: #555;
-        margin-bottom: 2rem;
-      }
+  .hero p {
+    max-width: 500px;
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+    color: #2e5d4f;
+  }
 
-      .cta-buttons a {
-        background-color: #2E4F4F;
-        color: white;
-        padding: 14px 28px;
-        border-radius: 8px;
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 1.1rem;
-        margin: 0 10px;
-        transition: background-color 0.3s ease;
-      }
+  .btn {
+    display: inline-block;
+    padding: 0.75rem 2rem;
+    border: 2px solid #1a3d2f;
+    color: #1a3d2f;
+    text-decoration: none;
+    border-radius: 30px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    background: transparent;
+  }
 
-      .cta-buttons a:hover {
-        background-color: #1d3d3d;
-      }
-
-      .features-section {
-        width: 100%;
-        max-width: 1000px;
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 2rem;
-        margin-top: 2rem;
-      }
-
-      .feature-card {
-        background-color: white;
-        padding: 2rem;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        text-align: left;
-      }
-
-      .feature-card h3 {
-        color: #2E4F4F;
-        font-size: 1.5rem;
-        margin-bottom: 1rem;
-      }
-
-      .feature-card p {
-        color: #666;
-        font-size: 1rem;
-      }
-    </style>
+  .btn:hover {
+    background: #1a3d2f;
+    color: white;
+  }
+</style>
 {% endblock %}
