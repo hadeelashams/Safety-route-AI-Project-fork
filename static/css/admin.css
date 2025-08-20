@@ -1,0 +1,290 @@
+/* --- NEWLY ADDED LAYOUT & SIDEBAR STYLES --- */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f0f9f4; /* Light green background */
+    color: #111;
+    display: flex; /* This is crucial for the sidebar layout */
+    height: 100vh;
+    overflow: hidden; /* Prevents the whole page from scrolling */
+}
+
+.sidebar {
+    width: 240px;
+    background-color: #ffffff; /* A clean white sidebar */
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Pushes footer to the bottom */
+    border-right: 1px solid #d1e7d8;
+    height: 100vh;
+    box-sizing: border-box; /* Ensures padding is included in the height/width */
+    flex-shrink: 0; /* Prevents the sidebar from shrinking */
+}
+
+.sidebar h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2f855a; /* Primary green color */
+    margin: 0 0 32px 0;
+}
+
+.nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* Space between navigation links */
+}
+
+.nav-link {
+    display: block;
+    padding: 12px 16px;
+    text-decoration: none;
+    color: #4a5568; /* Dark gray text */
+    font-weight: 500;
+    border-radius: 8px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.nav-link:hover {
+    background-color: #e6f4ea; /* Light green on hover */
+    color: #2f855a;
+}
+
+.nav-link.active {
+    background-color: #2f855a; /* Primary green for active link */
+    color: #ffffff; /* White text for active link */
+    font-weight: 600;
+}
+
+.sidebar-footer {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.sidebar-footer .logout {
+    display: block;
+    margin-bottom: 12px;
+    color: #4a5568;
+    text-decoration: none;
+    font-weight: 500;
+}
+.sidebar-footer .logout:hover {
+    text-decoration: underline;
+}
+
+.main {
+    flex-grow: 1; /* Allows the main content to take up remaining space */
+    padding: 32px;
+    overflow-y: auto; /* Makes only the main content area scrollable */
+    height: 100vh;
+    box-sizing: border-box;
+}
+
+/* --- EXISTING CONTENT STYLES (UNTOUCHED) --- */
+
+:root {
+    --primary-color: #2f855a; /* A nice green for primary actions */
+    --danger-color: #c53030;  /* A clear red for destructive actions */
+    --light-gray: #edf2f7;   /* For secondary buttons and backgrounds */
+    --dark-gray: #4a5568;    /* For text */
+    --border-color: #e2e8f0; /* For borders and dividers */
+    --hover-green: #276749;  /* Darker green for hover */
+    --hover-red: #9b2c2c;    /* Darker red for hover */
+}
+
+/* Page Header */
+h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-top: 0; /* Remove default top margin */
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.add-btn {
+    padding: 10px 16px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.add-btn:hover {
+    background-color: var(--hover-green);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+th, td {
+    padding: 16px;
+    text-align: left;
+    vertical-align: middle;
+}
+
+th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid var(--border-color);
+}
+
+tr {
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s ease;
+}
+tbody tr:last-child {
+    border-bottom: none;
+}
+tbody tr:hover {
+    background-color: #f1f5f9;
+}
+
+td {
+    color: var(--dark-gray);
+}
+
+/* Action Buttons in Table */
+.btn {
+    padding: 6px 14px;
+    border-radius: 6px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+.btn-secondary {
+    background-color: var(--light-gray);
+    color: var(--dark-gray);
+}
+.btn-secondary:hover {
+    background-color: #d8e0ea;
+}
+.btn-danger {
+    background-color: #fed7d7;
+    color: var(--danger-color);
+}
+.btn-danger:hover {
+    background-color: #fbb7b7;
+    color: var(--hover-red);
+}
+
+/* Modal Styling */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #ffffff;
+    padding: 24px;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    animation: slide-up 0.3s ease-out;
+}
+
+@keyframes slide-up {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    margin-bottom: 24px;
+}
+
+/* Form Styling inside Modal */
+.form-group { margin-bottom: 16px; }
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #333;
+}
+.form-group input, .form-group select, .form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(47, 133, 90, 0.2);
+}
+.form-actions {
+    margin-top: 24px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+.form-actions .btn {
+  padding: 10px 20px;
+}
+.form-actions .btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+.form-actions .btn-primary:hover {
+  background-color: var(--hover-green);
+}
+
+/* Styles moved from admin_dashboard.html */
+.cards { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); 
+    gap: 20px; 
+}
+.card { 
+    background-color: #ffffff; 
+    padding: 20px; 
+    border-radius: 12px; 
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05); 
+}
+.card p { 
+    margin: 0; 
+    color: #555; 
+}
+.card h3 { 
+    margin: 8px 0; 
+    font-size: 1.5rem; 
+    font-weight: bold; 
+}
