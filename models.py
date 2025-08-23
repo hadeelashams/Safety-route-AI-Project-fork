@@ -27,3 +27,9 @@ class Destination(db.Model):
 
     def __repr__(self):
         return f'<Destination {self.Name}>'
+    
+class User_table(db.Model):
+    # This is the line you are looking for!
+    user_id = db.Column(db.Integer, primary_key=True) 
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
