@@ -17,8 +17,6 @@
   </thead>
   <tbody id="destinations-table-body">
     {% for dest in destinations %}
-    <!-- CORRECTION 1: Used the |tojson filter to safely embed data into attributes. -->
-    <!-- This prevents JavaScript errors if your data contains quotes or other special characters. -->
     <tr id="dest-row-{{ dest.Destination_id }}"
         data-id="{{ dest.Destination_id }}"
         data-name={{ dest.Name | tojson }}
@@ -47,7 +45,29 @@
     <form id="destinationForm" onsubmit="saveDestination(event)">
       <input type="hidden" id="destId" name="destId">
       
-      <div class="form-group"><label for="name">Kerala District</label><input type="text" id="name" name="name" required></div>
+      <!-- ### START: THIS IS THE ONLY CHANGED SECTION ### -->
+      <div class="form-group">
+        <label for="name">Kerala District</label>
+        <select id="name" name="name" required>
+            <option value="" disabled selected>Select a District</option>
+            <option value="Alappuzha">Alappuzha</option>
+            <option value="Ernakulam">Ernakulam</option>
+            <option value="Idukki">Idukki</option>
+            <option value="Kannur">Kannur</option>
+            <option value="Kasaragod">Kasaragod</option>
+            <option value="Kollam">Kollam</option>
+            <option value="Kottayam">Kottayam</option>
+            <option value="Kozhikode">Kozhikode</option>
+            <option value="Malappuram">Malappuram</option>
+            <option value="Palakkad">Palakkad</option>
+            <option value="Pathanamthitta">Pathanamthitta</option>
+            <option value="Thiruvananthapuram">Thiruvananthapuram</option>
+            <option value="Thrissur">Thrissur</option>
+            <option value="Wayanad">Wayanad</option>
+        </select>
+      </div>
+      <!-- ### END: THIS IS THE ONLY CHANGED SECTION ### -->
+
       <div class="form-group"><label for="place">Place</label><input type="text" id="place" name="place" required></div>
       <div class="form-group">
         <label for="type">Type</label>
@@ -119,7 +139,6 @@ window.onclick = function(event) {
   }
 }
 
-// CORRECTION 2: The `saveDestination` function is now fully corrected.
 function saveDestination(event) {
   event.preventDefault();
   const formData = new FormData(form);
@@ -127,38 +146,33 @@ function saveDestination(event) {
   const destId = destIdField.value;
 
   let url = '/admin/add-destination';
-  let method = 'POST'; // Default method for creating a new item
+  let method = 'POST';
 
-  // If there's an ID, we're updating, so change the URL AND the method
   if (destId) {
     url = `/admin/update-destination/${destId}`;
-    method = 'PUT'; // This is the CRITICAL FIX for the edit functionality
+    method = 'PUT';
   }
 
   fetch(url, {
-    method: method, // The method is now dynamic (POST or PUT)
+    method: method,
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
   })
   .then(response => {
-    // Improved error handling: Check if the server response is OK
     if (!response.ok) {
-        // If not, throw an error to be caught by the .catch block
         throw new Error(`Server responded with status: ${response.status}`);
     }
-    // Only if the response is OK, we try to parse it as JSON
     return response.json();
   })
   .then(result => {
     if (result.success) {
-      window.location.reload(); // Reload to see changes
+      window.location.reload();
     } else {
       alert(result.message || 'Failed to save destination.');
     }
   })
   .catch(error => {
     console.error('Error:', error);
-    // This will now show a much more useful error message!
     alert('An error occurred: ' + error.message);
   });
   return false;
