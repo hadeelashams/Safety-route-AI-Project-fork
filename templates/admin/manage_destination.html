@@ -1,4 +1,4 @@
-{% extends "admin_layout.html" %}
+{% extends "admin/admin_layout.html" %}
 
 {% block title %}Manage Destinations{% endblock %}
 
@@ -19,17 +19,17 @@
     {% for dest in destinations %}
     <tr id="dest-row-{{ dest.Destination_id }}"
         data-id="{{ dest.Destination_id }}"
-        data-name={{ dest.Name | tojson }}
-        data-place={{ dest.Place | tojson }}
-        data-type={{ dest.Type | tojson }}
-        data-description={{ dest.Description | tojson }}>
+        data-name='{{ dest.Name | tojson }}'
+        data-place='{{ dest.Place | tojson }}'
+        data-type='{{ dest.Type | tojson }}'
+        data-description='{{ dest.Description | tojson }}'>
       <td>{{ dest.Name }}</td>
       <td>{{ dest.Place }}</td>
       <td>{{ dest.Type }}</td>
       <td>{{ dest.Description }}</td>
       <td>
         <button onclick="openEditModal({{ dest.Destination_id }})" class="btn btn-secondary">Edit</button>
-        <form style="display: inline" method="POST" action="{{ url_for('delete_destination', dest_id=dest.Destination_id) }}" onsubmit="return confirm('Are you sure you want to delete this item?');">
+        <form style="display: inline" method="POST" action="{{ url_for('admin.delete_destination', dest_id=dest.Destination_id) }}" onsubmit="return confirm('Are you sure you want to delete this item?');">
           <button type="submit" class="btn btn-danger">Delete</button>
         </form>
       </td>
@@ -45,30 +45,22 @@
     <form id="destinationForm" onsubmit="saveDestination(event)">
       <input type="hidden" id="destId" name="destId">
       
-      <!-- ### START: THIS IS THE ONLY CHANGED SECTION ### -->
+      <!-- ### FIX: Replaced hardcoded options with a Jinja for loop ### -->
       <div class="form-group">
         <label for="name">Kerala District</label>
         <select id="name" name="name" required>
             <option value="" disabled selected>Select a District</option>
-            <option value="Alappuzha">Alappuzha</option>
-            <option value="Ernakulam">Ernakulam</option>
-            <option value="Idukki">Idukki</option>
-            <option value="Kannur">Kannur</option>
-            <option value="Kasaragod">Kasaragod</option>
-            <option value="Kollam">Kollam</option>
-            <option value="Kottayam">Kottayam</option>
-            <option value="Kozhikode">Kozhikode</option>
-            <option value="Malappuram">Malappuram</option>
-            <option value="Palakkad">Palakkad</option>
-            <option value="Pathanamthitta">Pathanamthitta</option>
-            <option value="Thiruvananthapuram">Thiruvananthapuram</option>
-            <option value="Thrissur">Thrissur</option>
-            <option value="Wayanad">Wayanad</option>
+            {% for district in all_districts %}
+                <option value="{{ district }}">{{ district }}</option>
+            {% endfor %}
         </select>
       </div>
-      <!-- ### END: THIS IS THE ONLY CHANGED SECTION ### -->
-
-      <div class="form-group"><label for="place">Place</label><input type="text" id="place" name="place" required></div>
+      
+      <div class="form-group">
+        <label for="place">Place Name</label>
+        <input type="text" id="place" name="place" placeholder="e.g., Munnar Hills, Kovalam Beach" required>
+      </div>
+      
       <div class="form-group">
         <label for="type">Type</label>
         <select id="type" name="type" required>
@@ -90,6 +82,7 @@
 
 {% block scripts %}
 <script>
+// The JavaScript does not need any changes for this fix
 const modal = document.getElementById('destinationModal');
 const modalTitle = document.getElementById('modalTitle');
 const form = document.getElementById('destinationForm');
@@ -115,24 +108,21 @@ function openAddModal() {
 function openEditModal(destId) {
   const row = document.getElementById(`dest-row-${destId}`);
   
-  // Get data from the data-* attributes
-  const name = row.dataset.name;
-  const place = row.dataset.place;
-  const type = row.dataset.type;
-  const description = row.dataset.description;
+  const name = JSON.parse(row.dataset.name);
+  const place = JSON.parse(row.dataset.place);
+  const type = JSON.parse(row.dataset.type);
+  const description = JSON.parse(row.dataset.description);
 
-  // Populate the form fields
-  form.name.value = name;
-  form.place.value = place;
-  form.type.value = type;
-  form.description.value = description;
+  document.getElementById('name').value = name;
+  document.getElementById('place').value = place;
+  document.getElementById('type').value = type;
+  document.getElementById('description').value = description;
   destIdField.value = destId;
 
   modalTitle.innerText = 'Edit Destination';
   openModal();
 }
 
-// Close modal if user clicks outside of the modal content
 window.onclick = function(event) {
   if (event.target == modal) {
     closeModal();

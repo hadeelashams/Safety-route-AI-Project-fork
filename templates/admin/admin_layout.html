@@ -16,13 +16,15 @@
             <nav class="nav">
                 <!-- MODIFIED: Links are now standard hrefs pointing to Flask routes -->
                 <!-- The 'active' class is now controlled by the active_page variable -->
-                <a href="{{ url_for('admin_dashboard') }}" class="nav-link {% if active_page == 'dashboard' %}active{% endif %}">🏠 Dashboard</a>
-                <a href="{{ url_for('manage_destination') }}" class="nav-link {% if active_page == 'destinations' %}active{% endif %}">📍 Manage Destination</a>
-                <a href="{{ url_for('manage_users') }}" class="nav-link {% if active_page == 'users' %}active{% endif %}">👥 Manage Users</a>
+                <!-- FIX: Corrected url_for to use the blueprint prefix 'admin.' -->
+                <a href="{{ url_for('admin.dashboard') }}" class="nav-link {% if active_page == 'dashboard' %}active{% endif %}">🏠 Dashboard</a>
+                <a href="{{ url_for('admin.manage_destination') }}" class="nav-link {% if active_page == 'destinations' %}active{% endif %}">📍 Manage Destination</a>
+                <a href="{{ url_for('admin.manage_users') }}" class="nav-link {% if active_page == 'users' %}active{% endif %}">👥 Manage Users</a>
             </nav>
         </div>
         <div class="sidebar-footer">
-            <a href="/" class="logout">⬅ Logout</a>
+            <!-- FIX: Changed logout link to point to the correct logout route -->
+            <a href="{{ url_for('auth.logout') }}" class="logout">⬅ Logout</a>
             <span>© 2025 Safe RouteAI. All rights reserved.</span>
         </div>
     </aside>
