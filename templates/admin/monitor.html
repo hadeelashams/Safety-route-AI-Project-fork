@@ -1,0 +1,188 @@
+{% extends "admin/admin_layout.html" %}
+
+{% block title %}Destination Monitor - Safe Route{% endblock %}
+
+{% block content %}
+<h2 class="page-title">🛡️ Destination Safety Monitor</h2>
+
+<!-- Flash Messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ 'success' if category == 'success' else 'error' }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<!-- Destination Ratings Table -->
+<div class="table-card">
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>District</th>
+        <th>Place</th>
+        <th>Weather Risk</th>
+        <th>Health Risk</th>
+        <th>Disaster Risk</th>
+        <th>Overall Safety</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for dest in destinations %}
+      <tr>
+        <td>{{ dest.Destination_id }}</td>
+        <td>{{ dest.Name }}</td>
+        <td>{{ dest.Place }}</td>
+        <td>{{ dest.safety_rating.weather_risk if dest.safety_rating else 'N/A' }}</td>
+        <td>{{ dest.safety_rating.health_risk if dest.safety_rating else 'N/A' }}</td>
+        <td>{{ dest.safety_rating.disaster_risk if dest.safety_rating else 'N/A' }}</td>
+        <td>
+          {% if dest.safety_rating and dest.safety_rating.weather_risk is not none and dest.safety_rating.health_risk is not none and dest.safety_rating.disaster_risk is not none %}
+            {% set avg_risk = (dest.safety_rating.weather_risk + dest.safety_rating.health_risk + dest.safety_rating.disaster_risk) / 3 %}
+            {% if avg_risk <= 1.5 %}
+              <span class="badge badge-safe">Very Safe</span>
+            {% elif avg_risk <= 2.5 %}
+              <span class="badge badge-safe">Safe</span>
+            {% elif avg_risk <= 3.5 %}
+              <span class="badge badge-caution">Moderate</span>
+            {% else %}
+              <span class="badge badge-unsafe">Risky</span>
+            {% endif %}
+          {% else %}
+            <span class="badge badge-unknown">Not Rated</span>
+          {% endif %}
+        </td>
+        <td class="actions">
+          <!-- ### START: THIS IS THE FIX ### -->
+          <!-- Using the `default(1)` filter is safer than an if/else here. -->
+          <!-- It handles both a missing `safety_rating` object AND `None` values for the risks. -->
+          <button type="button" 
+             class="btn-secondary"
+             onclick="openRatingModal(
+               {{ dest.Destination_id }}, 
+               '{{ dest.Place | e }}', 
+               {% if dest.safety_rating %}{{ dest.safety_rating.weather_risk or 1 }}{% else %}1{% endif %}, 
+               {% if dest.safety_rating %}{{ dest.safety_rating.health_risk or 1 }}{% else %}1{% endif %}, 
+               {% if dest.safety_rating %}{{ dest.safety_rating.disaster_risk or 1 }}{% else %}1{% endif %}
+             )">
+             ⚙️ Update Rating
+          </button>
+          <!-- ### END: THIS IS THE FIX ### -->
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Edit Rating Modal -->
+<div id="ratingModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="modalTitle">⚙️ Update Safety Rating</h3>
+      <button type="button" class="close-btn" onclick="closeModal()">×</button>
+    </div>
+
+    <form id="ratingForm" method="POST">
+      <div class="form-grid">
+        <div class="full-width">
+          <label>Destination</label>
+          <input type="text" id="destName" readonly disabled style="background:#eee; cursor: not-allowed; padding: 0.6rem; border: 1px solid #d1e7d8; border-radius: 0.5rem; font-size: 1rem; width: 100%;">
+        </div>
+        <div>
+          <label for="weather_risk">Weather Risk (1-5)</label>
+          <input type="number" name="weather_risk" id="weather_risk" min="1" max="5" required>
+        </div>
+        <div>
+          <label for="health_risk">Health Risk (1-5)</label>
+          <input type="number" name="health_risk" id="health_risk" min="1" max="5" required>
+        </div>
+        <div class="full-width">
+          <label for="disaster_risk">Disaster Risk (1-5)</label>
+          <input type="number" name="disaster_risk" id="disaster_risk" min="1" max="5" required>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="submit" class="btn-primary">💾 Save Changes</button>
+        <button type="button" class="btn-secondary" onclick="closeModal()">❌ Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function openRatingModal(id, name, weather, health, disaster) {
+  // Set form action using proper URL construction
+  document.getElementById("ratingForm").action = "/admin/update-safety-rating/" + id;
+
+  // Fill form fields
+  document.getElementById("destName").value = name;
+  document.getElementById("weather_risk").value = weather;
+  document.getElementById("health_risk").value = health;
+  document.getElementById("disaster_risk").value = disaster;
+
+  // Show modal
+  document.getElementById("ratingModal").style.display = "flex";
+}
+
+function closeModal() {
+  document.getElementById("ratingModal").style.display = "none";
+}
+
+// Close modal if user clicks outside of it
+window.onclick = function(event) {
+  const modal = document.getElementById("ratingModal");
+  if (event.target == modal) {
+    closeModal();
+  }
+}
+</script>
+{% endblock %}
+
+
+{% block extra_css %}
+<style>
+/* Re-using styles from other admin pages and adding specific ones */
+.page-title { font-size: 1.6rem; font-weight: 600; margin-bottom: 1.5rem; color: #2d5a3f; }
+.alert { padding: 0.8rem 1rem; margin-bottom: 1rem; border-radius: 0.6rem; font-weight: 500; }
+.alert-success { background: #dcfce7; color: #166534; border-left: 5px solid #22c55e; }
+.alert-error { background: #fee2e2; color: #991b1b; border-left: 5px solid #dc2626; }
+
+.btn-primary { background: #2d5a3f; color: #fff; border: none; padding: 0.6rem 1.2rem; border-radius: 0.6rem; cursor: pointer; font-weight: 500; transition: background 0.2s ease; }
+.btn-primary:hover { background: #16a34a; }
+.btn-secondary { background: #e6f4ea; color: #15803d; padding: 0.4rem 0.8rem; border-radius: 0.5rem; text-decoration: none; margin-right: 0.4rem; transition: background 0.2s ease; border: none; cursor: pointer; font-weight: 500; }
+.btn-secondary:hover { background: #c7e9cf; }
+
+.table-card { background: #fff; border-radius: 1rem; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border: 1px solid #d1e7d8; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+thead { background: #f0f9f4; color: #2f855a; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; }
+th, td { padding: 0.9rem; text-align: left; border-bottom: 1px solid #e5e5e5; font-size: 0.95rem; }
+tbody tr:hover { background: #f9fafb; }
+
+/* Safety Badges */
+.badge { padding: 0.3rem 0.7rem; border-radius: 99px; font-weight: bold; font-size: 0.8rem; }
+.badge-safe { background-color: #dcfce7; color: #166534; }
+.badge-caution { background-color: #fef9c3; color: #854d0e; }
+.badge-unsafe { background-color: #fee2e2; color: #991b1b; }
+.badge-unknown { background-color: #e5e7eb; color: #4b5563; }
+
+/* Modal */
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.45); justify-content: center; align-items: center; z-index: 1000; }
+.modal-content { background: #fff; padding: 1.6rem; border-radius: 1rem; box-shadow: 0 8px 20px rgba(0,0,0,0.25); width: 500px; max-width: 95%; animation: fadeIn 0.3s ease; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+.modal-header h3 { margin: 0; font-size: 1.4rem; color: #2d5a3f; }
+.close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; }
+.close-btn:hover { color: #b91c1c; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+.form-grid .full-width { grid-column: span 2; }
+label { font-size: 0.9rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem; display: block; }
+input[type="number"] { width: 100%; padding: 0.6rem; border: 1px solid #d1e7d8; border-radius: 0.5rem; font-size: 1rem; background: #f9fdfb; }
+.modal-actions { margin-top: 1.5rem; display: flex; gap: 0.6rem; justify-content: flex-end; }
+@keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+</style>
+{% endblock %}

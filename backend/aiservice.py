@@ -43,19 +43,24 @@ except Exception as e:
 def generate_ai_route():
     """
     Generates an intelligent route by identifying districts on the path
-    and suggesting the safest, most relevant stops.
+    and suggesting the safest, most relevant stops within a budget.
     """
     data = request.get_json()
     source_district = data.get('source')
     dest_district = data.get('destination')
     interest = data.get('interest')
+    budget_str = data.get('budget') # <-- ADDED: Get budget from request
 
     # 1. Determine the travel path (districts between source and destination)
     try:
         source_index = KERALA_DISTRICTS_ORDER.index(source_district)
         dest_index = KERALA_DISTRICTS_ORDER.index(dest_district)
+        user_budget = int(budget_str) # <-- ADDED: Convert budget to integer
     except ValueError:
-        return jsonify({'success': False, 'message': 'Invalid source or destination district provided.'})
+        return jsonify({'success': False, 'message': 'Invalid source, destination, or budget provided.'})
+    except (TypeError, ValueError):
+        return jsonify({'success': False, 'message': 'A valid budget must be provided.'}), 400
+
 
     # Create a slice of the districts on the path
     if source_index < dest_index:
@@ -66,14 +71,17 @@ def generate_ai_route():
     # Districts for querying stops (exclude source, include destination)
     districts_for_stops = travel_path_districts[1:]
 
-    # 2. Find potential stops along the path matching the user's interest
+    # 2. Find potential stops along the path matching the user's interest and budget
+    # MODIFIED: Added a filter for the budget
     potential_stops_query = Destination.query.join(SafetyRating).filter(
-        Destination.Name.in_(districts_for_stops), # The 'Name' column is the district
-        Destination.Type == interest
+        Destination.Name.in_(districts_for_stops),
+        Destination.Type == interest,
+        Destination.budget <= user_budget  # <-- ADDED: Filter by budget
     ).all()
 
     if not potential_stops_query:
-        msg = f'No stops matching your interest "{interest.capitalize()}" were found between {source_district} and {dest_district}.'
+        # MODIFIED: Updated message to include budget context
+        msg = f'No stops matching your interest "{interest.capitalize()}" and budget (under ₹{user_budget:,}) were found between {source_district} and {dest_district}.'
         return jsonify({'success': False, 'message': msg})
 
     # 3. Analyze the safety of each potential stop using the risk log
@@ -98,9 +106,10 @@ def generate_ai_route():
 
         analyzed_stops.append({
             'id': stop.Destination_id,
-            'name': stop.Place,  # Use 'Place' for the specific location name
+            'name': stop.Place,
             'district': stop.Name,
             'type': stop.Type.capitalize(),
+            'budget': stop.budget, # <-- ADDED: Include budget in the stop data
             'safety_text': current_safety_text,
             'safety_class': status_map.get(current_safety_text, 'caution')
         })

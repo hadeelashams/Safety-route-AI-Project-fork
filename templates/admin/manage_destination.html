@@ -11,21 +11,27 @@
       <th>Kerala District</th>
       <th>Place</th>
       <th>Type</th>
+      <th>Budget (₹)</th>
       <th>Description</th>
       <th>Actions</th>
     </tr>
   </thead>
   <tbody id="destinations-table-body">
     {% for dest in destinations %}
+    <!-- ### START: FIX FOR DATA ATTRIBUTES ### -->
+    <!-- Switched from single quotes with 'tojson' to double quotes with the standard 'e' (escape) filter -->
     <tr id="dest-row-{{ dest.Destination_id }}"
         data-id="{{ dest.Destination_id }}"
-        data-name='{{ dest.Name | tojson }}'
-        data-place='{{ dest.Place | tojson }}'
-        data-type='{{ dest.Type | tojson }}'
-        data-description='{{ dest.Description | tojson }}'>
+        data-name="{{ dest.Name | e }}"
+        data-place="{{ dest.Place | e }}"
+        data-type="{{ dest.Type | e }}"
+        data-budget="{{ dest.budget | e }}"
+        data-description="{{ dest.Description | e }}">
+    <!-- ### END: FIX FOR DATA ATTRIBUTES ### -->
       <td>{{ dest.Name }}</td>
       <td>{{ dest.Place }}</td>
       <td>{{ dest.Type }}</td>
+      <td>{{ "{:,.0f}".format(dest.budget | int) if dest.budget else 'N/A' }}</td>
       <td>{{ dest.Description }}</td>
       <td>
         <button onclick="openEditModal({{ dest.Destination_id }})" class="btn btn-secondary">Edit</button>
@@ -45,7 +51,6 @@
     <form id="destinationForm" onsubmit="saveDestination(event)">
       <input type="hidden" id="destId" name="destId">
       
-      <!-- ### FIX: Replaced hardcoded options with a Jinja for loop ### -->
       <div class="form-group">
         <label for="name">Kerala District</label>
         <select id="name" name="name" required>
@@ -70,6 +75,12 @@
           <option value="wildlife">Wildlife</option>
         </select>
       </div>
+
+      <div class="form-group">
+        <label for="budget">Budget (₹)</label>
+        <input type="number" id="budget" name="budget" placeholder="e.g., 15000" required>
+      </div>
+      
       <div class="form-group"><label for="description">Description</label><textarea id="description" name="description" rows="4" required></textarea></div>
       <div class="form-actions">
         <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
@@ -82,7 +93,6 @@
 
 {% block scripts %}
 <script>
-// The JavaScript does not need any changes for this fix
 const modal = document.getElementById('destinationModal');
 const modalTitle = document.getElementById('modalTitle');
 const form = document.getElementById('destinationForm');
@@ -108,14 +118,19 @@ function openAddModal() {
 function openEditModal(destId) {
   const row = document.getElementById(`dest-row-${destId}`);
   
-  const name = JSON.parse(row.dataset.name);
-  const place = JSON.parse(row.dataset.place);
-  const type = JSON.parse(row.dataset.type);
-  const description = JSON.parse(row.dataset.description);
+  // ### START: FIX FOR JAVASCRIPT ###
+  // Removed JSON.parse(). We now read the data as a raw string directly from the dataset.
+  const name = row.dataset.name;
+  const place = row.dataset.place;
+  const type = row.dataset.type;
+  const budget = row.dataset.budget;
+  const description = row.dataset.description;
+  // ### END: FIX FOR JAVASCRIPT ###
 
   document.getElementById('name').value = name;
   document.getElementById('place').value = place;
   document.getElementById('type').value = type;
+  document.getElementById('budget').value = budget;
   document.getElementById('description').value = description;
   destIdField.value = destId;
 
