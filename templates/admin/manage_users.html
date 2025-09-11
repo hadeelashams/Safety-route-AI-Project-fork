@@ -1,0 +1,149 @@
+{% extends "admin/admin_layout.html" %}
+
+{% block title %}Manage Users{% endblock %}
+
+{% block content %}
+<style>
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .header h2 { margin: 0; }
+    /* STYLES FOR THE MODAL (POPUP) */
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
+    .modal-content { background-color: #fafffa; margin: 10% auto; padding: 2rem; border-radius: 12px; width: 90%; max-width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid #eef2e6; }
+    .modal-header h2 { margin: 0; font-size: 1.75rem; }
+    .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+    .form-group { margin-bottom: 1.5rem; }
+    label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    .form-control { width: 100%; padding: 0.75rem; border: 1px solid #ced4da; border-radius: 8px; box-sizing: border-box; }
+    .form-actions { text-align: right; margin-top: 2rem; }
+    .save-btn { background-color: #d1f2d1; color: #212529; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .error-message { color: #dc3545; margin-top: 10px; text-align: left; }
+</style>
+
+<div class="header">
+    <h2>Manage Users</h2>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if users %}
+            {% for user in users %}
+            <tr>
+                <td>{{ user.Username }}</td>
+                <td>{{ user.Email }}</td>
+                <td>
+                    <button class="btn btn-secondary edit-btn" 
+                            data-userid="{{ user.User_id }}"
+                            data-username="{{ user.Username }}"
+                            data-email="{{ user.Email }}">
+                        Edit
+                    </button>
+                    <!-- FIX: Corrected url_for to use the blueprint prefix 'admin.' -->
+                    <form action="{{ url_for('admin.delete_user', user_id=user.User_id) }}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?');">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        {% else %}
+        <tr><td colspan="3" style="text-align:center; color:#6b7280;">No users found.</td></tr>
+        {% endif %}
+    </tbody>
+</table>
+
+
+<!-- THE EDIT USER MODAL (POPUP) HTML -->
+<div id="editUserModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Edit User</h2>
+            <span class="close-btn">&times;</span>
+        </div>
+        
+        <form id="editUserForm">
+            <input type="hidden" id="edit-userid" name="userid">
+            <div class="form-group">
+                <label for="edit-username">Username</label>
+                <input type="text" id="edit-username" name="username" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="edit-email">Email</label>
+                <input type="email" id="edit-email" name="email" class="form-control" required>
+            </div>
+            <div id="modal-error-message" class="error-message"></div>
+            <div class="form-actions">
+                <button type="submit" class="save-btn">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get modal elements
+    const modal = document.getElementById('editUserModal');
+    const closeBtn = document.querySelector('.modal .close-btn');
+    const editUserForm = document.getElementById('editUserForm');
+    const errorMessageDiv = document.getElementById('modal-error-message');
+    const editButtons = document.querySelectorAll('.edit-btn');
+
+    // Add click event to all edit buttons
+    editButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const userId = this.dataset.userid;
+            const username = this.dataset.username;
+            const email = this.dataset.email;
+
+            document.getElementById('edit-userid').value = userId;
+            document.getElementById('edit-username').value = username;
+            document.getElementById('edit-email').value = email;
+            errorMessageDiv.textContent = '';
+            modal.style.display = 'block';
+        });
+    });
+
+    // Function to close the modal
+    closeBtn.onclick = function() { modal.style.display = 'none'; }
+    window.onclick = function(event) { if (event.target == modal) { modal.style.display = 'none'; } }
+
+    // Handle form submission for editing a user
+    editUserForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const userId = document.getElementById('edit-userid').value;
+        const formData = new FormData(editUserForm);
+        const data = Object.fromEntries(formData.entries());
+
+        // ### THIS IS THE FIX ###
+        // Instead of using url_for('api_add_user'), we build the correct update URL manually.
+        const apiUrl = `/admin/api/update-user/${userId}`;
+
+        fetch(apiUrl, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                window.location.reload();
+            } else {
+                errorMessageDiv.textContent = result.message;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            errorMessageDiv.textContent = 'An unexpected error occurred.';
+        });
+    });
+});
+</script>
+
+{% endblock %}

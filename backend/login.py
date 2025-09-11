@@ -18,9 +18,11 @@ def login_routes():
                 flash('Login successful!', 'success')
                 # Redirect based on role
                 if user.role == 'admin':
-                    return redirect(url_for('admin_dashboard'))
+                    # FIX: Corrected url_for to use the blueprint name 'admin' and endpoint 'dashboard'.
+                    return redirect(url_for('admin.dashboard'))
                 elif user.role == 'user':
-                    return redirect(url_for('dashboard'))
+                    # FIX: Corrected url_for to use the blueprint name 'views' and endpoint 'dashboard'.
+                    return redirect(url_for('views.dashboard'))
                 else:
                     flash('Unknown user role.', 'danger')
                     return render_template('login.html')

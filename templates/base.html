@@ -117,7 +117,8 @@
       Safe RouteAI
     </div>
     <div class="nav-links">
-      <a href="{{ url_for('landing') }}">Home</a>
+      <!-- FIX: Added blueprint prefix 'views.' to the url_for call for 'landing' -->
+      <a href="{{ url_for('views.landing') }}">Home</a>
       <a href="{{ url_for('auth.login') }}">Login</a>
       <a href="{{ url_for('auth.signup') }}">Sign Up</a>
     </div>

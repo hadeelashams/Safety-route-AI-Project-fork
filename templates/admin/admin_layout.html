@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Safe Route Admin{% endblock %}</title>
+    <!-- Link to the main admin stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <aside class="sidebar">
+        <div>
+            <h1>Safe Route Admin</h1>
+            <nav class="nav">
+                <!-- MODIFIED: Links are now standard hrefs pointing to Flask routes -->
+                <!-- The 'active' class is now controlled by the active_page variable -->
+                <!-- FIX: Corrected url_for to use the blueprint prefix 'admin.' -->
+                <a href="{{ url_for('admin.dashboard') }}" class="nav-link {% if active_page == 'dashboard' %}active{% endif %}">🏠 Dashboard</a>
+                <a href="{{ url_for('admin.manage_destination') }}" class="nav-link {% if active_page == 'destinations' %}active{% endif %}">📍 Manage Destination</a>
+                <a href="{{ url_for('admin.manage_users') }}" class="nav-link {% if active_page == 'users' %}active{% endif %}">👥 Manage Users</a>
+            </nav>
+        </div>
+        <div class="sidebar-footer">
+            <!-- FIX: Changed logout link to point to the correct logout route -->
+            <a href="{{ url_for('auth.logout') }}" class="logout">⬅ Logout</a>
+            <span>© 2025 Safe RouteAI. All rights reserved.</span>
+        </div>
+    </aside>
+
+    <main class="main" id="content">
+        <!-- MODIFIED: Content from child templates will be inserted here -->
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- This block allows child templates to add their own scripts -->
+    {% block scripts %}{% endblock %}
+</body>
+</html>

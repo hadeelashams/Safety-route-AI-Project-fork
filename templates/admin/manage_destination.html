@@ -1,0 +1,171 @@
+{% extends "admin/admin_layout.html" %}
+
+{% block title %}Manage Destinations{% endblock %}
+
+{% block content %}
+<h2>Manage Destinations <button onclick="openAddModal()" class="add-btn">Add Destination</button></h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Kerala District</th>
+      <th>Place</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody id="destinations-table-body">
+    {% for dest in destinations %}
+    <tr id="dest-row-{{ dest.Destination_id }}"
+        data-id="{{ dest.Destination_id }}"
+        data-name='{{ dest.Name | tojson }}'
+        data-place='{{ dest.Place | tojson }}'
+        data-type='{{ dest.Type | tojson }}'
+        data-description='{{ dest.Description | tojson }}'>
+      <td>{{ dest.Name }}</td>
+      <td>{{ dest.Place }}</td>
+      <td>{{ dest.Type }}</td>
+      <td>{{ dest.Description }}</td>
+      <td>
+        <button onclick="openEditModal({{ dest.Destination_id }})" class="btn btn-secondary">Edit</button>
+        <form style="display: inline" method="POST" action="{{ url_for('admin.delete_destination', dest_id=dest.Destination_id) }}" onsubmit="return confirm('Are you sure you want to delete this item?');">
+          <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<!-- The multipurpose Modal for adding and editing -->
+<div id="destinationModal" class="modal">
+  <div class="modal-content">
+    <h2 id="modalTitle">Add New Destination</h2>
+    <form id="destinationForm" onsubmit="saveDestination(event)">
+      <input type="hidden" id="destId" name="destId">
+      
+      <!-- ### FIX: Replaced hardcoded options with a Jinja for loop ### -->
+      <div class="form-group">
+        <label for="name">Kerala District</label>
+        <select id="name" name="name" required>
+            <option value="" disabled selected>Select a District</option>
+            {% for district in all_districts %}
+                <option value="{{ district }}">{{ district }}</option>
+            {% endfor %}
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="place">Place Name</label>
+        <input type="text" id="place" name="place" placeholder="e.g., Munnar Hills, Kovalam Beach" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="type">Type</label>
+        <select id="type" name="type" required>
+          <option value="" disabled selected>Select type</option>
+          <option value="beach">Beach</option>
+          <option value="hill">Hill</option>
+          <option value="wildlife">Wildlife</option>
+        </select>
+      </div>
+      <div class="form-group"><label for="description">Description</label><textarea id="description" name="description" rows="4" required></textarea></div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Destination</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// The JavaScript does not need any changes for this fix
+const modal = document.getElementById('destinationModal');
+const modalTitle = document.getElementById('modalTitle');
+const form = document.getElementById('destinationForm');
+const destIdField = document.getElementById('destId');
+
+// --- Modal Controls ---
+function openModal() {
+  modal.style.display = 'flex';
+}
+
+function closeModal() {
+  modal.style.display = 'none';
+}
+
+// --- Functions to set up the modal for ADD or EDIT ---
+function openAddModal() {
+  form.reset();
+  destIdField.value = '';
+  modalTitle.innerText = 'Add New Destination';
+  openModal();
+}
+
+function openEditModal(destId) {
+  const row = document.getElementById(`dest-row-${destId}`);
+  
+  const name = JSON.parse(row.dataset.name);
+  const place = JSON.parse(row.dataset.place);
+  const type = JSON.parse(row.dataset.type);
+  const description = JSON.parse(row.dataset.description);
+
+  document.getElementById('name').value = name;
+  document.getElementById('place').value = place;
+  document.getElementById('type').value = type;
+  document.getElementById('description').value = description;
+  destIdField.value = destId;
+
+  modalTitle.innerText = 'Edit Destination';
+  openModal();
+}
+
+window.onclick = function(event) {
+  if (event.target == modal) {
+    closeModal();
+  }
+}
+
+function saveDestination(event) {
+  event.preventDefault();
+  const formData = new FormData(form);
+  const data = Object.fromEntries(formData.entries());
+  const destId = destIdField.value;
+
+  let url = '/admin/add-destination';
+  let method = 'POST';
+
+  if (destId) {
+    url = `/admin/update-destination/${destId}`;
+    method = 'PUT';
+  }
+
+  fetch(url, {
+    method: method,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  })
+  .then(response => {
+    if (!response.ok) {
+        throw new Error(`Server responded with status: ${response.status}`);
+    }
+    return response.json();
+  })
+  .then(result => {
+    if (result.success) {
+      window.location.reload();
+    } else {
+      alert(result.message || 'Failed to save destination.');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('An error occurred: ' + error.message);
+  });
+  return false;
+}
+</script>
+{% endblock %}
