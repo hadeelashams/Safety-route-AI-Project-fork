@@ -46,6 +46,7 @@
             flex-direction: column; 
             border-right: 1px solid var(--border-color);
             flex-shrink: 0; /* Prevent sidebar from shrinking */
+            justify-content: space-between; /* MODIFIED: Pushes footer to the bottom */
         }
         
         .sidebar-header { 
@@ -97,6 +98,32 @@
             text-align: center;
         }
         /* ### END: SIDEBAR STYLES ### */
+        
+        /* ### START: LOGOUT STYLES ### */
+        .sidebar-footer {
+            padding: 20px 25px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .logout-link {
+            display: flex;
+            align-items: center;
+            color: var(--primary-color); /* MODIFIED: Changed from --danger-color to --primary-color */
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .logout-link:hover {
+            color: #0056b3; /* MODIFIED: Darker blue for hover effect */
+        }
+
+        .logout-link i {
+            margin-right: 15px;
+            width: 20px;
+            text-align: center;
+        }
+        /* ### END: LOGOUT STYLES ### */
 
         .main-content { flex-grow: 1; padding: 30px; overflow-y: auto; }
         .header-card { background-image: url("{{ url_for('static', filename='Images/image.png') }}"); background-size: cover; background-position: center; border-radius: 12px; padding: 40px; color: var(--white); text-align: center; margin-bottom: 40px; position: relative; overflow: hidden; box-shadow: var(--shadow); }
@@ -167,19 +194,25 @@
 </head>
 <body>
     <div class="sidebar">
-        <!-- ### START: SIDEBAR CONTENT ### -->
-        <div class="sidebar-header">
-            Safe Route
+        <div>
+            <div class="sidebar-header">
+                Safe Route
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="#" class="active"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="#"><i class="fas fa-search"></i> Search Destination</a></li>
+                    <li><a href="#"><i class="fas fa-history"></i> Previous Routes</a></li>
+                    <li><a href="#"><i class="fas fa-heart"></i> Favorite</a></li>
+                </ul>
+            </nav>
         </div>
-        <nav class="sidebar-nav">
-            <ul>
-                <li><a href="#" class="active"><i class="fas fa-home"></i> Home</a></li>
-                <li><a href="#"><i class="fas fa-search"></i> Search Destination</a></li>
-                <li><a href="#"><i class="fas fa-history"></i> Previous Routes</a></li>
-                <li><a href="#"><i class="fas fa-heart"></i> Favorite</a></li>
-            </ul>
-        </nav>
-        <!-- ### END: SIDEBAR CONTENT ### -->
+
+        <div class="sidebar-footer">
+            <a href="{{ url_for('auth.logout') }}" class="logout-link">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
     </div>
 
     <div class="main-content">
@@ -355,6 +388,7 @@ function renderRoute(routeData) {
         <div class="stop-card">
             <h5>${stop.name}</h5>
             <p>${stop.type}</p>
+            <p>Est. Budget: ₹${stop.budget ? stop.budget.toLocaleString() : 'N/A'}</p>
             <span class="status-badge ${stop.safety_class}">${stop.safety_text}</span>
         </div>
     `).join('');
