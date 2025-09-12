@@ -18,12 +18,29 @@ def create_app():
     app = Flask(__name__)
 
     # --- Configuration ---
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:12345678@localhost/saferouteai'
+    # Try to import local (ignored) config, otherwise fallback to environment/defaults
+    try:
+        import config_local as local_config
+    except Exception:
+        local_config = None
+
+    # Database URI
+    app.config['SQLALCHEMY_DATABASE_URI'] = local_config.SQLALCHEMY_DATABASE_URI
+
+    # Track modifications
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['SECRET_KEY'] = os.urandom(24)
-    
+
+    # Secret key
+    if local_config and getattr(local_config, 'SECRET_KEY', None):
+        app.config['SECRET_KEY'] = local_config.SECRET_KEY
+    else:
+        app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', os.urandom(24))
+
     # ### ADDED: Load Gemini API Key into Flask config ###
-    app.config['GEMINI_API_KEY'] = os.getenv('GEMINI_API_KEY')
+    if local_config and getattr(local_config, 'GEMINI_API_KEY', None):
+        app.config['GEMINI_API_KEY'] = local_config.GEMINI_API_KEY
+    else:
+        app.config['GEMINI_API_KEY'] = os.getenv('GEMINI_API_KEY')
 
     # --- Initialize Extensions ---
     db.init_app(app)
