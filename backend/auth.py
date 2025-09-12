@@ -1,10 +1,27 @@
 # backend/auth.py
 
 from flask import render_template, request, redirect, url_for, flash, session
-# werkzeug.security import has been removed
+from functools import wraps # <-- ADDED THIS IMPORT
 from . import auth_bp
 from models import User
 from db import db
+
+# ### START: ADDED DECORATOR ###
+def admin_required(f):
+    """
+    Ensures the user is logged in and has the 'admin' role.
+    If not, it flashes a message and redirects to the login page.
+    """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # Check if user is logged in and has the admin role
+        if 'role' not in session or session['role'] != 'admin':
+            flash("You do not have permission to access this page.", "danger")
+            return redirect(url_for('auth.login'))
+        return f(*args, **kwargs)
+    return decorated_function
+# ### END: ADDED DECORATOR ###
+
 
 @auth_bp.route('/signup', methods=['GET', 'POST'])
 def signup():
