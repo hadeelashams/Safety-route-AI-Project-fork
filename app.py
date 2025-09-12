@@ -3,6 +3,9 @@
 from flask import Flask
 from db import db
 import os
+from dotenv import load_dotenv # <-- ADD THIS LINE
+
+load_dotenv() # <-- ADD THIS LINE to load variables from .env
 
 # Import blueprints from the backend package
 from backend.auth import auth_bp
@@ -18,6 +21,9 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:12345678@localhost/saferouteai'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = os.urandom(24)
+    
+    # ### ADDED: Load Gemini API Key into Flask config ###
+    app.config['GEMINI_API_KEY'] = os.getenv('GEMINI_API_KEY')
 
     # --- Initialize Extensions ---
     db.init_app(app)
@@ -26,7 +32,7 @@ def create_app():
     app.register_blueprint(auth_bp)
     app.register_blueprint(views_bp)
     app.register_blueprint(admin_bp)
-    app.register_blueprint(ai_bp) # Your AI service is already a blueprint!
+    app.register_blueprint(ai_bp)
 
     with app.app_context():
         db.create_all()
