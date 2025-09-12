@@ -160,6 +160,7 @@ def generate_ai_route():
 
 # ### START: NEW CHATBOT LOGIC ###
 
+# ... (imports and other routes remain the same) ...
 
 @ai_bp.route('/api/chat', methods=['POST'])
 def chat_with_gemini():
@@ -177,18 +178,30 @@ def chat_with_gemini():
         return jsonify({'success': False, 'error': 'API key not configured.'}), 500
 
     try:
-        # Configure the Gemini API client
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-2.0-flash')
+        
+        # Using a newer, capable model
+        model = genai.GenerativeModel('gemini-1.5-flash')
 
-        # Craft a prompt to give the AI a persona
+        # ### START: MODIFIED PROMPT ###
+        # Instruct the AI to use Markdown for better formatting.
         prompt = f"""
         You are a friendly and helpful travel assistant for Kerala, India. 
-        Your goal is to provide safe and useful travel advice. 
-        Answer the following user question concisely and in a helpful tone.
+        Your goal is to provide safe and useful travel advice.
+        Format your answers using Markdown. Use lists, bold text, and headings to make the response clear and easy to read.
+        For example, if asked about safe places in Munnar, you could respond with:
         
-        User Question: "{user_message}"
+        "Of course! Here are some famously safe and beautiful spots in Munnar:
+        
+        *   **Mattupetty Dam:** Known for its serene lake and boating.
+        *   **Top Station:** Offers stunning panoramic views.
+        *   **Eravikulam National Park:** A great place for wildlife spotting.
+        
+        Always check the weather before you go, especially during monsoon season!"
+
+        Now, answer the following user question: "{user_message}"
         """
+        # ### END: MODIFIED PROMPT ###
 
         response = model.generate_content(prompt)
         
@@ -198,4 +211,3 @@ def chat_with_gemini():
         print(f"Gemini API error: {e}")
         error_message = "I'm sorry, I'm having trouble connecting to my brain right now. Please try again later."
         return jsonify({'success': False, 'error': error_message}), 500
-# ### END: NEW CHATBOT LOGIC ###

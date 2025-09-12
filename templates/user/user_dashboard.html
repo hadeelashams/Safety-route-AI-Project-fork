@@ -172,6 +172,7 @@
         .recommended-stops { display: flex; gap: 20px; margin-top: 20px; flex-wrap: wrap; }
 
         /* ### START: NEW CHATBOT STYLES ### */
+                /* ### START: AI CHATBOT STYLES ### */
         .chat-toggle-button { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background-color: var(--primary-color); color: white; border-radius: 50%; border: none; display: flex; justify-content: center; align-items: center; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); cursor: pointer; transition: transform 0.2s ease; z-index: 1000; }
         .chat-toggle-button:hover { transform: scale(1.1); }
         .chat-popup { display: none; position: fixed; bottom: 100px; right: 30px; width: 350px; height: 450px; background-color: var(--white); border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); flex-direction: column; overflow: hidden; z-index: 1000; }
@@ -181,11 +182,13 @@
         .message { max-width: 80%; padding: 10px 15px; border-radius: 18px; line-height: 1.4; }
         .user-message { background-color: #eef5ff; color: var(--dark-text); align-self: flex-end; border-bottom-right-radius: 4px; }
         .bot-message { background-color: var(--light-bg); border: 1px solid var(--border-color); align-self: flex-start; border-bottom-left-radius: 4px; }
+        .bot-message ul, .bot-message ol { padding-left: 20px; margin-top: 5px; }
+        .bot-message li { margin-bottom: 5px; }
         .chat-form { display: flex; padding: 10px; border-top: 1px solid var(--border-color); }
         .chat-form input { flex-grow: 1; border: none; padding: 10px; font-size: 1rem; background: transparent; }
         .chat-form input:focus { outline: none; }
         .chat-form button { background: none; border: none; color: var(--primary-color); font-size: 1.2rem; cursor: pointer; padding: 0 10px; }
-        /* ### END: NEW CHATBOT STYLES ### */
+        /* ### END: AI CHATBOT STYLES ### */ND: NEW CHATBOT STYLES ### */
     </style>
 </head>
 <body>
@@ -275,6 +278,7 @@
     </div>
     
     <!-- ### START: NEW CHATBOT HTML (Added to the bottom of the body) ### -->
+       <!-- ### START: AI CHATBOT HTML ### -->
     <div class="chatbot-container">
         <button class="chat-toggle-button" id="chat-toggle">
             <i class="fas fa-comment-dots"></i>
@@ -290,10 +294,12 @@
             </form>
         </div>
     </div>
+    <!-- ### END: AI CHATBOT HTML ### -->
     <!-- ### END: NEW CHATBOT HTML ### -->
     
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
 <script>
 // ### ORIGINAL JAVASCRIPT FOR ROUTE GENERATION (UNCHANGED) ###
@@ -402,48 +408,52 @@ function renderRoute(routeData) {
 
 // ### START: NEW JAVASCRIPT FOR CHATBOT (ADDED AT THE END) ###
 const chatToggleButton = document.getElementById('chat-toggle');
-const chatPopup = document.getElementById('chat-popup');
-const chatForm = document.getElementById('chat-form');
-const chatInput = document.getElementById('chat-input');
-const chatMessages = document.getElementById('chat-messages');
+    const chatPopup = document.getElementById('chat-popup');
+    const chatForm = document.getElementById('chat-form');
+    const chatInput = document.getElementById('chat-input');
+    const chatMessages = document.getElementById('chat-messages');
 
-chatToggleButton.addEventListener('click', () => {
-    chatPopup.classList.toggle('active');
-});
+    chatToggleButton.addEventListener('click', () => {
+        chatPopup.classList.toggle('active');
+    });
 
-chatForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const userMessage = chatInput.value.trim();
-    if (!userMessage) return;
+    chatForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const userMessage = chatInput.value.trim();
+        if (!userMessage) return;
 
-    addMessage(userMessage, 'user');
-    chatInput.value = '';
+        addMessage(userMessage, 'user');
+        chatInput.value = '';
 
-    try {
-        const response = await fetch('/api/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: userMessage })
-        });
-        const data = await response.json();
-        if (data.success) {
-            addMessage(data.reply, 'bot');
-        } else {
-            addMessage(data.error || 'Sorry, something went wrong.', 'bot');
+        try {
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: userMessage })
+            });
+            const data = await response.json();
+            if (data.success) {
+                addMessage(data.reply, 'bot');
+            } else {
+                addMessage(data.error || 'Sorry, something went wrong.', 'bot');
+            }
+        } catch (error) {
+            console.error('Chat error:', error);
+            addMessage('I am unable to connect right now. Please check your connection.', 'bot');
         }
-    } catch (error) {
-        console.error('Chat error:', error);
-        addMessage('I am unable to connect right now. Please check your connection.', 'bot');
-    }
-});
+    });
 
-function addMessage(text, sender) {
-    const messageElement = document.createElement('div');
-    messageElement.classList.add('message', `${sender}-message`);
-    messageElement.textContent = text;
-    chatMessages.appendChild(messageElement);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-}
+    function addMessage(text, sender) {
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('message', `${sender}-message`);
+        if (sender === 'bot') {
+            messageElement.innerHTML = marked.parse(text); // Use marked.js for bot responses
+        } else {
+            messageElement.textContent = text; // Keep user messages as plain text
+        }
+        chatMessages.appendChild(messageElement);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
 // ### END: NEW JAVASCRIPT FOR CHATBOT ###
 </script>
 </body>
