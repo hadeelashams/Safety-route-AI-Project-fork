@@ -4,6 +4,8 @@ from flask import Blueprint, jsonify, request
 from models import db, Destination, SafetyRating
 import pandas as pd
 import datetime
+from flask import current_app
+import google.generativeai as genai
 
 # --- Blueprint Definition ---
 ai_bp = Blueprint('ai_service', __name__)
@@ -154,3 +156,46 @@ def generate_ai_route():
     }
 
     return jsonify({'success': True, 'route': final_route})
+# ... (all existing code from aiservice.py remains the same) ...
+
+# ### START: NEW CHATBOT LOGIC ###
+
+
+@ai_bp.route('/api/chat', methods=['POST'])
+def chat_with_gemini():
+    """
+    Handles chat requests by sending them to the Gemini API.
+    """
+    data = request.get_json()
+    user_message = data.get('message')
+
+    if not user_message:
+        return jsonify({'success': False, 'error': 'No message provided.'}), 400
+
+    api_key = current_app.config.get('GEMINI_API_KEY')
+    if not api_key:
+        return jsonify({'success': False, 'error': 'API key not configured.'}), 500
+
+    try:
+        # Configure the Gemini API client
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel('gemini-2.0-flash')
+
+        # Craft a prompt to give the AI a persona
+        prompt = f"""
+        You are a friendly and helpful travel assistant for Kerala, India. 
+        Your goal is to provide safe and useful travel advice. 
+        Answer the following user question concisely and in a helpful tone.
+        
+        User Question: "{user_message}"
+        """
+
+        response = model.generate_content(prompt)
+        
+        return jsonify({'success': True, 'reply': response.text})
+
+    except Exception as e:
+        print(f"Gemini API error: {e}")
+        error_message = "I'm sorry, I'm having trouble connecting to my brain right now. Please try again later."
+        return jsonify({'success': False, 'error': error_message}), 500
+# ### END: NEW CHATBOT LOGIC ###
