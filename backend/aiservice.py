@@ -181,7 +181,7 @@ def chat_with_gemini():
         genai.configure(api_key=api_key)
         
         # Using a newer, capable model
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-2.0-flash-lite')
 
         # ### START: MODIFIED PROMPT ###
         # Instruct the AI to use Markdown for better formatting.
