@@ -65,6 +65,31 @@
   }
   .register-container .links a:hover { text-decoration: underline; }
 
+  /* ### START: Styles for Email Autocomplete ### */
+  .email-autocomplete-container {
+    position: relative;
+    width: 100%;
+    margin-bottom: 15px; /* Keep spacing consistent */
+  }
+  .email-autocomplete-container #email-input {
+      background: transparent;
+      position: relative;
+      z-index: 2;
+      margin: 0;
+  }
+  #email-suggestion {
+      position: absolute;
+      top: 1px;  /* Align with input's border */
+      left: 1px; /* Align with input's border */
+      padding: 10px; /* Must match input padding */
+      color: #ccc;
+      pointer-events: none;
+      z-index: 1;
+      font-size: 14px;
+      white-space: pre; /* Preserve whitespace for alignment */
+  }
+  /* ### END: Styles for Email Autocomplete ### */
+
 </style>
 
 <div class="register-container">
@@ -72,19 +97,17 @@
   <h2>Register</h2>
   <p>Create your account to start planning safe trips</p>
 
-  <!-- The form remains the same -->
   <form method="post" action="{{ url_for('auth.signup') }}">
     <input type="text" name="fullname" placeholder="Full Name" required>
-    <input type="email" name="email" placeholder="Email Address" required>
+    
+    <div class="email-autocomplete-container">
+      <input type="email" name="email" id="email-input" placeholder="Email Address" required autocomplete="off">
+      <span id="email-suggestion"></span>
+    </div>
+
     <input type="text" name="username" placeholder="Username" required>
     <input type="password" name="password" placeholder="Password" required>
     <input type="password" name="confirm_password" placeholder="Confirm Password" required>
-
-    <select name="role" required>
-      <option value="" disabled selected>Select Role</option>
-      <option value="user">User</option>
-      <option value="admin">Admin</option>
-    </select>
 
     <button type="submit">Register</button>
   </form>
@@ -93,4 +116,43 @@
     <p>Already have an account? <a href="{{ url_for('auth.login') }}">Login</a></p>
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const emailInput = document.getElementById('email-input');
+    const emailSuggestion = document.getElementById('email-suggestion');
+    // ### MODIFIED: Only suggest gmail.com ###
+    const domainToSuggest = 'gmail.com';
+
+    emailInput.addEventListener('input', function() {
+        const value = this.value;
+        emailSuggestion.textContent = ''; // Clear previous suggestion
+
+        const atIndex = value.indexOf('@');
+        if (atIndex === -1) return;
+
+        const localPart = value.substring(0, atIndex);
+        const domainPart = value.substring(atIndex + 1);
+
+        if (domainPart.length === 0) return;
+        
+        // ### MODIFIED: Simplified logic for a single domain ###
+        if (domainToSuggest.startsWith(domainPart)) {
+            const suggestedText = localPart + '@' + domainToSuggest;
+            emailSuggestion.textContent = suggestedText;
+        }
+    });
+
+    emailInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Tab' && emailSuggestion.textContent && this.value !== emailSuggestion.textContent) {
+            e.preventDefault(); 
+            this.value = emailSuggestion.textContent;
+            emailSuggestion.textContent = '';
+        }
+    });
+
+    emailInput.addEventListener('blur', function() { emailSuggestion.textContent = ''; });
+    emailInput.form.addEventListener('reset', function() { emailSuggestion.textContent = ''; });
+});
+</script>
 {% endblock %}

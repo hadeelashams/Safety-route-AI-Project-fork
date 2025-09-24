@@ -1,12 +1,12 @@
 # backend/auth.py
 
 from flask import render_template, request, redirect, url_for, flash, session
-from functools import wraps # <-- ADDED THIS IMPORT
+from functools import wraps
 from . import auth_bp
 from models import User
 from db import db
+# REMOVED: from email_validator import validate_email, EmailNotValidError
 
-# ### START: ADDED DECORATOR ###
 def admin_required(f):
     """
     Ensures the user is logged in and has the 'admin' role.
@@ -14,13 +14,11 @@ def admin_required(f):
     """
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        # Check if user is logged in and has the admin role
         if 'role' not in session or session['role'] != 'admin':
             flash("You do not have permission to access this page.", "danger")
             return redirect(url_for('auth.login'))
         return f(*args, **kwargs)
     return decorated_function
-# ### END: ADDED DECORATOR ###
 
 
 @auth_bp.route('/signup', methods=['GET', 'POST'])
@@ -33,6 +31,12 @@ def signup():
         confirm_password = request.form['confirm_password']
         role = request.form.get('role', 'user')
 
+        # ### START: Simple Email Validation (No Package) ###
+        if '@' not in email or '.' not in email.split('@')[-1]:
+            flash("Please enter a valid email address.", "danger")
+            return render_template('signup.html')
+        # ### END: Simple Email Validation ###
+
         if password != confirm_password:
             flash("Passwords do not match.", "danger")
             return render_template('signup.html')
@@ -42,13 +46,11 @@ def signup():
             flash("Username or email already exists.", "danger")
             return render_template('signup.html')
 
-        # --- REVERTED TO PLAINTEXT ---
-        # Password is now stored directly as it was entered.
         new_user = User(
             name=name,
             Email=email,
             Username=username,
-            Password=password,  # Storing the plaintext password
+            Password=password,
             role=role
         )
 
@@ -69,8 +71,6 @@ def login():
 
         user = User.query.filter_by(Username=username).first()
 
-        # --- REVERTED TO PLAINTEXT ---
-        # A simple string comparison is used instead of a hash check.
         if user and user.Password == password:
             session['user_id'] = user.User_id
             session['username'] = user.Username

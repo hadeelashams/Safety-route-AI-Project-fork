@@ -1,0 +1,7 @@
+Flask
+Flask-SQLAlchemy
+PyMySQL
+python-dotenv
+pandas
+google-generativeai
+email-validator
