@@ -74,6 +74,7 @@
 
   <!-- The form remains the same -->
   <form method="post" action="{{ url_for('auth.signup') }}">
+    
     <input type="text" name="fullname" placeholder="Full Name" required>
     <input type="email" name="email" placeholder="Email Address" required>
     <input type="text" name="username" placeholder="Username" required>
@@ -83,7 +84,7 @@
     <select name="role" required>
       <option value="" disabled selected>Select Role</option>
       <option value="user">User</option>
-      <option value="admin">Admin</option>
+
     </select>
 
     <button type="submit">Register</button>

@@ -147,6 +147,11 @@
     <button type="submit">Login</button>
   </form>
 
+   <!-- === NEW: REGISTER LINK === -->
+  <div class="register-link">
+    <p>Don't have an account? <a href="{{ url_for('auth.signup') }}">Register</a></p>
+  </div>
+
   <small>Safe RouteAI © 2025</small>
 </div>
 {% endblock %}

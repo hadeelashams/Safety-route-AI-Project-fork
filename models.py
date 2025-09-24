@@ -4,7 +4,6 @@ import datetime
 
 class User(db.Model):
     __tablename__ = 'User_table'
-
     User_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     Username = db.Column(db.String(45), nullable=False)
     name = db.Column(db.String(45), nullable=False)
@@ -18,30 +17,33 @@ class User(db.Model):
 
 class Destination(db.Model):
     __tablename__ = 'Destination'
-
     Destination_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     Place = db.Column(db.String(100), nullable=False) 
-    Name = db.Column(db.String(20), nullable=False)
+    Name = db.Column(db.String(20), nullable=False) # This is the District Name
     Type = db.Column(db.Enum('beach', 'hill', 'wildlife'), nullable=False)
     Description = db.Column(db.Text, nullable=True)
     Create_id = db.Column(db.DateTime, nullable=False, default=datetime.datetime.now) 
     budget = db.Column(db.Integer, nullable=True)
 
-    # This relationship allows you to access safety ratings from a destination object
-    safety_ratings = db.relationship('SafetyRating', backref='destination', lazy=True)
-
     def __repr__(self):
         return f'<Destination {self.Name}>'
 
+# ### REFACTORED MODEL ###
+# This model now represents a district's safety rating but uses your desired table name.
 class SafetyRating(db.Model):
-    __tablename__ = 'Safety_Rating_table'
+    __tablename__ = 'safety_rating_table'
 
     safety_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    destination_id = db.Column(db.Integer, db.ForeignKey('Destination.Destination_id'), nullable=False)
-    weather_risk = db.Column(db.Integer, nullable=True)
-    health_risk = db.Column(db.Integer, nullable=True)
-    disaster_risk = db.Column(db.Integer, nullable=True)
-    overall_safety = db.Column(db.String(50), nullable=True)
+    
+    # This column now stores the name of the district (e.g., "Ernakulam")
+    # It replaces the old destination_id foreign key.
+    district_name = db.Column(db.String(50), unique=True, nullable=False)
+    
+    weather_risk = db.Column(db.Integer, nullable=False, default=1)
+    health_risk = db.Column(db.Integer, nullable=False, default=1)
+    disaster_risk = db.Column(db.Integer, nullable=False, default=1)
+    
+    # The `overall_safety` column is removed as it will be calculated dynamically.
 
     def __repr__(self):
-        return f'<SafetyRating Dest:{self.destination_id} Safety:{self.overall_safety}>'
+        return f'<SafetyRating for {self.district_name}>'
