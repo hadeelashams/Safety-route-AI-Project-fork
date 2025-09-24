@@ -127,8 +127,30 @@ def chat_with_gemini():
     if not api_key: return jsonify({'success': False, 'error': 'API key not configured.'}), 500
     try:
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-1.5-flash-latest')
-        prompt = f"""You are a friendly travel assistant for Kerala, India. Provide safe and useful advice. Format answers using Markdown. User question: "{user_message}" """
+        
+        # Using a newer, capable model
+        model = genai.GenerativeModel('gemini-2.0-flash-lite')
+
+        # ### START: MODIFIED PROMPT ###
+        # Instruct the AI to use Markdown for better formatting.
+        prompt = f"""
+        You are a friendly and helpful travel assistant for Kerala, India. 
+        Your goal is to provide safe and useful travel advice.
+        Format your answers using Markdown. Use lists, bold text, and headings to make the response clear and easy to read.
+        For example, if asked about safe places in Munnar, you could respond with:
+        
+        "Of course! Here are some famously safe and beautiful spots in Munnar:
+        
+        *   **Mattupetty Dam:** Known for its serene lake and boating.
+        *   **Top Station:** Offers stunning panoramic views.
+        *   **Eravikulam National Park:** A great place for wildlife spotting.
+        
+        Always check the weather before you go, especially during monsoon season!"
+
+        Now, answer the following user question: "{user_message}"
+        """
+        # ### END: MODIFIED PROMPT ###
+
         response = model.generate_content(prompt)
         return jsonify({'success': True, 'reply': response.text})
     except Exception as e:
