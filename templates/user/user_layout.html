@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block user_title %}Safe Route{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    <!-- Leaflet JS (used on some pages) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+
+    <style>
+        /* --- Base Styles for User Area --- */
+        :root {
+            --sidebar-width: 240px;
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --light-bg: #f8f9fa;
+            --dark-text: #343a40;
+            --white: #fff;
+            --border-color: #e9ecef;
+            --shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            display: flex;
+            min-height: 100vh;
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+        }
+        .sidebar { 
+            width: var(--sidebar-width); 
+            background-color: var(--white); 
+            box-shadow: var(--shadow); 
+            padding: 20px 0; 
+            display: flex; 
+            flex-direction: column; 
+            border-right: 1px solid var(--border-color);
+            flex-shrink: 0;
+            justify-content: space-between;
+        }
+        .sidebar-header { 
+            color: var(--primary-color); 
+            font-size: 1.6rem; 
+            font-weight: 700; 
+            text-align: center; 
+            margin-bottom: 30px; 
+            padding: 0 20px; 
+        }
+        .sidebar-nav ul { list-style: none; padding: 0; margin: 0; }
+        .sidebar-nav li { margin-bottom: 5px; }
+        .sidebar-nav a { 
+            display: flex; 
+            align-items: center; 
+            padding: 12px 25px; 
+            color: var(--dark-text); 
+            text-decoration: none; 
+            font-weight: 500; 
+            transition: background-color 0.2s ease, color 0.2s ease; 
+            border-left: 4px solid transparent; 
+        }
+        .sidebar-nav a:hover, .sidebar-nav a.active {
+            background-color: #eef5ff;
+            color: var(--primary-color);
+            border-left-color: var(--primary-color);
+        }
+        .sidebar-nav a i { margin-right: 15px; width: 20px; text-align: center; }
+        .sidebar-footer { padding: 20px 25px; border-top: 1px solid var(--border-color); }
+        .logout-link { display: flex; align-items: center; color: var(--primary-color); text-decoration: none; font-weight: 500; }
+        .logout-link:hover { color: #0056b3; }
+        .logout-link i { margin-right: 15px; width: 20px; text-align: center; }
+        .main-content { flex-grow: 1; padding: 30px; overflow-y: auto; }
+
+        /* ### START: AI CHATBOT STYLES ### */
+        .chat-toggle-button { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background-color: var(--primary-color); color: white; border-radius: 50%; border: none; display: flex; justify-content: center; align-items: center; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); cursor: pointer; transition: transform 0.2s ease; z-index: 1000; }
+        .chat-toggle-button:hover { transform: scale(1.1); }
+        .chat-popup { display: none; position: fixed; bottom: 100px; right: 30px; width: 350px; height: 450px; background-color: var(--white); border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); flex-direction: column; overflow: hidden; z-index: 1000; }
+        .chat-popup.active { display: flex; }
+        .chat-header { background-color: var(--primary-color); color: var(--white); padding: 15px; font-weight: 600; text-align: center; }
+        .chat-messages { flex-grow: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .message { max-width: 80%; padding: 10px 15px; border-radius: 18px; line-height: 1.4; }
+        .user-message { background-color: #eef5ff; color: var(--dark-text); align-self: flex-end; border-bottom-right-radius: 4px; }
+        .bot-message { background-color: var(--light-bg); border: 1px solid var(--border-color); align-self: flex-start; border-bottom-left-radius: 4px; }
+        .bot-message ul, .bot-message ol { padding-left: 20px; margin-top: 5px; }
+        .bot-message li { margin-bottom: 5px; }
+        .chat-form { display: flex; padding: 10px; border-top: 1px solid var(--border-color); }
+        .chat-form input { flex-grow: 1; border: none; padding: 10px; font-size: 1rem; background: transparent; }
+        .chat-form input:focus { outline: none; }
+        .chat-form button { background: none; border: none; color: var(--primary-color); font-size: 1.2rem; cursor: pointer; padding: 0 10px; }
+        /* ### END: AI CHATBOT STYLES ### */
+
+    </style>
+    
+    <!-- Block for page-specific styles -->
+    {% block extra_styles %}{% endblock %}
+</head>
+<body>
+    <div class="sidebar">
+        <div>
+            <div class="sidebar-header">Safe Route</div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="{{ url_for('views.dashboard') }}" class="{% if active_page == 'dashboard' %}active{% endif %}"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="{{ url_for('views.search') }}" class="{% if active_page == 'search' %}active{% endif %}"><i class="fas fa-search"></i> Search Destination</a></li>
+                    <li><a href="#"><i class="fas fa-history"></i> Previous Routes</a></li>
+                    <li><a href="#"><i class="fas fa-heart"></i> Favorite</a></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="sidebar-footer">
+            <a href="{{ url_for('auth.logout') }}" class="logout-link">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </div>
+
+    <main class="main-content">
+        <!-- Block for page-specific content -->
+        {% block user_content %}{% endblock %}
+    </main>
+
+    <!-- ### START: ADDED CHATBOT HTML ### -->
+    <div class="chatbot-container">
+        <button class="chat-toggle-button" id="chat-toggle">
+            <i class="fas fa-comment-dots"></i>
+        </button>
+        <div class="chat-popup" id="chat-popup">
+            <div class="chat-header">Travel Assistant</div>
+            <div class="chat-messages" id="chat-messages">
+                <div class="message bot-message">Hi! How can I help you plan your safe trip in Kerala today?</div>
+            </div>
+            <form class="chat-form" id="chat-form">
+                <input type="text" id="chat-input" placeholder="Ask a question..." autocomplete="off">
+                <button type="submit"><i class="fas fa-paper-plane"></i></button>
+            </form>
+        </div>
+    </div>
+    <!-- ### END: ADDED CHATBOT HTML ### -->
+
+
+    <!-- ### START: ADDED CHATBOT SCRIPT DEPENDENCY ### -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- ### END: ADDED CHATBOT SCRIPT DEPENDENCY ### -->
+
+    <!-- Block for page-specific scripts -->
+    {% block extra_scripts %}{% endblock %}
+
+    <!-- ### START: ADDED CHATBOT JAVASCRIPT LOGIC ### -->
+    <script>
+        const chatToggleButton = document.getElementById('chat-toggle');
+        const chatPopup = document.getElementById('chat-popup');
+        const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
+        const chatMessages = document.getElementById('chat-messages');
+
+        chatToggleButton.addEventListener('click', () => {
+            chatPopup.classList.toggle('active');
+        });
+
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const userMessage = chatInput.value.trim();
+            if (!userMessage) return;
+
+            addMessage(userMessage, 'user');
+            chatInput.value = '';
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: userMessage })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    addMessage(data.reply, 'bot');
+                } else {
+                    addMessage(data.error || 'Sorry, something went wrong.', 'bot');
+                }
+            } catch (error) {
+                console.error('Chat error:', error);
+                addMessage('I am unable to connect right now. Please check your connection.', 'bot');
+            }
+        });
+
+        function addMessage(text, sender) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', `${sender}-message`);
+            if (sender === 'bot') {
+                messageElement.innerHTML = marked.parse(text); // Use marked.js for bot responses
+            } else {
+                messageElement.textContent = text; // Keep user messages as plain text
+            }
+            chatMessages.appendChild(messageElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    </script>
+    <!-- ### END: ADDED CHATBOT JAVASCRIPT LOGIC ### -->
+
+</body>
+</html>

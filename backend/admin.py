@@ -3,52 +3,41 @@
 from flask import render_template, redirect, url_for, request, jsonify, flash
 from . import admin_bp
 from models import db, User, Destination, SafetyRating
-import pandas as pd
 from sqlalchemy.orm import joinedload
-from backend.auth import admin_required # <-- IMPORT THE DECORATOR
+from backend.auth import admin_required
 
-# ### START: Define the canonical list of districts here ###
+# ... (KERALA_DISTRICTS list and dashboard route are unchanged) ...
 KERALA_DISTRICTS = [
     "Alappuzha", "Ernakulam", "Idukki", "Kannur", "Kasaragod", "Kollam",
     "Kottayam", "Kozhikode", "Malappuram", "Palakkad", "Pathanamthitta",
     "Thiruvananthapuram", "Thrissur", "Wayanad"
 ]
-# ### END: District list ###
 
-
-# --- Admin Dashboard ---
 @admin_bp.route('/')
-@admin_required # <-- PROTECT ROUTE
+@admin_required
 def base():
     return redirect(url_for('admin.dashboard'))
 
 @admin_bp.route('/dashboard')
-@admin_required # <-- PROTECT ROUTE
+@admin_required
 def dashboard():
     total_users = User.query.filter_by(role='user').count()
     total_destinations = Destination.query.count()
     top_search_name = "N/A"
     try:
-        csv_path = 'static/data/risklog.csv'
-        risk_log_df = pd.read_csv(csv_path)
-        if not risk_log_df.empty and 'destination_id' in risk_log_df.columns:
-            top_destination_id = risk_log_df['destination_id'].mode()[0]
-            top_destination = Destination.query.get(int(top_destination_id))
-            if top_destination:
-                top_search_name = top_destination.Place
+        top_destination = Destination.query.order_by(Destination.search_count.desc()).first()
+        if top_destination and top_destination.search_count > 0:
+            top_search_name = top_destination.Place
     except Exception as e:
         print(f"Admin Dashboard WARNING: Could not calculate top location. Error: {e}")
-
     return render_template('admin/admin_dashboard.html', 
                            total_users=total_users, 
                            total_destinations=total_destinations, 
                            top_search_name=top_search_name,
                            active_page='dashboard')
 
-
-# --- Destination Management Routes ---
 @admin_bp.route('/manage_destination')
-@admin_required # <-- PROTECT ROUTE
+@admin_required
 def manage_destination():
     destinations = Destination.query.all()
     return render_template(
@@ -59,7 +48,7 @@ def manage_destination():
     )
 
 @admin_bp.route('/add-destination', methods=['POST'])
-@admin_required # <-- PROTECT ROUTE
+@admin_required
 def add_destination():
     try:
         data = request.get_json()
@@ -69,7 +58,8 @@ def add_destination():
         new_dest = Destination(
             Name=data.get('name'), Place=data.get('place'),
             Type=data.get('type'), Description=data.get('description'),
-            budget=data.get('budget')
+            budget=data.get('budget'),
+            image_url=data.get('image_url') # <-- ADDED
         )
         db.session.add(new_dest)
         db.session.commit()
@@ -79,7 +69,7 @@ def add_destination():
         return jsonify({'success': False, 'message': f'Server Error: {str(e)}'}), 500
 
 @admin_bp.route('/update-destination/<int:dest_id>', methods=['PUT'])
-@admin_required # <-- PROTECT ROUTE
+@admin_required
 def update_destination(dest_id):
     try:
         dest = Destination.query.get(dest_id)
@@ -92,6 +82,7 @@ def update_destination(dest_id):
         dest.Type = data.get('type', dest.Type)
         dest.Description = data.get('description', dest.Description)
         dest.budget = data.get('budget', dest.budget)
+        dest.image_url = data.get('image_url', dest.image_url) # <-- ADDED
         
         db.session.commit()
         return jsonify({'success': True, 'message': 'Destination updated successfully!'})
@@ -99,8 +90,9 @@ def update_destination(dest_id):
         db.session.rollback()
         return jsonify({'success': False, 'message': f'Server Error: {str(e)}'}), 500
 
+# ... (rest of admin.py is unchanged) ...
 @admin_bp.route('/delete-destination/<int:dest_id>', methods=['POST'])
-@admin_required # <-- PROTECT ROUTE
+@admin_required
 def delete_destination(dest_id):
     try:
         dest = Destination.query.get_or_404(dest_id)
@@ -115,7 +107,7 @@ def delete_destination(dest_id):
 
 # --- Safety Monitor Routes ---
 @admin_bp.route('/monitor')
-@admin_required # <-- PROTECT ROUTE
+@admin_required
 def monitor():
     destinations = Destination.query.options(
         joinedload(Destination.safety_ratings)
@@ -129,7 +121,7 @@ def monitor():
                            active_page='monitor')
 
 @admin_bp.route('/update-safety-rating/<int:dest_id>', methods=['POST'])
-@admin_required # <-- PROTECT ROUTE
+@admin_required
 def update_safety_rating(dest_id):
     try:
         weather_risk = int(request.form.get('weather_risk'))
@@ -162,13 +154,13 @@ def update_safety_rating(dest_id):
 
 # --- User Management Routes ---
 @admin_bp.route('/manage_users')
-@admin_required # <-- PROTECT ROUTE
+@admin_required
 def manage_users():
     users = User.query.filter_by(role='user').all()
     return render_template('admin/manage_users.html', users=users, active_page='users')
 
 @admin_bp.route('/api/update-user/<int:user_id>', methods=['PUT'])
-@admin_required # <-- PROTECT ROUTE
+@admin_required
 def api_update_user(user_id):
     try:
         user_to_update = User.query.get_or_404(user_id)
@@ -189,7 +181,7 @@ def api_update_user(user_id):
         return jsonify({'success': False, 'message': f'Server Error: {str(e)}'}), 500
 
 @admin_bp.route('/delete-user/<int:user_id>', methods=['POST'])
-@admin_required # <-- PROTECT ROUTE
+@admin_required
 def delete_user(user_id):
     try:
         user_to_delete = User.query.get_or_404(user_id)

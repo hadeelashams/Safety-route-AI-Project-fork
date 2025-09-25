@@ -4,7 +4,7 @@ import datetime
 
 class User(db.Model):
     __tablename__ = 'User_table'
-
+    # ... (User model remains unchanged)
     User_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     Username = db.Column(db.String(45), nullable=False)
     name = db.Column(db.String(45), nullable=False)
@@ -26,8 +26,12 @@ class Destination(db.Model):
     Description = db.Column(db.Text, nullable=True)
     Create_id = db.Column(db.DateTime, nullable=False, default=datetime.datetime.now) 
     budget = db.Column(db.Integer, nullable=True)
+    search_count = db.Column(db.Integer, nullable=False, default=0)
+    
+    # ### START: NEW IMAGE URL COLUMN ###
+    image_url = db.Column(db.String(255), nullable=True)
+    # ### END: NEW IMAGE URL COLUMN ###
 
-    # This relationship allows you to access safety ratings from a destination object
     safety_ratings = db.relationship('SafetyRating', backref='destination', lazy=True)
 
     def __repr__(self):
@@ -35,7 +39,7 @@ class Destination(db.Model):
 
 class SafetyRating(db.Model):
     __tablename__ = 'Safety_Rating_table'
-
+    # ... (SafetyRating model remains unchanged)
     safety_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     destination_id = db.Column(db.Integer, db.ForeignKey('Destination.Destination_id'), nullable=False)
     weather_risk = db.Column(db.Integer, nullable=True)
