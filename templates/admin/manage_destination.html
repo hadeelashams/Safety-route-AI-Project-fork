@@ -8,31 +8,37 @@
 <table>
   <thead>
     <tr>
+      <th>Image</th> <!-- ADDED -->
       <th>Kerala District</th>
       <th>Place</th>
       <th>Type</th>
       <th>Budget (₹)</th>
-      <th>Description</th>
       <th>Actions</th>
     </tr>
   </thead>
   <tbody id="destinations-table-body">
     {% for dest in destinations %}
-    <!-- ### START: FIX FOR DATA ATTRIBUTES ### -->
-    <!-- Switched from single quotes with 'tojson' to double quotes with the standard 'e' (escape) filter -->
     <tr id="dest-row-{{ dest.Destination_id }}"
         data-id="{{ dest.Destination_id }}"
         data-name="{{ dest.Name | e }}"
         data-place="{{ dest.Place | e }}"
         data-type="{{ dest.Type | e }}"
         data-budget="{{ dest.budget | e }}"
-        data-description="{{ dest.Description | e }}">
-    <!-- ### END: FIX FOR DATA ATTRIBUTES ### -->
+        data-description="{{ dest.Description | e }}"
+        data-image_url="{{ dest.image_url | e }}"> <!-- ADDED -->
+      
+      <!-- ADDED Image Thumbnail -->
+      <td>
+        {% if dest.image_url %}
+          <img src="{{ dest.image_url }}" alt="{{ dest.Place }}" style="width: 100px; height: 60px; object-fit: cover; border-radius: 4px;">
+        {% else %}
+          <span>No Image</span>
+        {% endif %}
+      </td>
       <td>{{ dest.Name }}</td>
       <td>{{ dest.Place }}</td>
       <td>{{ dest.Type }}</td>
       <td>{{ "{:,.0f}".format(dest.budget | int) if dest.budget else 'N/A' }}</td>
-      <td>{{ dest.Description }}</td>
       <td>
         <button onclick="openEditModal({{ dest.Destination_id }})" class="btn btn-secondary">Edit</button>
         <form style="display: inline" method="POST" action="{{ url_for('admin.delete_destination', dest_id=dest.Destination_id) }}" onsubmit="return confirm('Are you sure you want to delete this item?');">
@@ -81,6 +87,12 @@
         <input type="number" id="budget" name="budget" placeholder="e.g., 15000" required>
       </div>
       
+      <!-- ADDED Image URL Field -->
+      <div class="form-group">
+        <label for="image_url">Image URL</label>
+        <input type="text" id="image_url" name="image_url" placeholder="https://example.com/image.jpg">
+      </div>
+      
       <div class="form-group"><label for="description">Description</label><textarea id="description" name="description" rows="4" required></textarea></div>
       <div class="form-actions">
         <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
@@ -93,6 +105,7 @@
 
 {% block scripts %}
 <script>
+// ... (modal, form, and other variables are unchanged) ...
 const modal = document.getElementById('destinationModal');
 const modalTitle = document.getElementById('modalTitle');
 const form = document.getElementById('destinationForm');
@@ -102,12 +115,10 @@ const destIdField = document.getElementById('destId');
 function openModal() {
   modal.style.display = 'flex';
 }
-
 function closeModal() {
   modal.style.display = 'none';
 }
 
-// --- Functions to set up the modal for ADD or EDIT ---
 function openAddModal() {
   form.reset();
   destIdField.value = '';
@@ -118,20 +129,19 @@ function openAddModal() {
 function openEditModal(destId) {
   const row = document.getElementById(`dest-row-${destId}`);
   
-  // ### START: FIX FOR JAVASCRIPT ###
-  // Removed JSON.parse(). We now read the data as a raw string directly from the dataset.
   const name = row.dataset.name;
   const place = row.dataset.place;
   const type = row.dataset.type;
   const budget = row.dataset.budget;
   const description = row.dataset.description;
-  // ### END: FIX FOR JAVASCRIPT ###
+  const imageUrl = row.dataset.image_url; // <-- ADDED
 
   document.getElementById('name').value = name;
   document.getElementById('place').value = place;
   document.getElementById('type').value = type;
   document.getElementById('budget').value = budget;
   document.getElementById('description').value = description;
+  document.getElementById('image_url').value = imageUrl; // <-- ADDED
   destIdField.value = destId;
 
   modalTitle.innerText = 'Edit Destination';
@@ -144,6 +154,7 @@ window.onclick = function(event) {
   }
 }
 
+// saveDestination function works without changes as it uses FormData
 function saveDestination(event) {
   event.preventDefault();
   const formData = new FormData(form);
