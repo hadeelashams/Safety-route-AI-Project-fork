@@ -1,53 +1,101 @@
-destination_id,threat_type,description,date
-123,Flood,Severe flooding in Kuttanad region due to overflowing rivers after heavy monsoon.,2018-08-15
-125,Landslide,Major landslide in the high-range areas following incessant rainfall, blocking key roads.,2018-08-17
-131,Landslide,Landslide at Puthumala village caused significant damage and displacement.,2019-08-09
-130,Disease Outbreak,Nipah virus outbreak confirmed, leading to health advisories and travel restrictions.,2018-05-19
-126,Heavy Monsoon,Extreme waterlogging in Kochi city center paralyzed traffic for several hours.,2021-10-16
-120,Cyclone Warning,Coastal areas put on high alert due to cyclone Burevi formation in the Arabian Sea.,2020-12-02
-122,Wildlife Encounter,Wild elephant herd reported on the main road to Gavi, causing temporary closure.,2023-01-20
-123,Flood,Low-lying areas in Alappuzha submerged again after a week of heavy rains.,2019-07-22
-125,Heavy Monsoon,Red alert issued for Idukki district due to prediction of extremely heavy rainfall.,2022-08-02
-124,Disease Outbreak,Spike in Dengue fever cases reported in Kottayam after the monsoon season.,2022-11-05
-131,Landslide,Minor landslide near Lakkidi viewpoint in Wayanad, traffic diverted.,2020-08-06
-128,Wildfire,Forest fire reported in a part of Silent Valley buffer zone, contained by forest officials.,2023-03-10
-126,Political Strike,State-wide 'Hartal' (strike) called, disrupting public transport and tourism activities.,2022-09-23
-130,Disease Outbreak,Resurgence of Nipah virus cases confirmed, containment zones established.,2023-09-12
-123,Flood,Vembanad lake water level rises, threatening coastal communities in Alappuzha.,2023-07-28
-125,Landslide,Pettimudi landslide tragedy occurred due to heavy rainfall in the region.,2020-08-06
-120,Sea Roughness,High waves reported at Kovalam, swimmers advised to be cautious.,2023-05-15
-132,High Tides,Drive-in beach at Muzhappilangad closed temporarily due to high tide.,2022-06-25
-121,Cyclone Warning,Fishermen advised not to venture into the sea off Kollam coast.,2021-11-28
-133,Coastal Erosion,Part of the walkway near Bekal fort damaged by sea erosion.,2020-07-19
-131,Wildlife Encounter,Elephant sighting near Muthanga wildlife sanctuary, traffic regulated.,2022-04-10
-122,Wildlife Encounter,Bison herd spotted near residential areas in Gavi.,2024-01-05
-128,Wildfire,Small wildfire in the buffer zone of Silent Valley, quickly contained.,2022-02-28
-125,Leopard Sighting,Leopard spotted near a tea estate in Munnar, locals warned.,2023-11-12
-129,Wildlife Encounter,Migratory bird season delayed due to unusual weather patterns.,2021-12-01
-126,Disease Outbreak,Dengue fever alert issued for Ernakulam district post-monsoon.,2023-10-15
-130,Food Poisoning,Health advisory issued for street food vendors at Kozhikode beach.,2019-04-22
-124,Disease Outbreak,Increase in viral fever cases reported in Kottayam.,2021-08-20
-126,Political Strike,Hartal leads to shutdown of shops and transport in Kochi.,2021-03-02
-120,Overcrowding,Heavy tourist crowds at Kovalam during New Year's Eve, safety measures increased.,2023-12-31
-127,Road Blockage,Traffic jam on the way to Athirappilly due to a vehicle breakdown.,2023-08-15
-126,Tourist Scam,Advisory about unapproved tour operators in Fort Kochi area.,2022-12-20
-125,Political Strike,Tourism activities in Munnar affected by a local strike.,2024-02-10
-131,Heavy Monsoon,Yellow alert for Wayanad, advising caution for travelers.,2023-06-29
-123,Flood,Relief camps set up in Alappuzha in anticipation of flooding.,2020-08-05
-125,Landslide,A key road in Idukki blocked for hours due to a landslide.,2017-07-18
-130,Disease Outbreak,Third case of Nipah confirmed, high alert in Kozhikode.,2021-09-06
-128,Wildfire,Entry to certain forest areas in Palakkad restricted due to wildfire risk.,2021-03-15
-126,Heavy Monsoon,Urban flooding in downtown Ernakulam after a short, intense spell of rain.,2023-09-30
-120,Sea Roughness,Red flag warnings posted on several beaches in Thiruvananthapuram.,2022-07-11
-122,Wildlife Encounter,Leeches reported to be a nuisance on Gavi trekking trails after rain.,2021-07-02
-132,High Tides,Section of Kannur coast experiences unusually high tides.,2023-08-03
-124,Disease Outbreak,Health department confirms a minor outbreak of Chikungunya in Kottayam.,2018-09-25
-125,Landslide,Another minor landslide reported near Munnar, no casualties.,2019-07-28
-123,Heavy Monsoon,Waterlogging reported in low-lying areas of Alleppey.,2021-06-15
-127,Heavy Monsoon,Access to Athirappilly falls restricted due to rising water levels.,2019-08-10
-122,Road Blockage,Road to Gavi temporarily blocked by fallen trees after storm.,2023-06-18
-125,Heavy Monsoon,Orange alert declared for Idukki, risk of landslides.,2023-07-22
-129,Bird Flu Scare,Poultry farms near Kadalundi Sanctuary monitored for bird flu.,2022-01-18
-121,Algal Bloom,Algal bloom in Ashtamudi Lake affects local fishing activities.,2023-02-22
-128,Snakebite Advisory,Increased snake sightings in Silent Valley area during post-monsoon.,2022-10-10
-133,Thunderstorm,Thunderstorm warning for coastal Kasaragod, tourists advised to stay indoors.,2023-04-25
+Destination ID,Destination Name,Place,Type,Threat Type,Description,Date
+120,Kovalam Beach,Thiruvananthapuram,beach,Cyclone Warning,"Coastal areas put on high alert due to cyclone Burevi formation in the Arabian Sea.",2020-12-02
+120,Kovalam Beach,Thiruvananthapuram,beach,Sea Roughness,"High waves reported at Kovalam, swimmers advised to be cautious.",2023-05-15
+120,Kovalam Beach,Thiruvananthapuram,beach,Overcrowding,"Heavy tourist crowds at Kovalam during New Year's Eve, safety measures increased.",2023-12-31
+120,Kovalam Beach,Thiruvananthapuram,beach,Sea Roughness,"Red flag warnings posted on several beaches in Thiruvananthapuram.",2022-07-11
+120,Kovalam Beach,Thiruvananthapuram,beach,Rip Current,"Strong rip current warning issued for Lighthouse Beach area.",2021-07-25
+120,Kovalam Beach,Thiruvananthapuram,beach,Political Strike,"Local taxi strike impacts tourist travel from Kovalam to the city.",2023-02-18
+121,Ashtamudi,Kollam,beach,Cyclone Warning,"Fishermen advised not to venture into the sea off Kollam coast.",2021-11-28
+121,Ashtamudi,Kollam,beach,Algal Bloom,"Algal bloom in Ashtamudi Lake affects local fishing activities.",2023-02-22
+121,Ashtamudi,Kollam,beach,Fishing Ban,"Temporary fishing ban imposed in parts of the lake for conservation.",2022-06-10
+122,Gavi,Pathanamthitta,wildlife,Wildlife Encounter,"Wild elephant herd reported on the main road to Gavi, causing temporary closure.",2023-01-20
+122,Gavi,Pathanamthitta,wildlife,Wildlife Encounter,"Bison herd spotted near residential areas in Gavi.",2024-01-05
+122,Gavi,Pathanamthitta,wildlife,Wildlife Encounter,"Leeches reported to be a nuisance on Gavi trekking trails after rain.",2021-07-02
+122,Gavi,Pathanamthitta,wildlife,Road Blockage,"Road to Gavi temporarily blocked by fallen trees after storm.",2023-06-18
+122,Gavi,Pathanamthitta,wildlife,Park Closure,"Gavi eco-tourism project temporarily suspended for annual maintenance.",2022-05-20
+123,Alleppey Beach,Alappuzha,beach,Flood,"Severe flooding in Kuttanad region due to overflowing rivers after heavy monsoon.",2018-08-15
+123,Alleppey Beach,Alappuzha,beach,Flood,"Low-lying areas in Alappuzha submerged again after a week of heavy rains.",2019-07-22
+123,Alleppey Beach,Alappuzha,beach,Flood,"Vembanad lake water level rises, threatening coastal communities in Alappuzha.",2023-07-28
+123,Alleppey Beach,Alappuzha,beach,Flood,"Relief camps set up in Alappuzha in anticipation of flooding.",2020-08-05
+123,Alleppey Beach,Alappuzha,beach,Heavy Monsoon,"Waterlogging reported in low-lying areas of Alleppey.",2021-06-15
+123,Alleppey Beach,Alappuzha,beach,Houseboat Strike,"Houseboat operators announce a one-day strike, affecting backwater tourism.",2022-11-30
+123,Alleppey Beach,Alappuzha,beach,Mosquito Menace,"Health advisory for tourists regarding mosquito-borne illnesses in backwater areas.",2023-10-01
+124,Kumarakom,Kottayam,wildlife,Disease Outbreak,"Spike in Dengue fever cases reported in Kottayam after the monsoon season.",2022-11-05
+124,Kumarakom,Kottayam,wildlife,Disease Outbreak,"Increase in viral fever cases reported in Kottayam.",2021-08-20
+124,Kumarakom,Kottayam,wildlife,Disease Outbreak,"Health department confirms a minor outbreak of Chikungunya in Kottayam.",2018-09-25
+124,Kumarakom,Kottayam,wildlife,Bird Flu Scare,"Bird sanctuary temporarily closed as a precaution against bird flu.",2021-01-25
+124,Kumarakom,Kottayam,wildlife,Boating Restriction,"Boating activities in Vembanad lake near sanctuary restricted during bird nesting season.",2023-03-15
+125,Munnar,Idukki,hill,Landslide,"Major landslide in the high-range areas following incessant rainfall, blocking key roads.",2018-08-17
+125,Munnar,Idukki,hill,Heavy Monsoon,"Red alert issued for Idukki district due to prediction of extremely heavy rainfall.",2022-08-02
+125,Munnar,Idukki,hill,Landslide,"Pettimudi landslide tragedy occurred due to heavy rainfall in the region.",2020-08-06
+125,Munnar,Idukki,hill,Leopard Sighting,"Leopard spotted near a tea estate in Munnar, locals warned.",2023-11-12
+125,Munnar,Idukki,hill,Political Strike,"Tourism activities in Munnar affected by a local strike.",2024-02-10
+125,Munnar,Idukki,hill,Landslide,"A key road in Idukki blocked for hours due to a landslide.",2017-07-18
+125,Munnar,Idukki,hill,Landslide,"Another minor landslide reported near Munnar, no casualties.",2019-07-28
+125,Munnar,Idukki,hill,Heavy Monsoon,"Orange alert declared for Idukki, risk of landslides.",2023-07-22
+125,Munnar,Idukki,hill,Fog Warning,"Dense fog advisory for Munnar-Top Station road, causing poor visibility.",2022-12-25
+125,Munnar,Idukki,hill,Frost,"Mild frost reported in tea estates, early morning travel affected.",2024-01-15
+126,Fort Kochi,Ernakulam,beach,Heavy Monsoon,"Extreme waterlogging in Kochi city center paralyzed traffic for several hours.",2021-10-16
+126,Fort Kochi,Ernakulam,beach,Political Strike,"State-wide 'Hartal' (strike) called, disrupting public transport and tourism activities.",2022-09-23
+126,Fort Kochi,Ernakulam,beach,Disease Outbreak,"Dengue fever alert issued for Ernakulam district post-monsoon.",2023-10-15
+126,Fort Kochi,Ernakulam,beach,Political Strike,"Hartal leads to shutdown of shops and transport in Kochi.",2021-03-02
+126,Fort Kochi,Ernakulam,beach,Tourist Scam,"Advisory about unapproved tour operators in Fort Kochi area.",2022-12-20
+126,Fort Kochi,Ernakulam,beach,Heavy Monsoon,"Urban flooding in downtown Ernakulam after a short, intense spell of rain.",2023-09-30
+126,Fort Kochi,Ernakulam,beach,Ferry Disruption,"Fort Kochi-Vypin ferry service temporarily halted due to technical snag.",2023-05-11
+127,Athirappilly,Thrissur,hill,Road Blockage,"Traffic jam on the way to Athirappilly due to a vehicle breakdown.",2023-08-15
+127,Athirappilly,Thrissur,hill,Heavy Monsoon,"Access to Athirappilly falls restricted due to rising water levels.",2019-08-10
+127,Athirappilly,Thrissur,hill,Water Scarcity,"Water flow at falls significantly reduced, disappointing tourists.",2023-04-10
+127,Athirappilly,Thrissur,hill,Wildlife Encounter,"Wild boar sightings increased near tourist areas, caution advised.",2022-03-05
+128,Silent Valley,Palakkad,wildlife,Wildfire,"Forest fire reported in a part of Silent Valley buffer zone, contained by forest officials.",2023-03-10
+128,Silent Valley,Palakkad,wildlife,Wildfire,"Small wildfire in the buffer zone of Silent Valley, quickly contained.",2022-02-28
+128,Silent Valley,Palakkad,wildlife,Wildfire,"Entry to certain forest areas in Palakkad restricted due to wildfire risk.",2021-03-15
+128,Silent Valley,Palakkad,wildlife,Snakebite Advisory,"Increased snake sightings in Silent Valley area during post-monsoon.",2022-10-10
+128,Silent Valley,Palakkad,wildlife,Trekking Ban,"Trekking paths closed due to heavy rainfall and slippery conditions.",2023-07-20
+129,Kadalundi,Malappuram,wildlife,Wildlife Encounter,"Migratory bird season delayed due to unusual weather patterns.",2021-12-01
+129,Kadalundi,Malappuram,wildlife,Bird Flu Scare,"Poultry farms near Kadalundi Sanctuary monitored for bird flu.",2022-01-18
+129,Kadalundi,Malappuram,wildlife,High Tides,"High tides inundate parts of the sanctuary, affecting bird habitats.",2023-08-01
+130,Kozhikode,Kozhikode,beach,Disease Outbreak,"Nipah virus outbreak confirmed, leading to health advisories and travel restrictions.",2018-05-19
+130,Kozhikode,Kozhikode,beach,Disease Outbreak,"Resurgence of Nipah virus cases confirmed, containment zones established.",2023-09-12
+130,Kozhikode,Kozhikode,beach,Food Poisoning,"Health advisory issued for street food vendors at Kozhikode beach.",2019-04-22
+130,Kozhikode,Kozhikode,beach,Disease Outbreak,"Third case of Nipah confirmed, high alert in Kozhikode.",2021-09-06
+130,Kozhikode,Kozhikode,beach,Sea Erosion,"Section of Kozhikode beach promenade damaged due to sea erosion.",2022-07-09
+131,Wayanad,Wayanad,wildlife,Landslide,"Landslide at Puthumala village caused significant damage and displacement.",2019-08-09
+131,Wayanad,Wayanad,wildlife,Landslide,"Minor landslide near Lakkidi viewpoint in Wayanad, traffic diverted.",2020-08-06
+131,Wayanad,Wayanad,wildlife,Wildlife Encounter,"Elephant sighting near Muthanga wildlife sanctuary, traffic regulated.",2022-04-10
+131,Wayanad,Wayanad,wildlife,Heavy Monsoon,"Yellow alert for Wayanad, advising caution for travelers.",2023-06-29
+131,Wayanad,Wayanad,wildlife,Road Blockage,"Chembra peak road closed for repairs after heavy rains.",2021-08-14
+131,Wayanad,Wayanad,wildlife,Monkey Menace,"Reports of monkeys snatching food from tourists at Pookode Lake.",2023-01-05
+132,Muzhappilangad,Kannur,beach,High Tides,"Drive-in beach at Muzhappilangad closed temporarily due to high tide.",2022-06-25
+132,Muzhappilangad,Kannur,beach,High Tides,"Section of Kannur coast experiences unusually high tides.",2023-08-03
+132,Muzhappilangad,Kannur,beach,Driving Ban,"Vehicle entry banned on beach due to extremely soft sand after rains.",2021-09-20
+133,Bekal Fort,Kasaragod,beach,Coastal Erosion,"Part of the walkway near Bekal fort damaged by sea erosion.",2020-07-19
+133,Bekal Fort,Kasaragod,beach,Thunderstorm,"Thunderstorm warning for coastal Kasaragod, tourists advised to stay indoors.",2023-04-25
+133,Bekal Fort,Kasaragod,beach,Maintenance Closure,"Bekal Fort to be partially closed for visitors for renovation work.",2024-02-01
+134,Allapy,Alappuzha,beach,Flood,"Water levels in Kuttanad rise, affecting road transport to Allapy.",2019-08-02
+134,Allapy,Alappuzha,beach,Heavy Monsoon,"Continuous rain leads to waterlogging on several roads in the town.",2022-06-28
+134,Allapy,Alappuzha,beach,Algal Bloom,"Unpleasant smell from backwaters due to algal bloom reported by residents.",2023-03-04
+135,Kakkanad,Ernakulam,beach,Traffic Congestion,"Heavy traffic jams near Infopark area due to metro construction work.",2023-11-15
+135,Kakkanad,Ernakulam,beach,Waterlogging,"Flash floods reported in low-lying areas of Kakkanad after heavy downpour.",2022-10-03
+120,Kovalam Beach,Thiruvananthapuram,beach,Jellyfish Sighting,"Jellyfish sightings increase, swimmers warned to be careful.",2023-09-22
+121,Ashtamudi,Kollam,beach,Water Contamination,"Warning against swimming in certain parts of the lake due to contamination.",2024-01-20
+122,Gavi,Pathanamthitta,wildlife,Road Condition,"Portions of the main access road to Gavi are in poor condition after monsoon.",2023-10-18
+123,Alleppey Beach,Alappuzha,beach,Overcrowding,"Nehru Trophy Boat Race causes extreme overcrowding and traffic restrictions.",2022-08-13
+124,Kumarakom,Kottayam,wildlife,Political Protest,"Local protest near the main tourist jetty disrupts boat services for a few hours.",2023-06-05
+125,Munnar,Idukki,hill,Road Closure,"Ghat road to Munnar closed overnight for emergency repairs.",2023-05-25
+126,Fort Kochi,Ernakulam,beach,Biennale Crowds,"Kochi-Muziris Biennale leads to heavy tourist traffic and limited parking.",2023-01-10
+127,Athirappilly,Thrissur,hill,Slippery Rocks,"Warning signs placed about slippery rocks near the falls viewing area.",2022-08-20
+128,Silent Valley,Palakkad,wildlife,Entry Restriction,"Number of daily visitors to the national park capped to reduce disturbance.",2024-01-01
+129,Kadalundi,Malappuram,wildlife,Low Tide,"Access to bird watching points difficult during extreme low tides.",2023-02-14
+130,Kozhikode,Kozhikode,beach,Protest March,"A protest march along the beach road caused traffic diversions.",2022-11-11
+131,Wayanad,Wayanad,wildlife,Wildfire Risk,"High wildfire risk alert issued for the South Wayanad forest division.",2023-02-28
+132,Muzhappilangad,Kannur,beach,Illegal Racing,"Police increase patrols to crack down on illegal racing on the drive-in beach.",2023-01-07
+133,Bekal Fort,Kasaragod,beach,Lightning Strike,"Lightning strike reported near the fort during a thunderstorm; no injuries.",2021-10-09
+123,Alleppey Beach,Alappuzha,beach,Power Outage,"Widespread power outage in the Alleppey coastal belt after a storm.",2020-07-16
+125,Munnar,Idukki,hill,Water Scarcity,"Some hotels in Munnar report water scarcity during the peak summer season.",2019-05-22
+126,Fort Kochi,Ernakulam,beach,High Tides,"High tides coupled with rain cause flooding on roads near the beach.",2018-06-12
+130,Kozhikode,Kozhikode,beach,Overcrowding,"Beach heavily overcrowded during the Malabar Food Festival.",2024-01-26
+131,Wayanad,Wayanad,wildlife,Landslide Warning,"Early landslide warning issued for hilly areas in Wayanad.",2022-07-30
+120,Kovalam Beach,Thiruvananthapuram,beach,Tourist Scam,"Reports of overpriced taxi fares from the beach area.",2022-04-15
+122,Gavi,Pathanamthitta,wildlife,Communication Failure,"Mobile networks are unreliable or unavailable in many parts of Gavi.",2023-08-25
+124,Kumarakom,Kottayam,wildlife,Weed Infestation,"Water hyacinth infestation in backwaters hinders boat movement.",2022-02-19
+128,Silent Valley,Palakkad,wildlife,Poaching Alert,"Increased surveillance in the park's buffer zone following poaching intelligence.",2021-11-05
