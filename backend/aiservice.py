@@ -134,7 +134,7 @@ def chat_with_gemini():
     try:
         genai.configure(api_key=api_key)
         # FIX: Changed to a valid and standard model name
-        model = genai.GenerativeModel('gemini-pro')
+        model = genai.GenerativeModel('gemini-flash-lite-latest')
         prompt = f"""
         You are a friendly and helpful travel assistant for Kerala, India. 
         Your goal is to provide safe and useful travel advice.
