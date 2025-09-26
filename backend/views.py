@@ -1,6 +1,5 @@
 # backend/views.py
 
-# ... (imports and other routes up to api_search_destinations are unchanged) ...
 from flask import render_template, flash, jsonify, request
 from . import views_bp
 from models import db, Destination, SafetyRating
@@ -31,8 +30,11 @@ def dashboard():
 def search():
     """
     Renders the dedicated search page, displaying all destinations.
+    The logic is now corrected to handle the refactored SafetyRating model.
     """
     try:
+        # This is a placeholder for a more complex join if needed,
+        # but for now, we will fetch separately and combine in Python.
         destinations = Destination.query.order_by(Destination.Name, Destination.Place).all()
     except Exception as e:
         print(f"Error fetching destinations for search page: {e}")
@@ -46,36 +48,52 @@ def search():
 
 @views_bp.route('/api/search-destinations')
 def api_search_destinations():
+    """
+    FIX: This API endpoint now correctly fetches district-based safety ratings
+    and applies them to the destination results without a direct DB join.
+    """
     query = request.args.get('q', '', type=str)
     
-    base_query = Destination.query.options(
-        joinedload(Destination.safety_ratings, innerjoin=False)
-    )
+    # 1. Fetch all district ratings into a dictionary for efficient lookup
+    all_ratings = SafetyRating.query.all()
+    ratings_dict = {r.district_name: r for r in all_ratings}
 
+    # 2. Query destinations based on the search term
+    base_query = Destination.query
     if query:
         search_term = f"%{query}%"
-        search_results = base_query.filter(Destination.Place.ilike(search_term)).order_by(Destination.Name).all()
+        search_results = base_query.filter(
+            (Destination.Place.ilike(search_term)) | 
+            (Destination.Name.ilike(search_term))
+        ).order_by(Destination.Name).all()
     else:
         search_results = base_query.order_by(Destination.Name).all()
 
+    # 3. Build the response list, combining destination data with safety data
     results_list = []
     status_map = {'Very Safe': 'safe', 'Safe': 'safe', 'Moderate': 'caution', 'Risky': 'unsafe'}
+    
     for dest in search_results:
         safety_text = 'Not Rated'
         safety_class = 'caution'
-        if dest.safety_ratings:
-            if dest.safety_ratings[0].overall_safety:
-                safety_text = dest.safety_ratings[0].overall_safety
-                safety_class = status_map.get(safety_text, 'caution')
+        
+        rating = ratings_dict.get(dest.Name) # Look up rating by district name
+        if rating:
+            avg_risk = (rating.weather_risk + rating.health_risk + rating.disaster_risk) / 3
+            if avg_risk <= 1.5: safety_text = "Very Safe"
+            elif avg_risk <= 2.5: safety_text = "Safe"
+            elif avg_risk <= 3.5: safety_text = "Moderate"
+            else: safety_text = "Risky"
+            safety_class = status_map.get(safety_text, 'caution')
 
         results_list.append({
             'id': dest.Destination_id,
             'place': dest.Place,
             'name': dest.Name,
-            'type': dest.Type.capitalize(),
+            'type': dest.Type.capitalize() if dest.Type else 'N/A',
             'description': dest.Description,
             'budget': dest.budget,
-            'image_url': dest.image_url, # <-- ADDED
+            'image_url': dest.image_url,
             'safety': {
                 'text': safety_text,
                 'class_name': safety_class
@@ -84,7 +102,7 @@ def api_search_destinations():
 
     return jsonify(results_list)
 
-# ... (increment_search_count is unchanged) ...
+
 @views_bp.route('/api/increment-search-count/<int:dest_id>', methods=['POST'])
 def increment_search_count(dest_id):
     try:

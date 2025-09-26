@@ -24,19 +24,22 @@ class Destination(db.Model):
     Description = db.Column(db.Text, nullable=True)
     Create_id = db.Column(db.DateTime, nullable=False, default=datetime.datetime.now) 
     budget = db.Column(db.Integer, nullable=True)
+    
+    # ### MODIFIED/ADDED COLUMNS ###
+    search_count = db.Column(db.Integer, nullable=False, default=0)
+    image_url = db.Column(db.String(255), nullable=True)
+
 
     def __repr__(self):
         return f'<Destination {self.Name}>'
 
-# ### REFACTORED MODEL ###
-# This model now represents a district's safety rating but uses your desired table name.
+# This model now represents a district's safety rating.
 class SafetyRating(db.Model):
     __tablename__ = 'safety_rating_table'
 
     safety_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     
-    # This column now stores the name of the district (e.g., "Ernakulam")
-    # It replaces the old destination_id foreign key.
+    # This column stores the name of the district (e.g., "Ernakulam")
     district_name = db.Column(db.String(50), unique=True, nullable=False)
     
     weather_risk = db.Column(db.Integer, nullable=False, default=1)

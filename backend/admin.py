@@ -25,8 +25,9 @@ def dashboard():
     total_destinations = Destination.query.count()
     top_search_name = "N/A"
     try:
-        top_destination = Destination.query.order_by(Destination.search_count.desc()).first()
-        if top_destination and top_destination.search_count > 0:
+        # FIX: Query using the now-existing search_count column
+        top_destination = Destination.query.filter(Destination.search_count > 0).order_by(Destination.search_count.desc()).first()
+        if top_destination:
             top_search_name = top_destination.Place
     except Exception as e:
         print(f"Admin Dashboard WARNING: Could not calculate top location. Error: {e}")
@@ -39,7 +40,7 @@ def dashboard():
 @admin_bp.route('/manage_destination')
 @admin_required
 def manage_destination():
-    destinations = Destination.query.all()
+    destinations = Destination.query.order_by(Destination.Name).all()
     return render_template('admin/manage_destination.html', destinations=destinations, all_districts=KERALA_DISTRICTS, active_page='destinations')
 
 @admin_bp.route('/add-destination', methods=['POST'])
@@ -54,7 +55,7 @@ def add_destination():
             Name=data.get('name'), Place=data.get('place'),
             Type=data.get('type'), Description=data.get('description'),
             budget=data.get('budget'),
-            image_url=data.get('image_url') # <-- ADDED
+            image_url=data.get('image_url')
         )
         db.session.add(new_dest)
         db.session.commit()
@@ -77,7 +78,7 @@ def update_destination(dest_id):
         dest.Type = data.get('type', dest.Type)
         dest.Description = data.get('description', dest.Description)
         dest.budget = data.get('budget', dest.budget)
-        dest.image_url = data.get('image_url', dest.image_url) # <-- ADDED
+        dest.image_url = data.get('image_url', dest.image_url)
         
         db.session.commit()
         return jsonify({'success': True, 'message': 'Destination updated successfully!'})
@@ -85,7 +86,6 @@ def update_destination(dest_id):
         db.session.rollback()
         return jsonify({'success': False, 'message': f'Server Error: {str(e)}'}), 500
 
-# ... (rest of admin.py is unchanged) ...
 @admin_bp.route('/delete-destination/<int:dest_id>', methods=['POST'])
 @admin_required
 def delete_destination(dest_id):
@@ -104,23 +104,44 @@ def delete_destination(dest_id):
 @admin_bp.route('/monitor')
 @admin_required
 def monitor():
-    destinations = Destination.query.options(
-        joinedload(Destination.safety_ratings)
-    ).order_by(Destination.Destination_id).all()
+    all_ratings = SafetyRating.query.all()
+    ratings_dict = {r.district_name: r for r in all_ratings}
 
-    for dest in destinations:
-        dest.safety_rating = dest.safety_ratings[0] if dest.safety_ratings else None
+    # ### NEW: Logic to calculate summary statistics ###
+    summary_stats = {
+        'most_risky_district': {'name': 'N/A', 'avg': 0},
+        'highest_weather': {'name': 'N/A', 'value': 0},
+        'highest_health': {'name': 'N/A', 'value': 0},
+        'highest_disaster': {'name': 'N/A', 'value': 0},
+        'unrated_count': len(KERALA_DISTRICTS) - len(all_ratings)
+    }
+
+    for r in all_ratings:
+        avg_risk = (r.weather_risk + r.health_risk + r.disaster_risk) / 3
+        if avg_risk > summary_stats['most_risky_district']['avg']:
+            summary_stats['most_risky_district'] = {'name': r.district_name, 'avg': avg_risk}
+        if r.weather_risk > summary_stats['highest_weather']['value']:
+            summary_stats['highest_weather'] = {'name': r.district_name, 'value': r.weather_risk}
+        if r.health_risk > summary_stats['highest_health']['value']:
+            summary_stats['highest_health'] = {'name': r.district_name, 'value': r.health_risk}
+        if r.disaster_risk > summary_stats['highest_disaster']['value']:
+            summary_stats['highest_disaster'] = {'name': r.district_name, 'value': r.disaster_risk}
 
     return render_template('admin/monitor.html', 
                            all_districts=KERALA_DISTRICTS,
                            ratings=ratings_dict,
-                           summary=summary_stats, # Pass the new stats to the template
+                           summary=summary_stats,
                            active_page='monitor')
 
-@admin_bp.route('/update-safety-rating/<int:dest_id>', methods=['POST'])
+# ### FIX: Corrected route and logic to match the new model ###
+@admin_bp.route('/update-district-safety-rating/<string:district_name>', methods=['POST'])
 @admin_required
-def update_safety_rating(dest_id):
+def update_district_safety_rating(district_name):
     try:
+        weather_risk = int(request.form.get('weather_risk'))
+        health_risk = int(request.form.get('health_risk'))
+        disaster_risk = int(request.form.get('disaster_risk'))
+
         rating = SafetyRating.query.filter_by(district_name=district_name).first()
         if not rating:
             rating = SafetyRating(district_name=district_name)
@@ -129,12 +150,6 @@ def update_safety_rating(dest_id):
         rating.weather_risk = weather_risk
         rating.health_risk = health_risk
         rating.disaster_risk = disaster_risk
-
-        avg_risk = (weather_risk + health_risk + disaster_risk) / 3
-        if avg_risk <= 1.5: rating.overall_safety = "Very Safe"
-        elif avg_risk <= 2.5: rating.overall_safety = "Safe"
-        elif avg_risk <= 3.5: rating.overall_safety = "Moderate"
-        else: rating.overall_safety = "Risky"
             
         db.session.commit()
         flash(f'Successfully updated safety rating for {district_name}.', 'success')
@@ -145,7 +160,7 @@ def update_safety_rating(dest_id):
     return redirect(url_for('admin.monitor'))
 
 
-# ... (User Management routes are unchanged) ...
+# --- User Management Routes ---
 @admin_bp.route('/manage_users')
 @admin_required
 def manage_users():
@@ -155,11 +170,29 @@ def manage_users():
 @admin_bp.route('/api/update-user/<int:user_id>', methods=['PUT'])
 @admin_required
 def api_update_user(user_id):
-    user_to_update = User.query.get_or_404(user_id)
-    data = request.get_json()
-    user_to_update.Username, user_to_update.Email = data['username'], data['email']
-    db.session.commit()
-    return jsonify({'success': True})
+    try:
+        user_to_update = User.query.get_or_404(user_id)
+        data = request.get_json()
+        
+        # Check if new username or email already exists for another user
+        if 'username' in data:
+            existing_user = User.query.filter(User.Username == data['username'], User.User_id != user_id).first()
+            if existing_user:
+                return jsonify({'success': False, 'message': 'Username already taken.'}), 400
+            user_to_update.Username = data['username']
+        
+        if 'email' in data:
+            existing_email = User.query.filter(User.Email == data['email'], User.User_id != user_id).first()
+            if existing_email:
+                return jsonify({'success': False, 'message': 'Email already in use.'}), 400
+            user_to_update.Email = data['email']
+            
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'User updated successfully.'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
+
 
 @admin_bp.route('/delete-user/<int:user_id>', methods=['POST'])
 @admin_required
@@ -167,4 +200,5 @@ def delete_user(user_id):
     user_to_delete = User.query.get_or_404(user_id)
     db.session.delete(user_to_delete)
     db.session.commit()
+    flash('User deleted successfully.', 'success')
     return redirect(url_for('admin.manage_users'))
