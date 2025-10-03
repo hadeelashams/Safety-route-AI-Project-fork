@@ -2,6 +2,13 @@
 from db import db
 import datetime
 
+# NEW: Association table for the many-to-many relationship between users and favorites
+user_favorites = db.Table('user_favorites',
+    db.Column('user_id', db.Integer, db.ForeignKey('User_table.User_id'), primary_key=True),
+    db.Column('destination_id', db.Integer, db.ForeignKey('Destination.Destination_id'), primary_key=True)
+)
+
+
 class User(db.Model):
     __tablename__ = 'User_table'
     User_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -11,6 +18,10 @@ class User(db.Model):
     Password = db.Column(db.String(45), nullable=False)
     Create_id = db.Column(db.DateTime, nullable=False, default=datetime.datetime.now)
     role = db.Column(db.String(45), nullable=False)
+
+    # ADDED: Relationship to favorite destinations
+    favorites = db.relationship('Destination', secondary=user_favorites, lazy='subquery',
+                                backref=db.backref('favorited_by', lazy=True))
 
     def __repr__(self):
         return f'<User {self.Username}>'

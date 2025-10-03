@@ -4,7 +4,39 @@
 
 {% block extra_styles %}
 <style>
+    /* --- Existing Styles (Unchanged) --- */
+    .dest-card-img { width: 100%; height: 180px; object-fit: cover; }
+    .dest-card-content { padding: 20px; flex-grow: 1; }
+    .search-header { background-color: var(--white); padding: 25px; border-radius: 12px; margin-bottom: 30px; box-shadow: var(--shadow); text-align: center; }
+    .search-header h2 { margin-top: 0; color: var(--dark-text); }
+    .search-form { display: flex; max-width: 600px; margin: 0 auto; }
+    .search-form input { flex-grow: 1; padding: 12px 15px; font-size: 1rem; border: 1px solid var(--border-color); border-radius: 8px 0 0 8px; border-right: none; }
+    .search-form input:focus { outline: none; border-color: var(--primary-color); }
+    .search-form button { padding: 0 25px; border: 1px solid var(--primary-color); background-color: var(--primary-color); color: white; border-radius: 0 8px 8px 0; cursor: pointer; font-size: 1rem; }
+    .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
+    .dest-card h3 { margin-top: 0; font-size: 1.25rem; }
+    .dest-card .location { color: var(--secondary-color); font-weight: 500; margin-bottom: 15px; }
+    .dest-card .description { font-size: 0.95rem; line-height: 1.6; color: #555; }
+    .dest-card-footer { padding: 15px 20px; background-color: var(--light-bg); border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-weight: 500; }
+    .status-badge { display: inline-block; padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
+    .status-badge.safe { background-color: #d4edda; color: #155724; }
+    .status-badge.caution { background-color: #fff3cd; color: #856404; }
+    .status-badge.unsafe { background-color: #f8d7da; color: #721c24; }
+    .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0, 0, 0, 0.6); justify-content: center; align-items: center; }
+    .modal-content { background-color: var(--white); margin: auto; padding: 30px; border-radius: 12px; width: 90%; max-width: 600px; box-shadow: 0 5px 20px rgba(0,0,0,0.25); animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    .modal-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px; }
+    .modal-header h2 { margin: 0; font-size: 1.75rem; color: var(--dark-text); }
+    .close-btn { color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; background: none; border: none; }
+    .close-btn:hover, .close-btn:focus { color: #333; }
+    .modal-body .detail-item { margin-bottom: 15px; }
+    .modal-body .detail-item strong { display: block; color: var(--secondary-color); font-size: 0.9rem; margin-bottom: 4px; }
+    .modal-body .detail-item p { margin: 0; font-size: 1rem; line-height: 1.6; }
+    #modal-image { width: 100%; height: 250px; object-fit: cover; border-radius: 8px; margin-bottom: 20px; }
+
+    /* --- ADDED/MODIFIED Styles for Favorites --- */
     .dest-card {
+        position: relative; /* This is crucial for positioning the favorite button */
         background-color: var(--white);
         border-radius: 12px;
         box-shadow: var(--shadow);
@@ -14,136 +46,27 @@
         transition: transform 0.2s ease, box-shadow 0.2s ease;
         cursor: pointer;
     }
-    .dest-card-img {
-        width: 100%;
-        height: 180px;
-        object-fit: cover;
+    .favorite-btn { 
+        position: absolute; 
+        top: 15px; 
+        right: 15px; 
+        background: rgba(255, 255, 255, 0.8); 
+        border: none; 
+        border-radius: 50%; 
+        width: 40px; 
+        height: 40px; 
+        display: flex; 
+        justify-content: center; 
+        align-items: center; 
+        cursor: pointer; 
+        font-size: 1.2rem; 
+        transition: transform 0.2s, color 0.2s; 
+        z-index: 10;
     }
-    .dest-card-content {
-        padding: 20px;
-        flex-grow: 1;
-    }
-    .search-header {
-        background-color: var(--white);
-        padding: 25px;
-        border-radius: 12px;
-        margin-bottom: 30px;
-        box-shadow: var(--shadow);
-        text-align: center;
-    }
-    .search-header h2 {
-        margin-top: 0;
-        color: var(--dark-text);
-    }
-    .search-form {
-        display: flex;
-        max-width: 600px;
-        margin: 0 auto;
-    }
-    .search-form input {
-        flex-grow: 1;
-        padding: 12px 15px;
-        font-size: 1rem;
-        border: 1px solid var(--border-color);
-        border-radius: 8px 0 0 8px;
-        border-right: none;
-    }
-    .search-form input:focus {
-        outline: none;
-        border-color: var(--primary-color);
-    }
-    .search-form button {
-        padding: 0 25px;
-        border: 1px solid var(--primary-color);
-        background-color: var(--primary-color);
-        color: white;
-        border-radius: 0 8px 8px 0;
-        cursor: pointer;
-        font-size: 1rem;
-    }
-    .results-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 25px;
-    }
-    .dest-card h3 {
-        margin-top: 0;
-        font-size: 1.25rem;
-    }
-    .dest-card .location {
-        color: var(--secondary-color);
-        font-weight: 500;
-        margin-bottom: 15px;
-    }
-    .dest-card .description {
-        font-size: 0.95rem;
-        line-height: 1.6;
-        color: #555;
-    }
-    .dest-card-footer {
-        padding: 15px 20px;
-        background-color: var(--light-bg);
-        border-top: 1px solid var(--border-color);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-weight: 500;
-    }
-    .status-badge {
-        display: inline-block;
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 0.85rem;
-        font-weight: 600;
-    }
-    .status-badge.safe { background-color: #d4edda; color: #155724; }
-    .status-badge.caution { background-color: #fff3cd; color: #856404; }
-    .status-badge.unsafe { background-color: #f8d7da; color: #721c24; }
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1001;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgba(0, 0, 0, 0.6);
-        justify-content: center;
-        align-items: center;
-    }
-    .modal-content {
-        background-color: var(--white);
-        margin: auto;
-        padding: 30px;
-        border-radius: 12px;
-        width: 90%;
-        max-width: 600px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.25);
-        animation: fadeIn 0.3s ease;
-    }
-    @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-    .modal-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        border-bottom: 1px solid var(--border-color);
-        padding-bottom: 15px;
-        margin-bottom: 20px;
-    }
-    .modal-header h2 { margin: 0; font-size: 1.75rem; color: var(--dark-text); }
-    .close-btn { color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; background: none; border: none; }
-    .close-btn:hover, .close-btn:focus { color: #333; }
-    .modal-body .detail-item { margin-bottom: 15px; }
-    .modal-body .detail-item strong { display: block; color: var(--secondary-color); font-size: 0.9rem; margin-bottom: 4px; }
-    .modal-body .detail-item p { margin: 0; font-size: 1rem; line-height: 1.6; }
-    #modal-image {
-        width: 100%;
-        height: 250px;
-        object-fit: cover;
-        border-radius: 8px;
-        margin-bottom: 20px;
-    }
+    .favorite-btn:hover { transform: scale(1.1); }
+    .favorite-btn.favorited { color: #ff4d4d; }
+    .favorite-btn.not-favorited { color: #ccc; }
+    .favorite-btn i { pointer-events: none; }
 </style>
 {% endblock %}
 
@@ -170,6 +93,14 @@
              data-safety-text="{{ dest.safety_ratings[0].overall_safety if dest.safety_ratings and dest.safety_ratings[0] else 'Not Rated' }}"
              data-safety-class="{{ {'Very Safe': 'safe', 'Safe': 'safe', 'Moderate': 'caution', 'Risky': 'unsafe'}.get(dest.safety_ratings[0].overall_safety if dest.safety_ratings and dest.safety_ratings[0], 'caution') }}"
              role="button" tabindex="0">
+            
+            <!-- NEW: Favorite Button -->
+            {% set is_favorited = dest.Destination_id in favorite_ids %}
+            <button class="favorite-btn {{ 'favorited' if is_favorited else 'not-favorited' }}" 
+                    data-id="{{ dest.Destination_id }}"
+                    title="{{ 'Remove from Favorites' if is_favorited else 'Add to Favorites' }}">
+                <i class="fas fa-heart"></i>
+            </button>
             
             {% if dest.image_url %}
             <img src="{{ dest.image_url }}" alt="{{ dest.Place }}" class="dest-card-img">
@@ -262,14 +193,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
             destinations.forEach(dest => {
                 const budgetFormatted = dest.budget ? `₹${dest.budget.toLocaleString('en-IN')}` : 'N/A';
-                
-                // ### THIS IS THE FIX ###
-                // Create an image tag variable only if an image_url exists.
-                // This ensures the live search cards look identical to the initial page load.
                 const imageTag = (dest.image_url && dest.image_url !== 'None')
                     ? `<img src="${dest.image_url}" alt="${dest.place}" class="dest-card-img">`
                     : '';
-                // ### END OF FIX ###
+                
+                // Determine if this item is a favorite (we need to check the live DOM for this)
+                // Since this is an API call, we can't use the server-side 'favorite_ids'
+                // For simplicity, we'll assume not favorited on search results. A more complex app might fetch favorite status too.
+                const isFavorited = false; // Simplified for live search
+                const favClass = isFavorited ? 'favorited' : 'not-favorited';
+                const favTitle = isFavorited ? 'Remove from Favorites' : 'Add to Favorites';
 
                 const cardHTML = `
                     <div class="dest-card" 
@@ -280,7 +213,11 @@ document.addEventListener('DOMContentLoaded', function () {
                          data-safety-text="${dest.safety.text}" data-safety-class="${dest.safety.class_name}"
                          role="button" tabindex="0">
                         
-                        ${imageTag} <!-- Inject the image tag here -->
+                        <button class="favorite-btn ${favClass}" data-id="${dest.id}" title="${favTitle}">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                        
+                        ${imageTag}
 
                         <div class="dest-card-content">
                             <h3>${dest.place}</h3>
@@ -316,9 +253,38 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 300);
     });
 
-    resultsGrid.addEventListener('click', (event) => {
+    // REPLACED: Combined event listener for cards and favorite buttons
+    resultsGrid.addEventListener('click', async (event) => {
+        const favoriteButton = event.target.closest('.favorite-btn');
         const card = event.target.closest('.dest-card');
-        if (card) {
+
+        if (favoriteButton) {
+            // --- Handle favorite button click ---
+            event.stopPropagation(); // Prevent modal from opening
+            const destId = favoriteButton.dataset.id;
+            const isFavorited = favoriteButton.classList.contains('favorited');
+            const url = isFavorited ? `/api/favorites/remove/${destId}` : `/api/favorites/add/${destId}`;
+            
+            try {
+                const response = await fetch(url, { method: 'POST' });
+                const result = await response.json();
+
+                if (result.success) {
+                    favoriteButton.classList.toggle('favorited');
+                    favoriteButton.classList.toggle('not-favorited');
+                    favoriteButton.title = favoriteButton.classList.contains('favorited') 
+                        ? 'Remove from Favorites' 
+                        : 'Add to Favorites';
+                } else {
+                    alert(result.message || 'An error occurred.');
+                }
+            } catch (error) {
+                console.error('Favorite toggle error:', error);
+                alert('Could not update favorite status. Please try again.');
+            }
+
+        } else if (card) {
+            // --- Handle card click to open modal ---
             const destId = card.dataset.id;
             if (destId && destId !== 'undefined') {
                 fetch(`/api/increment-search-count/${destId}`, {

@@ -3,12 +3,63 @@
 {% block title %}Manage Destinations{% endblock %}
 
 {% block content %}
-<h2>Manage Destinations <button onclick="openAddModal()" class="add-btn">Add Destination</button></h2>
+<!-- ADDED: Style block for the new search bar -->
+<style>
+  .header-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap; /* Allows items to wrap on smaller screens */
+  }
+  .header-controls h2 {
+    margin: 0;
+    margin-right: auto; /* Pushes other items to the right */
+  }
+  .search-container {
+    position: relative;
+    margin: 0 20px;
+  }
+  #searchInput {
+    width: 10%;
+    min-width: 150px; /* Ensures the search bar doesn't get too small */
+    padding: 8px 12px 8px 35px; /* Add padding on the left for the icon */
+    border-radius: 20px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    transition: box-shadow 0.2s;
+  }
+  #searchInput:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+  }
+  .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+    pointer-events: none; /* Makes the icon non-interactive */
+  }
+</style>
+
+<!-- MODIFIED: Header section with search bar -->
+<div class="header-controls">
+  <h2>Manage Destinations</h2>
+  <div class="search-container">
+    <!-- Search Icon (inline SVG) -->
+    <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18px" height="18px"><path d="M0 0h24v24H0z" fill="none"/><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+    <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search by district">
+  </div>
+  <button onclick="openAddModal()" class="add-btn">Add Destination</button>
+</div>
+
 
 <table>
   <thead>
     <tr>
-      <th>Image</th> <!-- ADDED -->
+      <th>Image</th>
       <th>Kerala District</th>
       <th>Place</th>
       <th>Type</th>
@@ -25,9 +76,8 @@
         data-type="{{ dest.Type | e }}"
         data-budget="{{ dest.budget | e }}"
         data-description="{{ dest.Description | e }}"
-        data-image_url="{{ dest.image_url | e }}"> <!-- ADDED -->
+        data-image_url="{{ dest.image_url | e }}">
       
-      <!-- ADDED Image Thumbnail -->
       <td>
         {% if dest.image_url %}
           <img src="{{ dest.image_url }}" alt="{{ dest.Place }}" style="width: 100px; height: 60px; object-fit: cover; border-radius: 4px;">
@@ -50,7 +100,7 @@
   </tbody>
 </table>
 
-<!-- The multipurpose Modal for adding and editing -->
+<!-- The multipurpose Modal for adding and editing (unchanged) -->
 <div id="destinationModal" class="modal">
   <div class="modal-content">
     <h2 id="modalTitle">Add New Destination</h2>
@@ -87,7 +137,6 @@
         <input type="number" id="budget" name="budget" placeholder="e.g., 15000" required>
       </div>
       
-      <!-- ADDED Image URL Field -->
       <div class="form-group">
         <label for="image_url">Image URL</label>
         <input type="text" id="image_url" name="image_url" placeholder="https://example.com/image.jpg">
@@ -134,14 +183,14 @@ function openEditModal(destId) {
   const type = row.dataset.type;
   const budget = row.dataset.budget;
   const description = row.dataset.description;
-  const imageUrl = row.dataset.image_url; // <-- ADDED
+  const imageUrl = row.dataset.image_url;
 
   document.getElementById('name').value = name;
   document.getElementById('place').value = place;
   document.getElementById('type').value = type;
   document.getElementById('budget').value = budget;
   document.getElementById('description').value = description;
-  document.getElementById('image_url').value = imageUrl; // <-- ADDED
+  document.getElementById('image_url').value = imageUrl;
   destIdField.value = destId;
 
   modalTitle.innerText = 'Edit Destination';
@@ -192,6 +241,35 @@ function saveDestination(event) {
     alert('An error occurred: ' + error.message);
   });
   return false;
+}
+
+// --- ADDED: Real-time Table Filtering/Search Function ---
+function filterTable() {
+  const input = document.getElementById('searchInput');
+  const filter = input.value.toLowerCase();
+  const tableBody = document.getElementById('destinations-table-body');
+  const rows = tableBody.getElementsByTagName('tr');
+
+  // Loop through all table rows, and hide those who don't match the search query
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+    // Get text content from the searchable cells (District, Place, Type)
+    const districtCell = row.cells[1];
+    const placeCell = row.cells[2];
+    const typeCell = row.cells[3];
+    
+    if (districtCell && placeCell && typeCell) {
+      const rowText = (districtCell.textContent || districtCell.innerText) + 
+                      (placeCell.textContent || placeCell.innerText) + 
+                      (typeCell.textContent || typeCell.innerText);
+                      
+      if (rowText.toLowerCase().indexOf(filter) > -1) {
+        row.style.display = ""; // Show the row
+      } else {
+        row.style.display = "none"; // Hide the row
+      }
+    }
+  }
 }
 </script>
 {% endblock %}
