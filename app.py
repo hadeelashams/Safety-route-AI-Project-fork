@@ -3,7 +3,7 @@
 from flask import Flask
 from db import db
 import os
-from dotenv import load_dotenv # <-- ADD THIS LINE
+from dotenv import load_dotenv 
 
 load_dotenv() # <-- ADD THIS LINE to load variables from .env
 

@@ -1,278 +1,196 @@
 {% extends "admin/admin_layout.html" %}
 
-{% block title %}District Monitor - Safe Route{% endblock %}
+{% block title %}Manage Risk Log - Safe Route{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* General styles */
+    .page-title { font-size: 1.6rem; font-weight: 600; margin-bottom: 1.5rem; color: #2d5a3f; }
+    .alert { padding: 0.8rem 1rem; margin-bottom: 1rem; border-radius: 0.6rem; font-weight: 500; }
+    .alert-success { background: #dcfce7; color: #166534; border-left: 5px solid #22c55e; }
+    .alert-danger, .alert-error { background: #fee2e2; color: #991b1b; border-left: 5px solid #dc2626; }
+    .alert-warning { background: #fef9c3; color: #854d0e; border-left: 5px solid #facc15; }
+
+    /* Form Section */
+    .form-card { background: #fff; padding: 1.5rem; border-radius: 1rem; box-shadow: 0 2px 6px rgba(0,0,0,0.08); margin-bottom: 2rem; border: 1px solid #d1e7d8; }
+    .form-card h3 { margin-top: 0; margin-bottom: 1.5rem; color: #2f855a; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; }
+    .form-group { display: flex; flex-direction: column; }
+    label { font-size: 0.9rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem; }
+    input, select, textarea { width: 100%; padding: 0.6rem; border: 1px solid #d1e7d8; border-radius: 0.5rem; font-size: 0.95rem; background: #f9fdfb; }
+    textarea { resize: vertical; min-height: 40px; }
+    .btn { border: none; padding: 0.6rem 1.2rem; border-radius: 0.6rem; cursor: pointer; font-weight: 500; transition: background 0.2s ease; }
+    .btn-primary { background: #2d5a3f; color: #fff; }
+    .btn-primary:hover { background: #16a34a; }
+    .btn-secondary { background: #e6f4ea; color: #15803d; }
+    .btn-secondary:hover { background: #c7e9cf; }
+    .btn-danger { background: #fee2e2; color: #b91c1c; }
+    .btn-danger:hover { background: #fca5a5; }
+
+    /* Table Section */
+    .table-card { background: #fff; border-radius: 1rem; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border: 1px solid #d1e7d8; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: #f0f9f4; color: #2f855a; text-transform: uppercase; font-size: 0.75rem; }
+    th, td { padding: 0.8rem; text-align: left; border-bottom: 1px solid #e5e5e5; font-size: 0.9rem; vertical-align: middle; }
+    tbody tr:hover { background: #f9fafb; }
+    td.actions { display: flex; gap: 0.5rem; }
+
+    /* Modal Styles */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.45); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-content { background: #fff; padding: 1.6rem; border-radius: 1rem; box-shadow: 0 8px 20px rgba(0,0,0,0.25); width: 800px; max-width: 95%; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; }
+    .modal-actions { margin-top: 1.5rem; display: flex; gap: 0.6rem; justify-content: flex-end; }
+</style>
+{% endblock %}
+
 
 {% block content %}
-<h2 class="page-title">🛡️ District Safety Monitor</h2>
+<h2 class="page-title">🛡️ Manage Risk Log (risklog.csv)</h2>
 
-<!-- Flash Messages -->
 {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
     {% for category, message in messages %}
-      <div class="alert alert-{{ 'success' if category == 'success' else 'error' }}">{{ message }}</div>
+      <div class="alert alert-{{ category }}">{{ message }}</div>
     {% endfor %}
   {% endif %}
 {% endwith %}
 
-<!-- ### NEW: Summary Cards ### -->
-<div class="summary-cards">
-  <div class="summary-card">
-    <h4>Most Risky District</h4>
-    <p>{{ summary.most_risky_district.name }}</p>
-  </div>
-  <div class="summary-card">
-    <h4>Highest Weather Risk</h4>
-    <p>{{ summary.highest_weather.name }} ({{ summary.highest_weather.value }})</p>
-  </div>
-  <div class="summary-card">
-    <h4>Highest Health Risk</h4>
-    <p>{{ summary.highest_health.name }} ({{ summary.highest_health.value }})</p>
-  </div>
-  <div class="summary-card">
-    <h4>Highest Disaster Risk</h4>
-    <p>{{ summary.highest_disaster.name }} ({{ summary.highest_disaster.value }})</p>
-  </div>
-  {% if summary.unrated_count > 0 %}
-  <div class="summary-card summary-card-warning">
-    <h4>Districts Unrated</h4>
-    <p>{{ summary.unrated_count }}</p>
-  </div>
-  {% endif %}
+<!-- Add New Entry Form -->
+<div class="form-card">
+    <h3><i class="fas fa-plus-circle"></i> Add New Risk Entry</h3>
+    <form action="{{ url_for('admin.add_risk_log_row') }}" method="POST">
+        <div class="form-grid">
+            <div class="form-group"><label for="add_date">Date</label><input type="date" id="add_date" name="date" required></div>
+            <div class="form-group"><label for="add_district">District</label>
+                <select id="add_district" name="district" required>
+                    {% for district in all_districts %}<option value="{{ district }}">{{ district }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="form-group"><label for="add_place">Place</label><input type="text" id="add_place" name="place" required></div>
+            <div class="form-group"><label for="add_temp">Temperature (°C)</label><input type="number" step="0.1" id="add_temp" name="temperature_c" value="25.0" required></div>
+            <div class="form-group"><label for="add_rain">Rainfall (mm)</label><input type="number" step="0.1" id="add_rain" name="rainfall_mm" value="0.0" required></div>
+            <div class="form-group"><label for="add_humidity">Humidity (%)</label><input type="number" id="add_humidity" name="humidity_percent" value="70" required></div>
+            <div class="form-group"><label for="add_disease">Disease Cases</label><input type="number" id="add_disease" name="disease_cases" value="0" required></div>
+            <div class="form-group"><label for="add_event">Disaster Event</label><input type="text" id="add_event" name="disaster_event" value="None" required></div>
+        </div>
+        <div class="form-group" style="margin-top: 1rem;">
+            <label for="add_desc">Description</label>
+            <textarea id="add_desc" name="description" rows="2" required>No specific details.</textarea>
+        </div>
+        <div style="text-align: right; margin-top: 1rem;">
+            <button type="submit" class="btn btn-primary">💾 Add Entry</button>
+        </div>
+    </form>
 </div>
 
-
-<!-- District Ratings Table -->
+<!-- Risk Log Data Table -->
 <div class="table-card">
   <table>
     <thead>
       <tr>
-        <th>District</th>
-        <th>Weather Risk</th>
-        <th>Health Risk</th>
-        <th>Disaster Risk</th>
-        <th>Overall Safety</th>
-        <th>Actions</th>
+        <th>Date</th><th>District</th><th>Place</th><th>Temp</th><th>Rain</th><th>Humidity</th><th>Cases</th><th>Event</th><th>Actions</th>
       </tr>
     </thead>
     <tbody>
-      {% for district in all_districts %}
-      {% set rating = ratings.get(district) %}
+      {% for row in risk_log_data %}
       <tr>
-        <td><strong>{{ district }}</strong></td>
-        <td>
-          <!-- ### UPDATED: Color-coded risk badge ### -->
-          {% if rating %}
-            {% set risk_val = rating.weather_risk %}
-            <span class="risk-badge risk-{{ 'high' if risk_val > 3 else 'medium' if risk_val == 3 else 'low' }}">
-              {{ risk_val }}
-            </span>
-          {% else %}
-            <span class="risk-badge risk-unknown">N/A</span>
-          {% endif %}
-        </td>
-        <td>
-          {% if rating %}
-            {% set risk_val = rating.health_risk %}
-            <span class="risk-badge risk-{{ 'high' if risk_val > 3 else 'medium' if risk_val == 3 else 'low' }}">
-              {{ risk_val }}
-            </span>
-          {% else %}
-            <span class="risk-badge risk-unknown">N/A</span>
-          {% endif %}
-        </td>
-        <td>
-          {% if rating %}
-            {% set risk_val = rating.disaster_risk %}
-            <span class="risk-badge risk-{{ 'high' if risk_val > 3 else 'medium' if risk_val == 3 else 'low' }}">
-              {{ risk_val }}
-            </span>
-          {% else %}
-            <span class="risk-badge risk-unknown">N/A</span>
-          {% endif %}
-        </td>
-        <td>
-          {% if rating %}
-            {% set avg_risk = (rating.weather_risk + rating.health_risk + rating.disaster_risk) / 3 %}
-            {% if avg_risk <= 1.5 %}
-              <span class="badge badge-safe">Very Safe</span>
-            {% elif avg_risk <= 2.5 %}
-              <span class="badge badge-safe">Safe</span>
-            {% elif avg_risk <= 3.5 %}
-              <span class="badge badge-caution">Moderate</span>
-            {% else %}
-              <span class="badge badge-unsafe">Risky</span>
-            {% endif %}
-          {% else %}
-            <span class="badge badge-unknown">Not Rated</span>
-          {% endif %}
-        </td>
+        <td>{{ row.date }}</td>
+        <td>{{ row.district }}</td>
+        <td>{{ row.place }}</td>
+        <td>{{ row.temperature_c }}°C</td>
+        <td>{{ row.rainfall_mm }}mm</td>
+        <td>{{ row.humidity_percent }}%</td>
+        <td>{{ row.disease_cases }}</td>
+        <td>{{ row.disaster_event }}</td>
         <td class="actions">
-          <button type="button" 
-             class="btn-secondary"
-             onclick="openRatingModal(
-               '{{ district | e }}',
-               {{ rating.weather_risk | default(1) }}, 
-               {{ rating.health_risk | default(1) }}, 
-               {{ rating.disaster_risk | default(1) }}
-             )">
-             ⚙️ Update Rating
-          </button>
+            <!-- ### FIX: Store data in data-row attribute and call function with 'this' ### -->
+            <button class="btn btn-secondary" 
+                    data-row='{{ row|tojson|safe }}' 
+                    onclick="openEditModal(this)">Edit</button>
+            <form action="{{ url_for('admin.delete_risk_log_row', row_index=row.index) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this row?');">
+                <button type="submit" class="btn btn-danger">Delete</button>
+            </form>
         </td>
       </tr>
+      {% else %}
+      <tr><td colspan="9" style="text-align: center; padding: 2rem;">No risk log data found.</td></tr>
       {% endfor %}
     </tbody>
   </table>
 </div>
 
-<!-- Edit Rating Modal (Unchanged) -->
-<div id="ratingModal" class="modal">
+<!-- Edit Row Modal -->
+<div id="editModal" class="modal">
   <div class="modal-content">
     <div class="modal-header">
-      <h3 id="modalTitle">⚙️ Update Safety Rating</h3>
+      <h3><i class="fas fa-edit"></i> Edit Risk Log Entry</h3>
       <button type="button" class="close-btn" onclick="closeModal()">×</button>
     </div>
-    <form id="ratingForm" method="POST">
-      <div class="form-grid">
-        <div class="full-width">
-          <label>District</label>
-          <input type="text" id="districtName" readonly disabled style="background:#eee; cursor: not-allowed; padding: 0.6rem; border: 1px solid #d1e7d8; border-radius: 0.5rem; font-size: 1rem; width: 100%;">
+    <form id="editForm" action="{{ url_for('admin.update_risk_log_row') }}" method="POST">
+        <input type="hidden" name="row_index" id="edit_row_index">
+        <div class="form-grid">
+            <div class="form-group"><label for="edit_date">Date</label><input type="date" id="edit_date" name="date" required></div>
+            <div class="form-group"><label for="edit_district">District</label>
+                <select id="edit_district" name="district" required>
+                    {% for district in all_districts %}<option value="{{ district }}">{{ district }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="form-group"><label for="edit_place">Place</label><input type="text" id="edit_place" name="place" required></div>
+            <div class="form-group"><label for="edit_temp">Temperature (°C)</label><input type="number" step="0.1" id="edit_temp" name="temperature_c" required></div>
+            <div class="form-group"><label for="edit_rain">Rainfall (mm)</label><input type="number" step="0.1" id="edit_rain" name="rainfall_mm" required></div>
+            <div class="form-group"><label for="edit_humidity">Humidity (%)</label><input type="number" id="edit_humidity" name="humidity_percent" required></div>
+            <div class="form-group"><label for="edit_disease">Disease Cases</label><input type="number" id="edit_disease" name="disease_cases" required></div>
+            <div class="form-group"><label for="edit_event">Disaster Event</label><input type="text" id="edit_event" name="disaster_event" required></div>
         </div>
-        <div>
-          <label for="weather_risk">Weather Risk (1-5)</label>
-          <input type="number" name="weather_risk" id="weather_risk" min="1" max="5" required>
+        <div class="form-group" style="margin-top: 1rem;">
+            <label for="edit_desc">Description</label>
+            <textarea id="edit_desc" name="description" rows="3" required></textarea>
         </div>
-        <div>
-          <label for="health_risk">Health Risk (1-5)</label>
-          <input type="number" name="health_risk" id="health_risk" min="1" max="5" required>
+        <div class="modal-actions">
+            <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+            <button type="button" class="btn btn-secondary" onclick="closeModal()">❌ Cancel</button>
         </div>
-        <div class="full-width">
-          <label for="disaster_risk">Disaster Risk (1-5)</label>
-          <input type="number" name="disaster_risk" id="disaster_risk" min="1" max="5" required>
-        </div>
-      </div>
-      <div class="modal-actions">
-        <button type="submit" class="btn-primary">💾 Save Changes</button>
-        <button type="button" class="btn-secondary" onclick="closeModal()">❌ Cancel</button>
-      </div>
     </form>
   </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
-<!-- (JavaScript is unchanged) -->
 <script>
-function openRatingModal(districtName, weather, health, disaster) {
-  const form = document.getElementById("ratingForm");
-  const title = document.getElementById("modalTitle");
-  form.action = `/admin/update-district-safety-rating/${districtName}`;
-  title.innerText = `⚙️ Update Rating for ${districtName}`;
-  document.getElementById("districtName").value = districtName;
-  document.getElementById("weather_risk").value = weather;
-  document.getElementById("health_risk").value = health;
-  document.getElementById("disaster_risk").value = disaster;
-  document.getElementById("ratingModal").style.display = "flex";
+const modal = document.getElementById("editModal");
+
+// ### FIX: Function now accepts the button element ###
+function openEditModal(button) {
+    // Get the JSON string from the data-row attribute
+    const rowDataString = button.getAttribute('data-row');
+    // Parse the string into a JavaScript object
+    const data = JSON.parse(rowDataString);
+    
+    // Populate form fields with the parsed data
+    document.getElementById("edit_row_index").value = data.index;
+    document.getElementById("edit_date").value = data.date;
+    document.getElementById("edit_district").value = data.district;
+    document.getElementById("edit_place").value = data.place;
+    document.getElementById("edit_temp").value = data.temperature_c;
+    document.getElementById("edit_rain").value = data.rainfall_mm;
+    document.getElementById("edit_humidity").value = data.humidity_percent;
+    document.getElementById("edit_disease").value = data.disease_cases;
+    document.getElementById("edit_event").value = data.disaster_event;
+    document.getElementById("edit_desc").value = data.description;
+    
+    // Show modal
+    modal.style.display = "flex";
 }
+
 function closeModal() {
-  document.getElementById("ratingModal").style.display = "none";
+  modal.style.display = "none";
 }
+
 window.onclick = function(event) {
-  const modal = document.getElementById("ratingModal");
   if (event.target == modal) {
     closeModal();
   }
 }
 </script>
-{% endblock %}
-
-
-{% block extra_css %}
-<!-- ### ADDED: New styles for summary cards and risk badges ### -->
-<style>
-/* Base Styles (Unchanged) */
-.page-title { font-size: 1.6rem; font-weight: 600; margin-bottom: 1.5rem; color: #2d5a3f; }
-.alert { padding: 0.8rem 1rem; margin-bottom: 1rem; border-radius: 0.6rem; font-weight: 500; }
-.alert-success { background: #dcfce7; color: #166534; border-left: 5px solid #22c55e; }
-.alert-error { background: #fee2e2; color: #991b1b; border-left: 5px solid #dc2626; }
-.btn-primary { background: #2d5a3f; color: #fff; border: none; padding: 0.6rem 1.2rem; border-radius: 0.6rem; cursor: pointer; font-weight: 500; transition: background 0.2s ease; }
-.btn-primary:hover { background: #16a34a; }
-.btn-secondary { background: #e6f4ea; color: #15803d; padding: 0.4rem 0.8rem; border-radius: 0.5rem; text-decoration: none; margin-right: 0.4rem; transition: background 0.2s ease; border: none; cursor: pointer; font-weight: 500; }
-.btn-secondary:hover { background: #c7e9cf; }
-
-/* New Summary Card Styles */
-.summary-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-.summary-card {
-  background-color: #fff;
-  padding: 1rem;
-  border-radius: 0.75rem;
-  border: 1px solid #d1e7d8;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-.summary-card h4 {
-  margin: 0 0 0.5rem 0;
-  font-size: 0.9rem;
-  color: #2f855a;
-  font-weight: 600;
-}
-.summary-card p {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #2d3748;
-}
-.summary-card-warning {
-  background-color: #fef9c3;
-  border-color: #fde68a;
-}
-.summary-card-warning h4 { color: #854d0e; }
-.summary-card-warning p { color: #854d0e; }
-
-/* Table and Badge Styles */
-.table-card { background: #fff; border-radius: 1rem; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border: 1px solid #d1e7d8; overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; }
-thead { background: #f0f9f4; color: #2f855a; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; }
-th, td { padding: 0.9rem; text-align: left; border-bottom: 1px solid #e5e5e5; font-size: 0.95rem; vertical-align: middle; }
-tbody tr:hover { background: #f9fafb; }
-
-.badge { padding: 0.3rem 0.7rem; border-radius: 99px; font-weight: bold; font-size: 0.8rem; }
-.badge-safe { background-color: #dcfce7; color: #166534; }
-.badge-caution { background-color: #fef9c3; color: #854d0e; }
-.badge-unsafe { background-color: #fee2e2; color: #991b1b; }
-.badge-unknown { background-color: #e5e7eb; color: #4b5563; }
-
-/* New Risk Badge Styles */
-.risk-badge {
-  display: inline-block;
-  font-weight: 700;
-  font-size: 0.9rem;
-  padding: 0.25rem 0.6rem;
-  border-radius: 6px;
-  min-width: 20px;
-  text-align: center;
-}
-.risk-low { background-color: #dcfce7; color: #166534; border: 1px solid #a7f3d0; }
-.risk-medium { background-color: #fef9c3; color: #854d0e; border: 1px solid #fde68a; }
-.risk-high { background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
-.risk-unknown { background-color: #e5e7eb; color: #4b5563; border: 1px solid #d1d5db; }
-
-
-/* Modal Styles (Unchanged) */
-.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.45); justify-content: center; align-items: center; z-index: 1000; }
-.modal-content { background: #fff; padding: 1.6rem; border-radius: 1rem; box-shadow: 0 8px 20px rgba(0,0,0,0.25); width: 500px; max-width: 95%; animation: fadeIn 0.3s ease; }
-.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-.modal-header h3 { margin: 0; font-size: 1.4rem; color: #2d5a3f; }
-.close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; }
-.close-btn:hover { color: #b91c1c; }
-.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
-.form-grid .full-width { grid-column: span 2; }
-label { font-size: 0.9rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem; display: block; }
-input[type="number"] { width: 100%; padding: 0.6rem; border: 1px solid #d1e7d8; border-radius: 0.5rem; font-size: 1rem; background: #f9fdfb; }
-.modal-actions { margin-top: 1.5rem; display: flex; gap: 0.6rem; justify-content: flex-end; }
-@keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-</style>
 {% endblock %}

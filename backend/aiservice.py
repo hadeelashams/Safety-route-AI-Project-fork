@@ -1,53 +1,94 @@
 # backend/aiservice.py
 
 from flask import Blueprint, jsonify, request, current_app
-from models import db, Destination, SafetyRating
+from models import db, Destination # SafetyRating model is no longer needed
 import pandas as pd
 import datetime
 import google.generativeai as genai
 
 ai_bp = Blueprint('ai_service', __name__)
 
+# --- Centralized AI Model Configuration ---
+_gemini_model = None
+GEMINI_MODEL_NAME = 'gemini-flash-lite-latest'
 
+def _get_gemini_model():
+    """Initializes and returns a singleton instance of the Gemini generative model."""
+    global _gemini_model
+    if _gemini_model:
+        return _gemini_model
+    api_key = current_app.config.get('GEMINI_API_KEY')
+    if not api_key:
+        print("AI Service WARNING: GEMINI_API_KEY not configured.")
+        return None
+    try:
+        genai.configure(api_key=api_key)
+        _gemini_model = genai.GenerativeModel(GEMINI_MODEL_NAME)
+        return _gemini_model
+    except Exception as e:
+        print(f"AI Service ERROR: Failed to initialize Gemini model: {e}")
+        return None
+
+# --- Helper Functions ---
 def _build_travel_tip(stop_names: list[str] | None) -> str:
-    """Return a short travel tip string for the given stop names.
-
-    If stop_names is empty or None, returns a generic tip referencing "your destinations".
-    """
-    if stop_names:
-        tip_locations = ", ".join(stop_names)
-    else:
-        tip_locations = "your destinations"
+    """Return a short travel tip string for the given stop names."""
+    tip_locations = ", ".join(stop_names) if stop_names else "your destinations"
     return f"Enjoy your journey! When travelling through {tip_locations}, always check local news for the latest updates on weather and road conditions."
 
-
-# --- AI Service Constants & Data Loading ---
+# --- Data Loading ---
 KERALA_DISTRICTS_ORDER = [
     "Thiruvananthapuram", "Kollam", "Pathanamthitta", "Alappuzha", "Kottayam",
     "Idukki", "Ernakulam", "Thrissur", "Palakkad", "Malappuram",
     "Kozhikode", "Wayanad", "Kannur", "Kasaragod"
 ]
-
 try:
     csv_path = 'static/data/risklog.csv'
     risk_log_df = pd.read_csv(csv_path, skipinitialspace=True, on_bad_lines='skip')
-    # Normalize column names to snake_case for consistent access in code
     risk_log_df.columns = [c.strip().lower().replace(' ', '_') for c in risk_log_df.columns]
-    # Parse the date column if present (could be 'date' or 'date' after normalization)
     if 'date' in risk_log_df.columns:
         risk_log_df['date'] = pd.to_datetime(risk_log_df['date'], errors='coerce')
-    else:
-        # Some CSVs might use other names; try common alternatives
-        for alt in ('datetime', 'report_date'):
-            if alt in risk_log_df.columns:
-                risk_log_df['date'] = pd.to_datetime(risk_log_df[alt], errors='coerce')
-                break
     print("AI Service: Risk log CSV loaded successfully.")
 except Exception as e:
-    print(f"AI Service WARNING: Could not read {csv_path}: {e}. Recent risk analysis will be limited.")
+    print(f"AI Service WARNING: Could not read {csv_path}: {e}. Risk analysis will be limited.")
     risk_log_df = pd.DataFrame()
 
+# --- Centralized Safety Calculation Function ---
+def calculate_safety_from_csv(district_name, place_name=None):
+    """
+    Calculates a safety score and text based on historical data from risklog.csv.
+    This function is the single source of truth for safety assessments.
+    """
+    status_map = {'Very Safe': 'safe', 'Safe': 'safe', 'Moderate': 'caution', 'Risky': 'unsafe'}
+    
+    if risk_log_df.empty:
+        return {'text': 'Moderate', 'class': 'caution'}
 
+    two_years_ago = datetime.datetime.now() - datetime.timedelta(days=730)
+    
+    mask = (risk_log_df['district'].str.lower() == district_name.lower()) & (risk_log_df['date'] > two_years_ago)
+    if place_name:
+        mask &= (risk_log_df['place'].str.lower() == place_name.lower())
+        
+    relevant_events = risk_log_df[mask]
+    
+    if relevant_events.empty:
+        return {'text': 'Very Safe', 'class': 'safe'}
+
+    risk_score = 0
+    risk_score += (relevant_events['disaster_event'].str.lower() != 'none').sum() * 5
+    risk_score += relevant_events['disease_cases'].sum() * 0.5
+    risk_score += (relevant_events['temperature_c'] > 35).sum() * 1
+    risk_score += (relevant_events['rainfall_mm'] > 100).sum() * 2
+
+    if risk_score == 0: safety_text = "Very Safe"
+    elif risk_score <= 5: safety_text = "Safe"
+    elif risk_score <= 15: safety_text = "Moderate"
+    else: safety_text = "Risky"
+        
+    return {'text': safety_text, 'class': status_map.get(safety_text, 'caution')}
+
+
+# --- API Endpoints ---
 @ai_bp.route('/api/generate-route', methods=['POST'])
 def generate_ai_route():
     data = request.get_json()
@@ -61,19 +102,12 @@ def generate_ai_route():
     except (ValueError, TypeError):
         return jsonify({'success': False, 'message': 'Invalid source, destination, or budget provided.'}), 400
 
-    # Determine the path of districts for the journey
     if source_index < dest_index:
         travel_path_districts = KERALA_DISTRICTS_ORDER[source_index : dest_index + 1]
     else:
         travel_path_districts = list(reversed(KERALA_DISTRICTS_ORDER[dest_index : source_index + 1]))
-
-    districts_for_stops = travel_path_districts[1:] # Exclude the source district for stops
-
-    # 1. Fetch all district ratings into a dictionary for quick lookup
-    all_ratings = SafetyRating.query.all()
-    district_ratings = {r.district_name: r for r in all_ratings}
-
-    # 2. Query potential destinations based on path, interest, and budget
+    districts_for_stops = travel_path_districts[1:]
+    
     potential_stops = Destination.query.filter(
         Destination.Name.in_(districts_for_stops),
         Destination.Type == interest,
@@ -84,214 +118,83 @@ def generate_ai_route():
         msg = f'No stops matching your interest "{interest.capitalize()}" and budget (under ₹{user_budget:,}) were found between {source_district} and {dest_district}.'
         return jsonify({'success': False, 'message': msg})
 
-    # 3. Analyze stops by looking up their district's rating and deriving overall safety
     analyzed_stops = []
-    status_map = {'Very Safe': 'safe', 'Safe': 'safe', 'Moderate': 'caution', 'Risky': 'unsafe'}
-
     for stop in potential_stops:
-        rating = district_ratings.get(stop.Name)
-        
-        if rating:
-            avg_risk = (rating.weather_risk + rating.health_risk + rating.disaster_risk) / 3
-            if avg_risk <= 1.5: safety_text = "Very Safe"
-            elif avg_risk <= 2.5: safety_text = "Safe"
-            elif avg_risk <= 3.5: safety_text = "Moderate"
-            else: safety_text = "Risky"
-        else:
-            safety_text = "Moderate" # Default for unrated districts
-
+        safety_info = calculate_safety_from_csv(stop.Name, stop.Place)
         analyzed_stops.append({
             'id': stop.Destination_id, 'name': stop.Place, 'district': stop.Name,
             'type': stop.Type.capitalize(), 'budget': stop.budget,
-            'safety_text': safety_text, 'safety_class': status_map.get(safety_text, 'caution')
+            'safety_text': safety_info['text'], 'safety_class': safety_info['class']
         })
 
-    # 4. Select the best stops based on safety
     safety_order = {'Very Safe': 0, 'Safe': 1, 'Moderate': 2, 'Risky': 3}
     sorted_stops = sorted(analyzed_stops, key=lambda x: safety_order.get(x['safety_text'], 99))
     best_stops = sorted_stops[:3]
 
-    # 5. Collect recent alerts for the selected stops from the CSV
     alerts, stop_names_for_tip = [], []
     if not risk_log_df.empty:
         two_years_ago = datetime.datetime.now() - datetime.timedelta(days=730)
+        severity_map = {'landslide': 'alert-high', 'flood': 'alert-high', 'cyclone': 'alert-high', 'heatwave': 'alert-medium', 'drought': 'alert-medium'}
         for stop in best_stops:
             stop_names_for_tip.append(stop['name'])
-            # Determine the correct destination id column present in the CSV (common names normalized)
-            dest_id_col = None
-            for col in ('destination_id', 'destination_id', 'destination', 'destination_id'):
-                if col in risk_log_df.columns:
-                    dest_id_col = col
-                    break
-
-            stop_alerts = []
-            if dest_id_col:
-                try:
-                    stop_alerts = risk_log_df[(risk_log_df[dest_id_col] == stop['id']) & (risk_log_df['date'] > two_years_ago)].to_dict('records')
-                except Exception:
-                    # Fallback: try matching by place/name if id comparison fails due to types
-                    try:
-                        stop_alerts = risk_log_df[(risk_log_df.get('place') == stop['name']) & (risk_log_df['date'] > two_years_ago)].to_dict('records')
-                    except Exception:
-                        stop_alerts = []
-            else:
-                # If no destination id column, try matching by place/name column
-                if 'place' in risk_log_df.columns:
-                    stop_alerts = risk_log_df[(risk_log_df['place'] == stop['name']) & (risk_log_df['date'] > two_years_ago)].to_dict('records')
-                else:
-                    stop_alerts = []
-            for alert in stop_alerts:
+            mask = ((risk_log_df['place'].str.lower() == stop['name'].lower()) & (risk_log_df['district'].str.lower() == stop['district'].lower()) & (risk_log_df['date'] > two_years_ago))
+            for _, alert_row in risk_log_df[mask].iterrows():
+                event_type = alert_row.get('disaster_event', 'Alert')
+                if str(event_type).lower() == 'none': continue
+                severity = severity_map.get(str(event_type).lower(), 'alert-low')
                 alerts.append({
-                    'type': f"{alert.get('threat_type', 'Alert')} in {stop['name']}",
-                    'description': alert.get('description', 'No details.'),
-                    'date': alert['date'].strftime('%d %B %Y') if pd.notna(alert.get('date')) else 'N/A',
-                    'severity_class': 'weather-alert-card' # Or derive from data
+                    'type': f"{str(event_type).capitalize()} in {stop['name']}",
+                    'description': alert_row.get('description', 'No details available.'),
+                    'date': alert_row['date'].strftime('%d %B %Y') if pd.notna(alert_row.get('date')) else 'N/A',
+                    'severity_class': severity 
                 })
-    
-    # 6. Generate a helpful tip
-    tip = _build_travel_tip(stop_names_for_tip)
 
-    # 7. Determine overall route safety
+    tip = _build_travel_tip(stop_names_for_tip)
+    
     overall_safety_text = "Safe"
     if any(s['safety_class'] == 'unsafe' for s in best_stops): overall_safety_text = "Risky"
     elif any(s['safety_class'] == 'caution' for s in best_stops): overall_safety_text = "Moderate"
+    status_map = {'Very Safe': 'safe', 'Safe': 'safe', 'Moderate': 'caution', 'Risky': 'unsafe'}
 
-    # 8. Construct the final route object
     final_route = {
         'source': source_district, 'destination': dest_district, 'interest': interest.capitalize(),
         'overall_safety_text': overall_safety_text, 'overall_safety_class': status_map.get(overall_safety_text, 'caution'),
         'stops': best_stops, 'alerts': alerts, 'tip': tip
     }
-
     return jsonify({'success': True, 'route': final_route})
 
 @ai_bp.route('/api/chat', methods=['POST'])
 def chat_with_gemini():
-    data = request.get_json()
-    user_message = data.get('message')
+    user_message = (request.get_json() or {}).get('message')
     if not user_message: return jsonify({'success': False, 'error': 'No message provided.'}), 400
-    api_key = current_app.config.get('GEMINI_API_KEY')
-    if not api_key: return jsonify({'success': False, 'error': 'API key not configured.'}), 500
+    model = _get_gemini_model()
+    if not model: return jsonify({'success': False, 'error': 'AI assistant is not configured.'}), 500
     try:
-        genai.configure(api_key=api_key)
-        # FIX: Changed to a valid and standard model name
-        model = genai.GenerativeModel('gemini-flash-lite-latest')
         prompt = f"""
-        You are a friendly and helpful travel assistant for Kerala, India. 
-        Your goal is to provide safe and useful travel advice.
-        Format your answers using Markdown. Use lists, bold text, and headings to make the response clear and easy to read.
-        For example, if asked about safe places in Munnar, you could respond with:
-        
-        "Of course! Here are some famously safe and beautiful spots in Munnar:
-        
-        *   **Mattupetty Dam:** Known for its serene lake and boating.
-        *   **Top Station:** Offers stunning panoramic views.
-        *   **Eravikulam National Park:** A great place for wildlife spotting.
-        
-        Always check the weather before you go, especially during monsoon season!"
-
-        Now, answer the following user question: "{user_message}"
+        You are a friendly travel assistant for Kerala, India. Provide safe and useful advice.
+        Format answers using Markdown (lists, bold text, etc.).
+        User question: "{user_message}"
         """
         response = model.generate_content(prompt)
         return jsonify({'success': True, 'reply': response.text})
     except Exception as e:
-        print(f"Gemini API Error: {e}")
-        return jsonify({'success': False, 'error': "Sorry, I'm having trouble connecting to the AI assistant right now."}), 500
-
+        return jsonify({'success': False, 'error': "AI assistant connection error."}), 500
 
 @ai_bp.route('/api/tip', methods=['POST', 'GET'])
 def get_travel_tip():
-    """Return the short travel tip used by the route generator.
-
-    POST: Accepts JSON { "stops": ["Place1", "Place2"] } to include specific stops.
-    GET: Returns a generic tip referencing "your destinations".
-    """
-    if request.method == 'POST':
-        data = request.get_json(silent=True) or {}
-        stops = data.get('stops') if isinstance(data.get('stops'), list) else None
-    else:
-        stops = None
-
-    # Try to use Gemini Flash Lite to produce a dynamic tip when an API key is configured.
-    api_key = current_app.config.get('GEMINI_API_KEY')
-    if not api_key:
-        # No API key: return the static tip as a fallback
-        tip = _build_travel_tip(stops)
-        return jsonify({'success': True, 'tip': tip, 'source': 'fallback'})
-
+    stops = (request.get_json(silent=True) or {}).get('stops') if request.method == 'POST' else None
+    model = _get_gemini_model()
+    if not model:
+        return jsonify({'success': True, 'tip': _build_travel_tip(stops), 'source': 'fallback'})
     try:
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-flash-lite-latest')
-        # Build a contextual prompt. If stops contains dicts with details, include them.
-        stop_details_text = ''
-        locations_text = 'your destinations'
-        if stops:
-            # If stops are dicts with fields, summarize them; otherwise join names.
-            if all(isinstance(s, dict) for s in stops):
-                summaries = []
-                for s in stops:
-                    name = s.get('name') or s.get('place') or s.get('Place') or 'Unknown'
-                    district = s.get('district') or s.get('district_name') or s.get('Name') or ''
-                    stype = s.get('type') or s.get('Type') or ''
-                    budget = s.get('budget')
-                    safety = s.get('safety_text') or s.get('safety') or s.get('safety_class') or ''
-                    line = f"- {name}"
-                    if district: line += f" ({district})"
-                    extras = []
-                    if stype: extras.append(f"type: {stype}")
-                    if budget is not None:
-                        try:
-                            extras.append(f"budget: ₹{int(budget):,}")
-                        except Exception:
-                            extras.append(f"budget: {budget}")
-                    if safety: extras.append(f"safety: {safety}")
-                    if extras:
-                        line += " — " + ", ".join(extras)
-
-                    # Include a short alert summary if provided
-                    alerts = s.get('alerts') or []
-                    if isinstance(alerts, list) and alerts:
-                        alert_texts = []
-                        for a in alerts[:3]:
-                            # a may be dict or string
-                            if isinstance(a, dict):
-                                atype = a.get('threat_type') or a.get('type') or ''
-                                desc = a.get('description') or a.get('desc') or ''
-                                alert_texts.append(f"{atype}: {desc}" if atype or desc else 'Alert')
-                            else:
-                                alert_texts.append(str(a))
-                        line += f"; recent alerts: {" | ".join(alert_texts)}"
-
-                    summaries.append(line)
-                stop_details_text = "\n".join(summaries)
-                locations = [ (s.get('name') or s.get('place') or 'Unknown') for s in stops ]
-                locations_text = ", ".join(locations)
-            else:
-                # assume list of names
-                locations_text = ", ".join(str(x) for x in stops)
-
-        prompt_parts = [
-            "You are a friendly, practical travel-safety assistant for Kerala, India.",
-            "Produce a short, dynamic travel tip tailored to the provided stops.",
-            f"Start the tip with 'Enjoy your journey!' and mention travelling through {locations_text}.",
-            "Be concise but actionable: include a 1-2 sentence summary, then up to 3 short bullet points with specific safety advice (for example: check road/weather updates, avoid late travel in risky areas, carry a first-aid kit), and finish with one short packing/precaution checklist sentence.",
-            "Keep the tone friendly and non-alarming. Return plain text only, no markdown or HTML."
-        ]
-
-        if stop_details_text:
-            prompt_parts.insert(1, f"Details about stops:\n{stop_details_text}")
-
-        prompt = "\n\n".join(prompt_parts)
-
+        locations_text = ", ".join(str(x) for x in stops) if stops else "your destinations"
+        prompt = f"""
+        Create a short, friendly, practical travel safety tip for a trip in Kerala through {locations_text}.
+        Include a 1-2 sentence summary, up to 3 short bullet points, and a packing/precaution sentence.
+        Return plain text only, no markdown.
+        """
         response = model.generate_content(prompt)
-        generated = getattr(response, 'text', None) or str(response)
-        # Fall back to helper if the model returned nothing meaningful
-        if not generated or len(generated.strip()) == 0:
-            generated = _build_travel_tip(locations_text.split(',') if locations_text else None)
-
-        return jsonify({'success': True, 'tip': generated.strip(), 'source': 'gemini'})
+        generated_tip = response.text.strip() if response.text else _build_travel_tip(stops)
+        return jsonify({'success': True, 'tip': generated_tip, 'source': 'gemini'})
     except Exception as e:
-        # On error, log and return fallback tip
-        print(f"Gemini tip generation error: {e}")
-        tip = _build_travel_tip(stops)
-        return jsonify({'success': True, 'tip': tip, 'source': 'fallback', 'warning': 'AI generation failed.'})
+        return jsonify({'success': True, 'tip': _build_travel_tip(stops), 'source': 'fallback', 'warning': 'AI generation failed.'})

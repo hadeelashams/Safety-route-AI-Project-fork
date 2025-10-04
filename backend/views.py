@@ -3,9 +3,22 @@
 from flask import render_template, flash, jsonify, request, session, redirect, url_for
 from functools import wraps
 from . import views_bp
-from models import db, Destination, SafetyRating, User
+from models import db, Destination, User # SafetyRating model is no longer needed
 from sqlalchemy import func
 from sqlalchemy.orm import joinedload
+# Import the centralized safety calculation function from the AI service
+from backend.aiservice import calculate_safety_from_csv 
+
+# Centralized district data with coordinates for the map
+KERALA_DISTRICTS_COORDS = {
+    'Alappuzha': {'lat': 9.4981, 'lng': 76.3388}, 'Ernakulam': {'lat': 9.9816, 'lng': 76.2996},
+    'Idukki': {'lat': 9.8392, 'lng': 76.9746}, 'Kannur': {'lat': 11.8745, 'lng': 75.3704},
+    'Kasaragod': {'lat': 12.5002, 'lng': 74.9896}, 'Kollam': {'lat': 8.8932, 'lng': 76.6141},
+    'Kottayam': {'lat': 9.5916, 'lng': 76.5222}, 'Kozhikode': {'lat': 11.2588, 'lng': 75.7804},
+    'Malappuram': {'lat': 11.0736, 'lng': 76.0742}, 'Palakkad': {'lat': 10.7867, 'lng': 76.6548},
+    'Pathanamthitta': {'lat': 9.2648, 'lng': 76.7870}, 'Thiruvananthapuram': {'lat': 8.5241, 'lng': 76.9366},
+    'Thrissur': {'lat': 10.5276, 'lng': 76.2144}, 'Wayanad': {'lat': 11.6854, 'lng': 76.1320}
+}
 
 # Decorator to ensure a user is logged in for protected pages
 def login_required(f):
@@ -25,56 +38,41 @@ def landing():
 @views_bp.route('/dashboard')
 @login_required
 def dashboard():
-    """
-    Renders the main user dashboard.
-    Fetches data for the route planning form and the user's favorite IDs
-    to correctly display favorite buttons on the generated route.
-    """
+    """Renders the main user dashboard."""
     try:
-        districts_query = db.session.query(Destination.Name).distinct().order_by(Destination.Name).all()
-        districts = [d[0] for d in districts_query]
+        districts = sorted(list(KERALA_DISTRICTS_COORDS.keys()))
         types_query = db.session.query(Destination.Type).distinct().all()
         interests = [t[0] for t in types_query if t[0] is not None]
         
-        # Get the current user's favorite destination IDs
         favorite_ids = set()
         if 'user_id' in session:
             user = User.query.get(session['user_id'])
-            if user:
-                favorite_ids = {dest.Destination_id for dest in user.favorites}
-
+            if user: favorite_ids = {dest.Destination_id for dest in user.favorites}
     except Exception as e:
         print(f"Error fetching dashboard data: {e}")
         districts, interests, favorite_ids = [], [], set()
         flash("Could not load dashboard data from the database.", "danger")
     
     return render_template('user/user_dashboard.html', 
-                           districts=districts, 
-                           interests=interests,
+                           districts=districts, interests=interests,
                            favorite_ids_json=list(favorite_ids),
+                           districts_coords_json=KERALA_DISTRICTS_COORDS,
                            active_page='dashboard')
 
 @views_bp.route('/search')
 @login_required
 def search():
-    """
-    Renders the destination search page, passing all destinations and the user's
-    current favorites to pre-fill the heart icons.
-    """
+    """Renders the destination search page."""
     try:
         destinations = Destination.query.order_by(Destination.Name, Destination.Place).all()
-        
         favorite_ids = set()
         if 'user_id' in session:
             user = User.query.get(session['user_id'])
-            if user:
-                favorite_ids = {dest.Destination_id for dest in user.favorites}
-
+            if user: favorite_ids = {dest.Destination_id for dest in user.favorites}
     except Exception as e:
         print(f"Error fetching destinations for search page: {e}")
-        destinations = []
-        favorite_ids = set()
-        flash("Could not load destination data from the database.", "danger")
+        destinations, favorite_ids = [], set()
+        flash("Could not load destination data.", "danger")
     
     return render_template('user/search.html', 
                            destinations=destinations,
@@ -85,25 +83,13 @@ def search():
 @views_bp.route('/favorites')
 @login_required
 def favorites():
-    """
-    Renders the user's personal favorites page.
-    Manually attaches safety ratings to each destination for use in the template modal.
-    """
+    """Renders the user's personal favorites page."""
     user = User.query.get(session['user_id'])
     favorite_destinations = user.favorites 
     
-    # Fetch all safety ratings into a dictionary for efficient lookup
-    all_ratings = SafetyRating.query.all()
-    ratings_dict = {r.district_name: r for r in all_ratings}
-    
-    # Manually attach the safety rating object to each destination so the modal can use it
+    # Manually attach safety info from the CSV to each favorite destination
     for dest in favorite_destinations:
-        rating = ratings_dict.get(dest.Name)
-        if rating:
-            # Wrap in a list to mimic the data structure of other pages for template consistency
-            dest.safety_ratings = [rating] 
-        else:
-            dest.safety_ratings = []
+        dest.safety_info = calculate_safety_from_csv(dest.Name, dest.Place)
 
     return render_template('user/favorites.html', 
                            destinations=favorite_destinations, 
@@ -114,53 +100,27 @@ def favorites():
 
 @views_bp.route('/api/search-destinations')
 def api_search_destinations():
-    """
-    API endpoint for live searching. It fetches district-based safety ratings
-    and applies them to the destination results without a direct DB join.
-    """
+    """API endpoint for live searching destinations."""
     query = request.args.get('q', '', type=str)
     
-    all_ratings = SafetyRating.query.all()
-    ratings_dict = {r.district_name: r for r in all_ratings}
-
     base_query = Destination.query
     if query:
         search_term = f"%{query}%"
         search_results = base_query.filter(
-            (Destination.Place.ilike(search_term)) | 
-            (Destination.Name.ilike(search_term))
+            (Destination.Place.ilike(search_term)) | (Destination.Name.ilike(search_term))
         ).order_by(Destination.Name).all()
     else:
         search_results = base_query.order_by(Destination.Name).all()
 
     results_list = []
-    status_map = {'Very Safe': 'safe', 'Safe': 'safe', 'Moderate': 'caution', 'Risky': 'unsafe'}
-    
     for dest in search_results:
-        safety_text = 'Not Rated'
-        safety_class = 'caution'
-        
-        rating = ratings_dict.get(dest.Name)
-        if rating:
-            avg_risk = (rating.weather_risk + rating.health_risk + rating.disaster_risk) / 3
-            if avg_risk <= 1.5: safety_text = "Very Safe"
-            elif avg_risk <= 2.5: safety_text = "Safe"
-            elif avg_risk <= 3.5: safety_text = "Moderate"
-            else: safety_text = "Risky"
-            safety_class = status_map.get(safety_text, 'caution')
-
+        # Calculate safety dynamically for each search result
+        safety_info = calculate_safety_from_csv(dest.Name, dest.Place)
         results_list.append({
-            'id': dest.Destination_id,
-            'place': dest.Place,
-            'name': dest.Name,
+            'id': dest.Destination_id, 'place': dest.Place, 'name': dest.Name,
             'type': dest.Type.capitalize() if dest.Type else 'N/A',
-            'description': dest.Description,
-            'budget': dest.budget,
-            'image_url': dest.image_url,
-            'safety': {
-                'text': safety_text,
-                'class_name': safety_class
-            }
+            'description': dest.Description, 'budget': dest.budget, 'image_url': dest.image_url,
+            'safety': {'text': safety_info['text'], 'class_name': safety_info['class']}
         })
 
     return jsonify(results_list)
@@ -172,15 +132,12 @@ def increment_search_count(dest_id):
     try:
         destination = Destination.query.get(dest_id)
         if destination:
-            if destination.search_count is None:
-                destination.search_count = 0
-            destination.search_count += 1
+            destination.search_count = (destination.search_count or 0) + 1
             db.session.commit()
             return jsonify({'success': True, 'message': 'Count incremented.'})
         return jsonify({'success': False, 'message': 'Destination not found.'}), 404
     except Exception as e:
         db.session.rollback()
-        print(f"Error incrementing search count: {e}")
         return jsonify({'success': False, 'message': 'Server error.'}), 500
 
 

@@ -1,0 +1,255 @@
+{% extends "admin/admin_layout.html" %}
+
+{% block title %}District Safety Analysis{% endblock %}
+
+{% block extra_css %}
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <style>
+        /* All page-specific CSS for the safety dashboard */
+        .container { max-width: 1200px; margin: auto; padding-top: 20px; }
+        #bar-chart-section { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 2rem; height: 450px; }
+        .chart-title { text-align: center; margin-top: 0; margin-bottom: 20px; font-size: 1.4rem; color: #1a202c; }
+        .header { text-align: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #e0e0e0; }
+        .header h1 { color: #2d3748; }
+        .header .subtitle { font-size: 1rem; color: #718096; }
+        #filter-section {
+            background-color: #fff; padding: 15px 20px; border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 2rem;
+            display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 1rem;
+        }
+        #filter-section label { font-weight: 600; margin-right: 10px; color: #2d3748; }
+        #districtFilter { padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; min-width: 250px; font-size: 1rem; }
+        .detail-title { grid-column: 1 / -1; text-align: center; color: #2d3748; margin-bottom: 1rem; font-size: 1.5rem; }
+        #safety-grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .safety-card { background: #fff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-left: 5px solid #ccc; transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
+        .safety-card:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+        .safety-card.status-high-risk { border-left-color: #dc3545; }
+        .safety-card.status-moderate-risk { border-left-color: #ffc107; }
+        .safety-card.status-low-risk { border-left-color: #198754; }
+        .safety-card .card-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid #f0f0f0; }
+        .safety-card h3 { margin: 0; font-size: 1.25rem; color: #1a202c; }
+        .status-badge { font-size: 0.8rem; font-weight: bold; padding: 5px 12px; border-radius: 15px; color: #fff; }
+        .status-high-risk .status-badge { background-color: #dc3545; }
+        .status-moderate-risk .status-badge { background-color: #ffc107; color: #333; }
+        .status-low-risk .status-badge { background-color: #198754; }
+        .safety-card .card-body { padding: 20px; }
+        .score { font-size: 1.1rem; color: #555; margin-top: 0; margin-bottom: 15px; text-align: center; background: #f8f9fa; padding: 10px; border-radius: 6px; }
+        .score strong { font-size: 1.5rem; color: #333; }
+        .breakdown { list-style: none; padding: 0; margin: 0; font-size: 0.9rem; color: #666; }
+        .breakdown li { margin-bottom: 8px; }
+        .breakdown i { margin-right: 8px; width: 15px; text-align: center; }
+        .status-high-risk .breakdown i { color: #dc3545; }
+        .status-moderate-risk .breakdown i { color: #ffc107; }
+        .status-low-risk .breakdown i { color: #198754; }
+        .last-event-date { font-size: 0.85rem; color: #718096; text-align: center; margin-top: -10px; margin-bottom: 15px; }
+        .last-event-date i { margin-right: 5px; }
+    </style>
+{% endblock %}
+
+
+{% block content %}
+<div class="container">
+    <div class="header">
+        <h1>📊 District & Place Safety Analysis</h1>
+        <p class="subtitle">View overall district risk or select a district to analyze its individual places.</p>
+    </div>
+
+    <div id="filter-section">
+        <div>
+            <label for="districtFilter">Analyze Safety For:</label>
+            <select id="districtFilter">
+                <option value="all">All Districts (Summary)</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="bar-chart-section">
+        <h2 class="chart-title">Overall District Risk Score Comparison</h2>
+        <canvas id="safetyBarChart"></canvas>
+    </div>
+
+    <div id="safety-grid-container">
+        <!-- Safety cards will be dynamically inserted here by JavaScript -->
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const allData = {{ safety_data|tojson|safe }};
+        const container = document.getElementById('safety-grid-container');
+        const districtFilter = document.getElementById('districtFilter');
+        let safetyChart = null;
+
+        if (!allData || allData.length === 0) {
+            document.getElementById('bar-chart-section').style.display = 'none';
+            document.getElementById('filter-section').style.display = 'none';
+            container.innerHTML = '<p style="text-align: center; color: #718096;">No safety data available to analyze.</p>';
+            return; // Stop execution if no data
+        }
+
+        // Aggregate data by district
+        const districtScores = allData.reduce((acc, item) => {
+            const district = item.district;
+            if (!district) return acc;
+            if (!acc[district]) {
+                acc[district] = { score: 0, disasterCount: 0, diseaseCases: 0, weatherAlerts: 0, latestDate: null };
+            }
+            let eventOccurred = false;
+            if (item.disaster_event && item.disaster_event.toLowerCase() !== 'none' && item.disaster_event.trim() !== '') { acc[district].score += 5; acc[district].disasterCount += 1; eventOccurred = true; }
+            const cases = parseInt(item.disease_cases, 10) || 0;
+            if (cases > 0) { acc[district].score += Math.min(cases, 10); acc[district].diseaseCases += cases; eventOccurred = true; }
+            const temp = parseFloat(item.temperature_c) || 0;
+            const rain = parseFloat(item.rainfall_mm) || 0;
+            if (temp > 34) { acc[district].score += 1; acc[district].weatherAlerts += 1; eventOccurred = true; }
+            if (rain > 60) { acc[district].score += 2; acc[district].weatherAlerts += 1; eventOccurred = true; }
+            if (eventOccurred && item.date && (!acc[district].latestDate || item.date > acc[district].latestDate)) {
+                acc[district].latestDate = item.date;
+            }
+            return acc;
+        }, {});
+
+        // Populate the filter dropdown with districts
+        Object.keys(districtScores).sort().forEach(districtName => {
+            const option = document.createElement('option');
+            option.value = districtName;
+            option.textContent = districtName;
+            districtFilter.appendChild(option);
+        });
+
+        function getSafetyLevel(score) {
+            if (score > 40) return { level: 'High Risk', cssClass: 'status-high-risk' };
+            if (score > 15) return { level: 'Moderate Risk', cssClass: 'status-moderate-risk' };
+            return { level: 'Low Risk', cssClass: 'status-low-risk' };
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            return new Date(dateString).toLocaleDateString(undefined, {
+                year: 'numeric', month: 'short', day: 'numeric'
+            });
+        }
+
+        function renderAllDistrictsView() {
+            container.innerHTML = '';
+            Object.keys(districtScores).sort().forEach(districtName => {
+                const data = districtScores[districtName];
+                const safetyInfo = getSafetyLevel(data.score);
+                const card = document.createElement('div');
+                card.className = `safety-card ${safetyInfo.cssClass}`;
+                const formattedDate = formatDate(data.latestDate);
+                const dateHtml = formattedDate ? `<p class="last-event-date"><i class="fas fa-calendar-alt"></i> Last Event: ${formattedDate}</p>` : '';
+                card.innerHTML = `<div class="card-header"><h3>${districtName}</h3><span class="status-badge">${safetyInfo.level}</span></div>
+                    <div class="card-body">
+                        <p class="score">Risk Score: <strong>${data.score}</strong></p>
+                        ${dateHtml}
+                        <ul class="breakdown">
+                            <li><i class="fas fa-exclamation-triangle"></i> ${data.disasterCount} Total Disaster Events</li>
+                            <li><i class="fas fa-notes-medical"></i> ${data.diseaseCases} Total Disease Cases</li>
+                            <li><i class="fas fa-cloud-sun-rain"></i> ${data.weatherAlerts} Total Weather Alerts</li>
+                        </ul>
+                    </div>`;
+                container.appendChild(card);
+            });
+        }
+
+        function renderPlaceLevelView(districtName) {
+            container.innerHTML = `<h2 class="detail-title">Safety Levels for Places in ${districtName}</h2>`;
+            const districtData = allData.filter(item => item.district === districtName);
+            const placeScores = districtData.reduce((acc, item) => {
+                const place = item.place;
+                if (!place) return acc;
+                if (!acc[place]) {
+                    acc[place] = { score: 0, disasterCount: 0, diseaseCases: 0, weatherAlerts: 0, latestDate: null };
+                }
+                let eventOccurred = false;
+                if (item.disaster_event && item.disaster_event.toLowerCase() !== 'none' && item.disaster_event.trim() !== '') { acc[place].score += 5; acc[place].disasterCount += 1; eventOccurred = true; }
+                const cases = parseInt(item.disease_cases, 10) || 0;
+                if (cases > 0) { acc[place].score += Math.min(cases, 10); acc[place].diseaseCases += cases; eventOccurred = true; }
+                const temp = parseFloat(item.temperature_c) || 0;
+                const rain = parseFloat(item.rainfall_mm) || 0;
+                if (temp > 34) { acc[place].score += 1; acc[place].weatherAlerts += 1; eventOccurred = true; }
+                if (rain > 60) { acc[place].score += 2; acc[place].weatherAlerts += 1; eventOccurred = true; }
+                if (eventOccurred && item.date && (!acc[place].latestDate || item.date > acc[place].latestDate)) {
+                    acc[place].latestDate = item.date;
+                }
+                return acc;
+            }, {});
+
+            if (Object.keys(placeScores).length === 0) {
+                container.innerHTML += '<p style="text-align:center; color:#718096; grid-column: 1 / -1;">No places with data found for this district.</p>';
+                return;
+            }
+
+            Object.keys(placeScores).sort().forEach(placeName => {
+                const data = placeScores[placeName];
+                const safetyInfo = getSafetyLevel(data.score);
+                const card = document.createElement('div');
+                card.className = `safety-card ${safetyInfo.cssClass}`;
+                const formattedDate = formatDate(data.latestDate);
+                const dateHtml = formattedDate ? `<p class="last-event-date"><i class="fas fa-calendar-alt"></i> Last Event: ${formattedDate}</p>` : '';
+                card.innerHTML = `<div class="card-header"><h3>${placeName}</h3><span class="status-badge">${safetyInfo.level}</span></div>
+                    <div class="card-body">
+                        <p class="score">Risk Score: <strong>${data.score}</strong></p>
+                        ${dateHtml}
+                        <ul class="breakdown">
+                            <li><i class="fas fa-exclamation-triangle"></i> ${data.disasterCount} Disaster Events</li>
+                            <li><i class="fas fa-notes-medical"></i> ${data.diseaseCases} Disease Cases</li>
+                            <li><i class="fas fa-cloud-sun-rain"></i> ${data.weatherAlerts} Weather Alerts</li>
+                        </ul>
+                    </div>`;
+                container.appendChild(card);
+            });
+        }
+
+        function renderSafetyBarChart() {
+            if (safetyChart) safetyChart.destroy();
+            const sortedDistricts = Object.keys(districtScores).sort();
+            const labels = sortedDistricts;
+            const data = sortedDistricts.map(district => districtScores[district].score);
+            const backgroundColors = data.map(score => {
+                const level = getSafetyLevel(score).level;
+                if (level === 'High Risk') return 'rgba(220, 53, 69, 0.7)';
+                if (level === 'Moderate Risk') return 'rgba(255, 193, 7, 0.7)';
+                return 'rgba(25, 135, 84, 0.7)';
+            });
+
+            const ctx = document.getElementById('safetyBarChart').getContext('2d');
+            safetyChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{ label: 'Risk Score', data, backgroundColor: backgroundColors, borderWidth: 1 }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'Calculated Risk Score (Higher is Less Safe)' } },
+                        x: { ticks: { maxRotation: 45, minRotation: 45 } }
+                    }
+                }
+            });
+        }
+
+        // Add event listener for the filter
+        districtFilter.addEventListener('change', (event) => {
+            const selectedDistrict = event.target.value;
+            if (selectedDistrict === 'all') {
+                renderAllDistrictsView();
+            } else {
+                renderPlaceLevelView(selectedDistrict);
+            }
+        });
+
+        // Initial render on page load
+        renderSafetyBarChart();
+        renderAllDistrictsView();
+    });
+</script>
+{% endblock %}

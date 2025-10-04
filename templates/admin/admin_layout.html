@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- ### THIS IS THE ONLY 'title' BLOCK THAT SHOULD EXIST ### -->
     <title>{% block title %}Safe Route Admin{% endblock %}</title>
     
-    <!-- Link to the main admin stylesheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
     
     {% block extra_css %}{% endblock %}
@@ -21,6 +19,8 @@
                 <a href="{{ url_for('admin.manage_destination') }}" class="nav-link {% if active_page == 'destinations' %}active{% endif %}">📍 Manage Destination</a>
                 <a href="{{ url_for('admin.manage_users') }}" class="nav-link {% if active_page == 'users' %}active{% endif %}">👥 Manage Users</a>
                 <a href="{{ url_for('admin.monitor') }}" class="nav-link {% if active_page == 'monitor' %}active{% endif %}">🛡️ Safety Monitor</a>
+                <!-- ADDED: New link to the Safety Analysis page -->
+                <a href="{{ url_for('admin.safety_analysis') }}" class="nav-link {% if active_page == 'safety_analysis' %}active{% endif %}">📊 Safety Analysis</a>
             </nav>
         </div>
         <div class="sidebar-footer">

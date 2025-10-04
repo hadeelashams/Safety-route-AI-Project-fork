@@ -43,21 +43,3 @@ class Destination(db.Model):
 
     def __repr__(self):
         return f'<Destination {self.Name}>'
-
-# This model now represents a district's safety rating.
-class SafetyRating(db.Model):
-    __tablename__ = 'safety_rating_table'
-
-    safety_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    
-    # This column stores the name of the district (e.g., "Ernakulam")
-    district_name = db.Column(db.String(50), unique=True, nullable=False)
-    
-    weather_risk = db.Column(db.Integer, nullable=False, default=1)
-    health_risk = db.Column(db.Integer, nullable=False, default=1)
-    disaster_risk = db.Column(db.Integer, nullable=False, default=1)
-    
-    # The `overall_safety` column is removed as it will be calculated dynamically.
-
-    def __repr__(self):
-        return f'<SafetyRating for {self.district_name}>'
