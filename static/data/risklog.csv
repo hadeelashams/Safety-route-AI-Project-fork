@@ -10,195 +10,195 @@ date,district,place,temperature_c,rainfall_mm,humidity_percent,disease_cases,dis
 2022-01-17,Kottayam,Vagamon,23.2,1.0,52,3,Heatwave,"Unseasonably high temperatures in the hill station of Vagamon were classified as a heatwave, causing discomfort."
 2022-03-07,Kasaragod,Bekal Fort,24.8,3.6,52,2,Heatwave,"A spring heatwave affected the coastal area of Bekal Fort, with higher than average temperatures."
 2022-03-07,Thiruvananthapuram,Neyyar Dam,24.1,0.1,47,0,Flood,"Minor overflow from Neyyar Dam due to a sudden, brief cloudburst resulted in localized flooding downstream."
-2022-03-11,Ernakulam,Cherai Beach,26.1,1.8,49,1,Cyclone,"The remnants of a cyclone system caused strong winds and high tides along Cherai Beach."
-2022-03-29,Palakkad,Nelliyampathy Hills,27.2,0.6,50,3,Drought,"Drought conditions worsened in Nelliyampathy Hills as the dry season continued with negligible rain."
-2022-04-14,Kottayam,Illikkal Kallu,30.7,1.2,58,3,Flood,"A localized flash flood was reported near Illikkal Kallu after a sudden summer shower in the hills."
+2022-03-11,Ernakulam,Cherai Beach,26.1,1.8,49,1,Cyclone,The remnants of a cyclone system caused strong winds and high tides along Cherai Beach.
+2022-03-29,Palakkad,Nelliyampathy Hills,27.2,0.6,50,3,Drought,Drought conditions worsened in Nelliyampathy Hills as the dry season continued with negligible rain.
+2022-04-14,Kottayam,Illikkal Kallu,30.7,1.2,58,3,Flood,A localized flash flood was reported near Illikkal Kallu after a sudden summer shower in the hills.
 2022-04-18,Palakkad,Nelliyampathy Hills,36.5,1.2,75,2,Heatwave,"Extreme heatwave conditions prevailed in Nelliyampathy Hills, posing a risk to local flora and fauna."
-2022-04-21,Kottayam,Illikkal Kallu,29.0,0.0,62,2,Landslide,"A minor landslide occurred at Illikkal Kallu due to soil erosion from previous dry conditions."
+2022-04-21,Kottayam,Illikkal Kallu,29.0,0.0,62,2,Landslide,A minor landslide occurred at Illikkal Kallu due to soil erosion from previous dry conditions.
 2022-07-07,Kottayam,Kumarakom,34.4,46.7,80,2,Flood,"Heavy rains caused the backwaters to rise, leading to flooding in parts of Kumarakom."
-2022-07-16,Thrissur,Athirappilly Waterfalls,34.7,25.6,85,1,Landslide,"A small landslide was reported on the access road to Athirappilly Waterfalls following moderate rainfall."
-2022-08-07,Thrissur,Athirappilly Waterfalls,33.1,18.6,85,20,Landslide,"A significant landslide near Athirappilly Waterfalls isolated nearby villages and led to a health crisis."
-2022-08-07,Thrissur,Guruvayur Temple,33.4,4.7,91,1,Heatwave,"High humidity combined with high temperatures created heatwave-like conditions in the temple town of Guruvayur."
+2022-07-16,Thrissur,Athirappilly Waterfalls,34.7,25.6,85,1,Landslide,A small landslide was reported on the access road to Athirappilly Waterfalls following moderate rainfall.
+2022-08-07,Thrissur,Athirappilly Waterfalls,33.1,18.6,85,20,Landslide,A significant landslide near Athirappilly Waterfalls isolated nearby villages and led to a health crisis.
+2022-08-07,Thrissur,Guruvayur Temple,33.4,4.7,91,1,Heatwave,High humidity combined with high temperatures created heatwave-like conditions in the temple town of Guruvayur.
 2022-08-19,Kozhikode,Kozhikode Beach,30.3,60.2,85,1,Drought,"Despite some rain, a prolonged dry spell led to drought conditions being declared in the Kozhikode region."
-2022-09-07,Alappuzha,Kuttanad,29.0,3.6,87,3,Drought,"A surprising lack of post-monsoon showers resulted in drought affecting agriculture in Kuttanad."
+2022-09-07,Alappuzha,Kuttanad,29.0,3.6,87,3,Drought,A surprising lack of post-monsoon showers resulted in drought affecting agriculture in Kuttanad.
 2022-09-14,Idukki,Thekkady,31.4,17.7,93,1,Flood,"Sudden, intense rainfall led to flash flooding in low-lying areas around Thekkady."
-2022-10-03,Pathanamthitta,Gavi,26.1,0.6,82,0,Drought,"The Gavi forest region experienced drought conditions due to a failed northeast monsoon."
-2022-11-17,Kannur,St. Angelo Fort,23.4,2.7,73,1,Landslide,"A minor landslide occurred on a cliffside near St. Angelo Fort after unexpected light rains."
+2022-10-03,Pathanamthitta,Gavi,26.1,0.6,82,0,Drought,The Gavi forest region experienced drought conditions due to a failed northeast monsoon.
+2022-11-17,Kannur,St. Angelo Fort,23.4,2.7,73,1,Landslide,A minor landslide occurred on a cliffside near St. Angelo Fort after unexpected light rains.
 2023-01-25,Pathanamthitta,Gavi,26.5,0.0,58,0,Drought,"Continued lack of rain intensified the drought in Gavi, with water levels in reservoirs dropping critically."
-2023-02-02,Kozhikode,Thusharagiri Waterfalls,23.0,0.8,48,0,Cyclone,"The outer bands of a distant cyclone brought unusually cool and windy weather to Thusharagiri."
+2023-02-02,Kozhikode,Thusharagiri Waterfalls,23.0,0.8,48,0,Cyclone,The outer bands of a distant cyclone brought unusually cool and windy weather to Thusharagiri.
 2023-03-30,Palakkad,Nelliyampathy Hills,27.6,1.4,50,3,Heatwave,"A pre-summer heatwave was recorded in Nelliyampathy Hills, affecting coffee and tea plantations."
-2023-03-31,Wayanad,Chembra Peak,26.0,2.0,50,1,Drought,"Drought conditions on Chembra Peak led to the drying up of the heart-shaped lake."
-2023-05-02,Thrissur,Peechi Dam,32.8,0.5,63,2,Cyclone,"A cyclone alert was issued as strong winds and high waves were reported near Peechi Dam reservoir."
+2023-03-31,Wayanad,Chembra Peak,26.0,2.0,50,1,Drought,Drought conditions on Chembra Peak led to the drying up of the heart-shaped lake.
+2023-05-02,Thrissur,Peechi Dam,32.8,0.5,63,2,Cyclone,A cyclone alert was issued as strong winds and high waves were reported near Peechi Dam reservoir.
 2023-05-08,Thiruvananthapuram,Neyyar Dam,31.0,0.1,65,0,Flood,"Controlled release of water from Neyyar Dam to prevent overflow caused minor, managed flooding downstream."
-2023-05-17,Kannur,Payyambalam Beach,32.4,0.0,65,0,Cyclone,"A cyclone passing far offshore caused rough seas and coastal erosion at Payyambalam Beach."
-2023-06-02,Alappuzha,Alleppey Backwaters,34.4,29.4,68,3,Cyclone,"A pre-monsoon cyclone brought heavy rain and disrupted houseboat tourism in the Alleppey Backwaters."
+2023-05-17,Kannur,Payyambalam Beach,32.4,0.0,65,0,Cyclone,A cyclone passing far offshore caused rough seas and coastal erosion at Payyambalam Beach.
+2023-06-02,Alappuzha,Alleppey Backwaters,34.4,29.4,68,3,Cyclone,A pre-monsoon cyclone brought heavy rain and disrupted houseboat tourism in the Alleppey Backwaters.
 2s23-06-22,Kozhikode,Kozhikode Beach,33.7,27.5,73,1,Landslide,"Sea erosion, exacerbated by strong waves, caused a minor landslide along the Kozhikode beachside cliffs."
-2023-07-21,Malappuram,Nilambur Teak Museum,35.3,48.0,82,1,Cyclone,"A cyclonic storm system resulted in heavy rainfall and falling trees in the Nilambur Teak Museum area."
+2023-07-21,Malappuram,Nilambur Teak Museum,35.3,48.0,82,1,Cyclone,A cyclonic storm system resulted in heavy rainfall and falling trees in the Nilambur Teak Museum area.
 2023-08-14,Ernakulam,Fort Kochi,29.4,140.7,94,18,Flood,"Severe waterlogging and flooding paralyzed Fort Kochi after a day of incessant, heavy monsoon rain."
 2023-09-16,Malappuram,Nilambur Teak Museum,28.7,15.4,90,1,Cyclone,"A post-monsoon cyclonic depression caused moderate rain and wind, with minimal damage in Nilambur."
 2023-09-21,Idukki,Thekkady,29.5,0.0,92,2,Flood,"A 'cloud-burst' event led to sudden flash floods in Thekkady, catching residents and tourists by surprise."
 2023-09-22,Pathanamthitta,Gavi,30.5,10.8,85,1,Landslide,"Saturated soil from previous rains gave way, causing a landslide on the forest road to Gavi."
-2023-09-23,Idukki,Thekkady,30.0,18.3,90,1,Flood,"Lingering effects of the previous day's rain caused continued flooding in the Periyar river basin near Thekkady."
+2023-09-23,Idukki,Thekkady,30.0,18.3,90,1,Flood,Lingering effects of the previous day's rain caused continued flooding in the Periyar river basin near Thekkady.
 2023-10-03,Kottayam,Vagamon,27.7,0.6,87,1,Landslide,"A small-scale landslide occurred in a Vagamon meadow due to soil instability, with no major impact."
 2023-10-17,Pathanamthitta,Perunthenaruvi Waterfalls,25.3,2.1,80,1,Landslide,"A minor rockfall was reported near Perunthenaruvi Waterfalls, a common occurrence during the late monsoon."
-2e023-10-22,Malappuram,Kottakunnu,26.1,0.1,80,3,Cyclone,"A cyclone warning led to the evacuation of the Kottakunnu amusement park as a precautionary measure."
-2023-11-06,Malappuram,Nilambur Teak Museum,24.7,0.1,77,3,Heatwave,"Unusually warm and dry weather for November was classified as a heatwave in the Nilambur area."
-2023-12-12,Palakkad,Nelliyampathy Hills,21.5,1.0,70,1,Drought,"The failure of the northeast monsoon led to the early onset of drought in the Nelliyampathy Hills."
+2e023-10-22,Malappuram,Kottakunnu,26.1,0.1,80,3,Cyclone,A cyclone warning led to the evacuation of the Kottakunnu amusement park as a precautionary measure.
+2023-11-06,Malappuram,Nilambur Teak Museum,24.7,0.1,77,3,Heatwave,Unusually warm and dry weather for November was classified as a heatwave in the Nilambur area.
+2023-12-12,Palakkad,Nelliyampathy Hills,21.5,1.0,70,1,Drought,The failure of the northeast monsoon led to the early onset of drought in the Nelliyampathy Hills.
 2024-03-07,Pathanamthitta,Konni Elephant Cage,26.8,0.1,52,3,Cyclone,"Strong summer winds, part of a distant cyclonic formation, caused minor damage at the Konni Elephant Cage."
-2024-03-11,Kollam,Jatayu Earth's Center,25.3,0.2,55,3,Heatwave,"The rocky terrain of Jatayu Earth's Center amplified the effects of a regional heatwave."
+2024-03-11,Kollam,Jatayu Earth's Center,25.3,0.2,55,3,Heatwave,The rocky terrain of Jatayu Earth's Center amplified the effects of a regional heatwave.
 2024-04-01,Alappuzha,Marari Beach,29.7,1.6,51,0,Drought,"Severe drought conditions were reported along the coast at Marari Beach, affecting local vegetation."
-2024-04-11,Palakkad,Nelliyampathy Hills,30.6,0.1,57,2,Flood,"A flash flood in a mountain stream near Nelliyampathy occurred despite overall drought conditions."
-2024-05-05,Thiruvananthapuram,Kovalam Beach,30.1,1.7,63,1,Heatwave,"A pre-monsoon heatwave made conditions on Kovalam Beach extremely uncomfortable for tourists."
+2024-04-11,Palakkad,Nelliyampathy Hills,30.6,0.1,57,2,Flood,A flash flood in a mountain stream near Nelliyampathy occurred despite overall drought conditions.
+2024-05-05,Thiruvananthapuram,Kovalam Beach,30.1,1.7,63,1,Heatwave,A pre-monsoon heatwave made conditions on Kovalam Beach extremely uncomfortable for tourists.
 2024-05-11,Wayanad,Edakkal Caves,30.7,0.0,61,3,Landslide,"A minor rockslide near the entrance of Edakkal Caves was reported, caused by weathering."
 2024-06-14,Kannur,Muzhappilangad Beach,34.0,55.5,70,1,Drought,"Despite the onset of monsoon rains, the region was still under a drought declaration from the preceding dry spell."
 2024-07-08,Thiruvananthapuram,Neyyar Dam,33.1,21.0,85,1,Flood,"Heavy catchment rainfall forced the opening of Neyyar Dam spillways, causing downstream flooding."
 2024-07-20,Kozhikode,Kozhikode Beach,31.9,124.3,90,1,Landslide,"Severe sea erosion at Kozhikode Beach led to a landslide, threatening coastal properties."
-2024-08-22,Idukki,Munnar,33.3,33.6,86,0,Cyclone,"The influence of a cyclone in the Arabian Sea brought heavy winds and rain to the high ranges of Munnar."
+2024-08-22,Idukki,Munnar,33.3,33.6,86,0,Cyclone,The influence of a cyclone in the Arabian Sea brought heavy winds and rain to the high ranges of Munnar.
 2024-09-02,Thrissur,Athirappilly Waterfalls,29.0,24.9,85,3,Cyclone,"A cyclonic circulation caused the Chalakudy River to swell, increasing the force of Athirappilly Waterfalls."
 2024-09-13,Malappuram,Kadalundi Bird Sanctuary,29.8,28.3,94,1,Landslide,"Riverbank erosion in the Kadalundi Bird Sanctuary resulted in a landslide, altering bird habitats."
 2024-10-27,Alappuzha,Alleppey Backwaters,25.2,2.2,82,3,Heatwave,"A post-monsoon heatwave was an unusual event, affecting the backwater ecosystem of Alleppey."
-2024-11-02,Kozhikode,Vayalada,25.0,2.3,88,2,Landslide,"A landslip was reported in the hilly terrain of Vayalada following unexpected late-year rains."
-2024-12-04,Wayanad,Banasura Sagar Dam,22.1,0.0,65,0,Landslide,"A minor landslide occurred on a hill overlooking the Banasura Sagar Dam reservoir."
-2024-12-10,Thrissur,Athirappilly Waterfalls,22.3,3.9,65,2,Flood,"A sudden release of water from an upstream dam caused a brief but intense flood at Athirappilly Waterfalls."
+2024-11-02,Kozhikode,Vayalada,25.0,2.3,88,2,Landslide,A landslip was reported in the hilly terrain of Vayalada following unexpected late-year rains.
+2024-12-04,Wayanad,Banasura Sagar Dam,22.1,0.0,65,0,Landslide,A minor landslide occurred on a hill overlooking the Banasura Sagar Dam reservoir.
+2024-12-10,Thrissur,Athirappilly Waterfalls,22.3,3.9,65,2,Flood,A sudden release of water from an upstream dam caused a brief but intense flood at Athirappilly Waterfalls.
 2020-01-15,Kasaragod,Ranipuram Hills,28.5,0.0,55,0,Drought,"The dry winter season led to drought conditions in the Ranipuram Hills, impacting local streams."
 2020-02-20,Palakkad,Malampuzha Dam,35.2,0.5,60,2,Heatwave,"A severe heatwave was recorded near Malampuzha Dam, with temperatures well above the seasonal average."
-2020-03-10,Kollam,Ashtamudi Lake,33.1,1.2,72,1,Drought,"Water levels in Ashtamudi Lake dropped significantly due to prolonged drought and high evaporation rates."
+2020-03-10,Kollam,Ashtamudi Lake,33.1,1.2,72,1,Drought,Water levels in Ashtamudi Lake dropped significantly due to prolonged drought and high evaporation rates.
 2020-04-05,Ernakulam,Mattancherry,34.8,3.1,78,4,Heatwave,"The urban heat island effect in Mattancherry exacerbated a regional heatwave, causing several cases of heatstroke."
 2020-05-20,Thiruvananthapuram,Varkala Beach,30.5,110.2,90,8,Cyclone,"Cyclone Amphan brought torrential rain and strong winds to Varkala Beach, causing significant coastal erosion."
-2020-06-15,Alappuzha,Alappuzha Beach,29.2,130.5,95,12,Flood,"The onset of a vigorous monsoon caused severe flooding and waterlogging along the Alappuzha coastline."
+2020-06-15,Alappuzha,Alappuzha Beach,29.2,130.5,95,12,Flood,The onset of a vigorous monsoon caused severe flooding and waterlogging along the Alappuzha coastline.
 2020-07-28,Idukki,Idukki Dam,22.8,195.7,99,9,Landslide,"Torrential rains in the Idukki Dam catchment area triggered multiple landslides, isolating several communities."
 2020-08-06,Wayanad,Kalpetta,23.5,210.3,98,15,Landslide,"A catastrophic landslide in Kalpetta was caused by unprecedented rainfall, leading to significant loss of life and property."
 2020-09-12,Kottayam,Kottayam Town,28.9,85.4,92,7,Flood,"Urban flooding paralyzed Kottayam Town after several days of continuous, moderate rainfall."
 2020-10-18,Pathanamthitta,Sabarimala,26.7,160.1,96,5,Flood,"Heavy northeast monsoon rains led to flooding of the Pamba River, affecting the Sabarimala pilgrimage route."
-2020-11-30,Kannur,Ezhimala,29.1,75.3,88,3,Cyclone,"The impact of Cyclone Nivar was felt in Ezhimala with heavy rainfall and rough seas."
-2020-12-25,Malappuram,Kottakkal,27.5,5.2,75,1,Drought,"A weaker than usual northeast monsoon resulted in early drought conditions in the Kottakkal region."
-2021-01-20,Kozhikode,Beypore,31.2,0.0,68,0,Drought,"The port town of Beypore experienced water scarcity as drought conditions persisted through January."
-2021-03-18,Thrissur,Vazhachal Waterfalls,36.5,2.1,70,3,Heatwave,"An extreme heatwave significantly reduced the water flow at Vazhachal Waterfalls."
+2020-11-30,Kannur,Ezhimala,29.1,75.3,88,3,Cyclone,The impact of Cyclone Nivar was felt in Ezhimala with heavy rainfall and rough seas.
+2020-12-25,Malappuram,Kottakkal,27.5,5.2,75,1,Drought,A weaker than usual northeast monsoon resulted in early drought conditions in the Kottakkal region.
+2021-01-20,Kozhikode,Beypore,31.2,0.0,68,0,Drought,The port town of Beypore experienced water scarcity as drought conditions persisted through January.
+2021-03-18,Thrissur,Vazhachal Waterfalls,36.5,2.1,70,3,Heatwave,An extreme heatwave significantly reduced the water flow at Vazhachal Waterfalls.
 2021-05-14,Ernakulam,Bolgatty Palace,32.1,125.8,91,10,Cyclone,"Cyclone Tauktae passed close to the coast, causing flooding and wind damage around Bolgatty Palace."
 2021-06-25,Malappuram,Kadalundi Bird Sanctuary,29.8,145.2,97,8,Flood,"The Kadalundi River overflowed its banks, flooding the bird sanctuary and surrounding areas."
-2021-08-19,Idukki,Ramakkalmedu,21.5,188.9,99,7,Landslide,"High-intensity rainfall on saturated ground led to a dangerous landslide in the windy hills of Ramakkalmedu."
-2021-09-05,Wayanad,Sulthan Bathery,24.1,90.2,94,6,Flood,"Widespread flooding was reported in the agricultural plains around Sulthan Bathery after days of rain."
-2021-11-11,Thiruvananthapuram,Ponmudi,23.4,130.6,96,4,Landslide,"A landslip on the winding road to the Ponmudi hill station trapped tourists and residents."
-2022-02-14,Palakkad,Parambikulam Tiger Reserve,34.9,0.0,58,1,Drought,"Severe drought in the Parambikulam Tiger Reserve led to forest fires and scarcity of water for wildlife."
-2022-04-25,Kollam,Thenmala,37.2,4.5,73,5,Heatwave,"Thenmala recorded one of its highest ever temperatures during a prolonged and intense heatwave."
+2021-08-19,Idukki,Ramakkalmedu,21.5,188.9,99,7,Landslide,High-intensity rainfall on saturated ground led to a dangerous landslide in the windy hills of Ramakkalmedu.
+2021-09-05,Wayanad,Sulthan Bathery,24.1,90.2,94,6,Flood,Widespread flooding was reported in the agricultural plains around Sulthan Bathery after days of rain.
+2021-11-11,Thiruvananthapuram,Ponmudi,23.4,130.6,96,4,Landslide,A landslip on the winding road to the Ponmudi hill station trapped tourists and residents.
+2022-02-14,Palakkad,Parambikulam Tiger Reserve,34.9,0.0,58,1,Drought,Severe drought in the Parambikulam Tiger Reserve led to forest fires and scarcity of water for wildlife.
+2022-04-25,Kollam,Thenmala,37.2,4.5,73,5,Heatwave,Thenmala recorded one of its highest ever temperatures during a prolonged and intense heatwave.
 2022-06-10,Kasaragod,Bekal Fort,30.1,150.8,96,11,Flood,"The monsoon arrived with force, causing coastal flooding and damage to infrastructure near Bekal Fort."
-2022-08-01,Idukki,Munnar,22.1,220.5,99,18,Landslide,"A series of major landslides occurred across Munnar's tea estates following record-breaking rainfall."
+2022-08-01,Idukki,Munnar,22.1,220.5,99,18,Landslide,A series of major landslides occurred across Munnar's tea estates following record-breaking rainfall.
 2022-10-21,Kottayam,Kumarakom,29.5,175.4,97,14,Flood,"A deep depression in the Bay of Bengal brought extreme rainfall, causing severe floods in Kumarakom."
 2023-01-10,Wayanad,Edakkal Caves,30.8,0.0,62,0,Drought,"Drought conditions prevailed in Wayanad, with tourism to Edakkal Caves affected by the extreme dryness."
 2023-04-02,Palakkad,Silent Valley,38.1,1.8,65,6,Heatwave,"An exceptional heatwave baked the Silent Valley, posing a threat to its unique and sensitive ecosystem."
 2023-05-18,Alappuzha,Marari Beach,33.2,95.1,89,7,Cyclone,"A cyclonic storm caused a significant storm surge at Marari Beach, inundating coastal homes."
-2023-07-11,Ernakulam,Fort Kochi,28.8,180.3,98,22,Flood,"The historic area of Fort Kochi was completely submerged as heavy monsoon rains coincided with high tides."
+2023-07-11,Ernakulam,Fort Kochi,28.8,180.3,98,22,Flood,The historic area of Fort Kochi was completely submerged as heavy monsoon rains coincided with high tides.
 2023-08-20,Idukki,Thekkady,25.4,165.7,97,12,Landslide,"A landslide near Thekkady blocked the main road, disrupting the supply chain and stranding tourists."
-2023-10-15,Pathanamthitta,Gavi,26.2,190.2,98,9,Flood,"The Gavi forest region was hit by flash floods after a cloudburst event in the surrounding hills."
-2024-01-22,Thrissur,Guruvayur Temple,33.5,0.0,67,2,Drought,"Water shortages were reported in Guruvayur as drought conditions intensified in the post-monsoon period."
-2024-03-28,Kollam,Jatayu Earth's Center,37.8,2.5,71,8,Heatwave,"A record-breaking heatwave made the stone structure of Jatayu Earth's Center dangerously hot."
+2023-10-15,Pathanamthitta,Gavi,26.2,190.2,98,9,Flood,The Gavi forest region was hit by flash floods after a cloudburst event in the surrounding hills.
+2024-01-22,Thrissur,Guruvayur Temple,33.5,0.0,67,2,Drought,Water shortages were reported in Guruvayur as drought conditions intensified in the post-monsoon period.
+2024-03-28,Kollam,Jatayu Earth's Center,37.8,2.5,71,8,Heatwave,A record-breaking heatwave made the stone structure of Jatayu Earth's Center dangerously hot.
 2024-05-25,Kannur,Muzhappilangad Beach,32.5,135.4,93,11,Cyclone,"A powerful cyclone made landfall near Kannur, causing widespread destruction along Muzhappilangad Beach."
 2024-07-30,Wayanad,Chembra Peak,22.9,235.1,99,20,Landslide,"Extreme rainfall led to a massive landslide on the slopes of Chembra Peak, reshaping the landscape."
 2024-09-10,Kozhikode,Kozhikode Beach,30.2,115.6,94,10,Flood,"Urban drainage systems failed in Kozhikode, leading to severe flooding throughout the city and beach area."
-2020-07-01,Alappuzha,Kuttanad,28.5,160.2,97,18,Flood,"Heavy monsoon onset caused severe flooding in the low-lying agricultural fields of Kuttanad."
-2020-07-02,Idukki,Thekkady,23.1,140.5,98,5,Landslide,"A minor landslide blocked the road to Thekkady following a night of intense rainfall."
+2020-07-01,Alappuzha,Kuttanad,28.5,160.2,97,18,Flood,Heavy monsoon onset caused severe flooding in the low-lying agricultural fields of Kuttanad.
+2020-07-02,Idukki,Thekkady,23.1,140.5,98,5,Landslide,A minor landslide blocked the road to Thekkady following a night of intense rainfall.
 2020-07-03,Wayanad,Banasura Sagar Dam,24.0,155.8,97,7,Flood,"The reservoir at Banasura Sagar Dam reached full capacity, necessitating a controlled release that flooded downstream areas."
 2020-07-04,Thrissur,Athirappilly Waterfalls,27.9,130.1,96,4,Flood,"The Chalakudy river was in spate, causing the Athirappilly waterfalls to become a dangerous torrent."
-2020-07-05,Kozhikode,Thusharagiri Waterfalls,26.5,122.3,95,3,Landslide,"Slippage of loose soil near Thusharagiri Waterfalls was reported due to continuous rain."
+2020-07-05,Kozhikode,Thusharagiri Waterfalls,26.5,122.3,95,3,Landslide,Slippage of loose soil near Thusharagiri Waterfalls was reported due to continuous rain.
 2021-03-15,Palakkad,Malampuzha Dam,37.5,0.2,58,4,Heatwave,"A blistering heatwave gripped the Malampuzha region, causing water levels in the dam to plummet."
-2021-03-16,Thrissur,Guruvayur Temple,36.8,1.1,65,2,Heatwave,"Devotees at Guruvayur temple faced extreme heat stress due to an ongoing heatwave."
-2021-03-17,Kollam,Ashtamudi Lake,35.9,0.5,68,1,Drought,"The brackish water of Ashtamudi Lake saw increased salinity as freshwater inflow ceased due to drought."
+2021-03-16,Thrissur,Guruvayur Temple,36.8,1.1,65,2,Heatwave,Devotees at Guruvayur temple faced extreme heat stress due to an ongoing heatwave.
+2021-03-17,Kollam,Ashtamudi Lake,35.9,0.5,68,1,Drought,The brackish water of Ashtamudi Lake saw increased salinity as freshwater inflow ceased due to drought.
 2021-03-18,Thiruvananthapuram,Neyyar Dam,36.2,0.8,63,3,Heatwave,"The area around Neyyar Dam experienced extreme heat, leading to concerns about water availability."
-2021-03-19,Ernakulam,Cherai Beach,35.5,2.0,75,5,Heatwave,"High temperatures combined with high humidity created oppressive heatwave conditions at Cherai Beach."
-2022-08-10,Idukki,Munnar,21.8,240.6,99,25,Landslide,"A devastating landslide swept through a tea estate in Munnar following days of unprecedented rainfall."
-2022-08-11,Wayanad,Kalpetta,22.5,215.3,99,18,Flood,"The town of Kalpetta was inundated as all local rivers overflowed their banks simultaneously."
+2021-03-19,Ernakulam,Cherai Beach,35.5,2.0,75,5,Heatwave,High temperatures combined with high humidity created oppressive heatwave conditions at Cherai Beach.
+2022-08-10,Idukki,Munnar,21.8,240.6,99,25,Landslide,A devastating landslide swept through a tea estate in Munnar following days of unprecedented rainfall.
+2022-08-11,Wayanad,Kalpetta,22.5,215.3,99,18,Flood,The town of Kalpetta was inundated as all local rivers overflowed their banks simultaneously.
 2022-08-12,Malappuram,Nilambur Teak Museum,27.3,198.4,98,15,Flood,"The Chaliyar river flooded Nilambur, with waters entering the premises of the Teak Museum."
-2022-08-13,Pathanamthitta,Sabarimala,25.9,180.2,98,11,Landslide,"Multiple landslides on the routes to Sabarimala made the pilgrimage treacherous."
+2022-08-13,Pathanamthitta,Sabarimala,25.9,180.2,98,11,Landslide,Multiple landslides on the routes to Sabarimala made the pilgrimage treacherous.
 2022-08-14,Kottayam,Kottayam Town,28.1,165.7,97,21,Flood,"Kottayam town experienced its worst flood in decades, with many residents requiring rescue."
 2023-05-10,Kannur,Payyambalam Beach,31.5,110.8,91,9,Cyclone,"A pre-monsoon cyclone caused rough seas and heavy rain, leading to evacuations along Payyambalam Beach."
-2023-05-11,Kasaragod,Bekal Fort,30.9,105.3,92,7,Cyclone,"The same cyclonic system brought strong winds that caused damage to temporary structures near Bekal Fort."
-2023-05-12,Kozhikode,Kozhikode Beach,31.2,125.1,93,12,Cyclone,"The cyclone's impact resulted in severe waterlogging and uprooted trees across Kozhikode city."
-2023-05-13,Malappuram,Kottakunnu,30.8,98.5,90,8,Cyclone,"Remnants of the cyclone brought gusty winds and moderate rainfall to the Kottakunnu area."
+2023-05-11,Kasaragod,Bekal Fort,30.9,105.3,92,7,Cyclone,The same cyclonic system brought strong winds that caused damage to temporary structures near Bekal Fort.
+2023-05-12,Kozhikode,Kozhikode Beach,31.2,125.1,93,12,Cyclone,The cyclone's impact resulted in severe waterlogging and uprooted trees across Kozhikode city.
+2023-05-13,Malappuram,Kottakunnu,30.8,98.5,90,8,Cyclone,Remnants of the cyclone brought gusty winds and moderate rainfall to the Kottakunnu area.
 2023-05-14,Ernakulam,Fort Kochi,31.6,130.4,94,15,Cyclone,"The cyclone caused a storm surge in Kochi's backwaters, flooding historical areas of Fort Kochi."
 2024-02-20,Palakkad,Parambikulam Tiger Reserve,36.1,0.0,55,1,Drought,"The peak of the dry season saw Parambikulam facing a severe drought, increasing the risk of forest fires."
 2024-02-21,Wayanad,Wayanad Sanctuary,33.8,0.0,59,0,Drought,"Waterholes within the Wayanad Sanctuary dried up, forcing animals to venture out in search of water."
-2024-02-22,Idukki,Thekkady,34.5,0.1,61,2,Drought,"The Periyar Lake in Thekkady shrank to a fraction of its size due to the extended drought."
-2024-02-23,Pathanamthitta,Konni Elephant Cage,35.2,0.0,57,1,Drought,"Drought conditions put a strain on the resources at the Konni Elephant training center."
-2024-02-24,Kollam,Thenmala,36.5,0.2,60,3,Drought,"The Thenmala eco-tourism project was impacted by a severe water crisis caused by the ongoing drought."
-2020-10-25,Thiruvananthapuram,Varkala Beach,29.3,140.2,95,10,Flood,"Northeast monsoon rains caused severe flooding and cliff erosion at Varkala Beach."
-2020-10-26,Kollam,Jatayu Earth's Center,28.8,135.8,94,8,Flood,"Low-lying areas around the Jatayu Earth's Center were inundated following heavy rainfall."
-2020-10-27,Pathanamthitta,Perunthenaruvi Waterfalls,27.5,155.1,96,6,Landslide,"A landslip near Perunthenaruvi Waterfalls was triggered by the intense downpour."
+2024-02-22,Idukki,Thekkady,34.5,0.1,61,2,Drought,The Periyar Lake in Thekkady shrank to a fraction of its size due to the extended drought.
+2024-02-23,Pathanamthitta,Konni Elephant Cage,35.2,0.0,57,1,Drought,Drought conditions put a strain on the resources at the Konni Elephant training center.
+2024-02-24,Kollam,Thenmala,36.5,0.2,60,3,Drought,The Thenmala eco-tourism project was impacted by a severe water crisis caused by the ongoing drought.
+2020-10-25,Thiruvananthapuram,Varkala Beach,29.3,140.2,95,10,Flood,Northeast monsoon rains caused severe flooding and cliff erosion at Varkala Beach.
+2020-10-26,Kollam,Jatayu Earth's Center,28.8,135.8,94,8,Flood,Low-lying areas around the Jatayu Earth's Center were inundated following heavy rainfall.
+2020-10-27,Pathanamthitta,Perunthenaruvi Waterfalls,27.5,155.1,96,6,Landslide,A landslip near Perunthenaruvi Waterfalls was triggered by the intense downpour.
 2020-10-28,Kottayam,Vagamon,24.1,160.7,97,9,Landslide,"The meadows of Vagamon became waterlogged, and several minor landslides were reported on the hillsides."
 2020-10-29,Alappuzha,Alleppey Backwaters,29.0,148.3,96,17,Flood,"The backwaters swelled to dangerous levels, flooding homes and resorts throughout Alleppey."
-2021-06-18,Kannur,Muzhappilangad Beach,29.5,170.9,97,14,Flood,"The drive-in beach at Muzhappilangad was submerged due to heavy monsoon rains and high tides."
-2021-06-19,Kasaragod,Ranipuram Hills,25.3,185.2,98,8,Landslide,"A landslide in the Ranipuram Hills cut off access to the popular trekking spot."
+2021-06-18,Kannur,Muzhappilangad Beach,29.5,170.9,97,14,Flood,The drive-in beach at Muzhappilangad was submerged due to heavy monsoon rains and high tides.
+2021-06-19,Kasaragod,Ranipuram Hills,25.3,185.2,98,8,Landslide,A landslide in the Ranipuram Hills cut off access to the popular trekking spot.
 2021-06-20,Wayanad,Edakkal Caves,24.8,165.4,98,10,Flood,"Flash floods were reported in the streams near Edakkal Caves, making the area unsafe for visitors."
-2021-06-21,Kozhikode,Vayalada,26.1,158.9,97,7,Landslide,"The hilly region of Vayalada experienced a significant landslide that damaged agricultural land."
+2021-06-21,Kozhikode,Vayalada,26.1,158.9,97,7,Landslide,The hilly region of Vayalada experienced a significant landslide that damaged agricultural land.
 2021-06-22,Malappuram,Kadalundi Bird Sanctuary,29.1,150.6,96,11,Flood,"The sanctuary islands in Kadalundi were completely flooded, displacing thousands of birds."
-2022-04-10,Palakkad,Nelliyampathy Hills,38.2,1.5,68,7,Heatwave,"A severe heatwave in Nelliyampathy Hills led to the wilting of tea and orange crops."
+2022-04-10,Palakkad,Nelliyampathy Hills,38.2,1.5,68,7,Heatwave,A severe heatwave in Nelliyampathy Hills led to the wilting of tea and orange crops.
 2022-04-11,Thrissur,Peechi Dam,37.6,2.3,71,5,Heatwave,"The heatwave caused rapid evaporation from the Peechi Dam reservoir, raising concerns about water supply."
-2022-04-12,Ernakulam,Mattancherry,36.9,3.1,79,9,Heatwave,"The densely populated area of Mattancherry suffered from extreme heat stress during the April heatwave."
-2022-04-13,Kottayam,Kumarakom,36.5,2.8,77,6,Heatwave,"The heatwave impacted the fragile ecosystem of the Kumarakom bird sanctuary and backwaters."
-2022-04-14,Alappuzha,Marari Beach,36.2,3.5,80,4,Heatwave,"Tourists and locals avoided the outdoors as a blistering heatwave made conditions at Marari Beach unbearable."
-2023-11-20,Thiruvananthapuram,Kovalam Beach,29.8,120.4,93,11,Cyclone,"A late-season cyclone brought unexpectedly heavy rains and strong winds to the Kovalam coast."
+2022-04-12,Ernakulam,Mattancherry,36.9,3.1,79,9,Heatwave,The densely populated area of Mattancherry suffered from extreme heat stress during the April heatwave.
+2022-04-13,Kottayam,Kumarakom,36.5,2.8,77,6,Heatwave,The heatwave impacted the fragile ecosystem of the Kumarakom bird sanctuary and backwaters.
+2022-04-14,Alappuzha,Marari Beach,36.2,3.5,80,4,Heatwave,Tourists and locals avoided the outdoors as a blistering heatwave made conditions at Marari Beach unbearable.
+2023-11-20,Thiruvananthapuram,Kovalam Beach,29.8,120.4,93,11,Cyclone,A late-season cyclone brought unexpectedly heavy rains and strong winds to the Kovalam coast.
 2023-11-21,Kollam,Thenmala,28.5,115.9,92,9,Flood,"The cyclone caused the rivers in Thenmala to swell, leading to flooding in forest and residential areas."
 2023-11-22,Pathanamthitta,Gavi,26.9,135.2,95,7,Landslide,"The cyclonic rainfall saturated the hills around Gavi, resulting in a number of dangerous landslides."
 2023-11-23,Idukki,Idukki Dam,24.3,145.8,96,12,Flood,"Water levels in the Idukki Dam rose sharply due to heavy rainfall from the cyclone, prompting a flood alert."
 2023-11-24,Kottayam,Illikkal Kallu,25.8,128.1,94,8,Landslide,"A landslide was reported on the steep slopes of Illikkal Kallu, triggered by the intense cyclonic rain."
-2024-07-15,Thrissur,Vazhachal Waterfalls,27.5,190.3,98,10,Flood,"The Vazhachal waterfalls merged with the surrounding forest as the Chalakudy river experienced a major flood."
-2024-07-16,Ernakulam,Bolgatty Palace,28.9,175.6,97,19,Flood,"The island hosting Bolgatty Palace was partially submerged due to extreme monsoon rainfall in Kochi."
-2024-07-17,Alappuzha,Kuttanad,28.6,182.4,98,24,Flood,"A state of emergency was declared in Kuttanad as it faced one of the worst floods in its history."
-2024-07-18,Kottayam,Kumarakom,28.2,178.9,97,20,Flood,"The entire Vembanad lake ecosystem was disrupted by massive flooding that inundated Kumarakom."
+2024-07-15,Thrissur,Vazhachal Waterfalls,27.5,190.3,98,10,Flood,The Vazhachal waterfalls merged with the surrounding forest as the Chalakudy river experienced a major flood.
+2024-07-16,Ernakulam,Bolgatty Palace,28.9,175.6,97,19,Flood,The island hosting Bolgatty Palace was partially submerged due to extreme monsoon rainfall in Kochi.
+2024-07-17,Alappuzha,Kuttanad,28.6,182.4,98,24,Flood,A state of emergency was declared in Kuttanad as it faced one of the worst floods in its history.
+2024-07-18,Kottayam,Kumarakom,28.2,178.9,97,20,Flood,The entire Vembanad lake ecosystem was disrupted by massive flooding that inundated Kumarakom.
 2024-07-19,Pathanamthitta,Perunthenaruvi Waterfalls,27.1,195.5,98,13,Landslide,"A major landslide occurred near Perunthenaruvi Waterfalls, altering the course of the Pamba river."
-2020-02-10,Kasaragod,Ranipuram Hills,33.1,0.0,52,0,Drought,"The grasslands of Ranipuram Hills turned brown as the region was officially declared drought-hit."
-2020-04-20,Malappuram,Kottakunnu,37.2,1.2,69,4,Heatwave,"A spring heatwave saw record high temperatures being recorded at the Kottakunnu hilltop park."
-2020-06-28,Kannur,St. Angelo Fort,29.9,158.4,96,13,Flood,"Seawater inundated the area around St. Angelo Fort during a period of heavy monsoon rains and high tides."
+2020-02-10,Kasaragod,Ranipuram Hills,33.1,0.0,52,0,Drought,The grasslands of Ranipuram Hills turned brown as the region was officially declared drought-hit.
+2020-04-20,Malappuram,Kottakunnu,37.2,1.2,69,4,Heatwave,A spring heatwave saw record high temperatures being recorded at the Kottakunnu hilltop park.
+2020-06-28,Kannur,St. Angelo Fort,29.9,158.4,96,13,Flood,Seawater inundated the area around St. Angelo Fort during a period of heavy monsoon rains and high tides.
 2020-09-15,Thrissur,Peechi Dam,30.1,95.7,91,6,Flood,"The shutters of Peechi Dam were opened after heavy September rains, causing controlled flooding."
-2021-08-08,Idukki,Ramakkalmedu,21.0,210.1,99,11,Landslide,"High velocity winds combined with torrential rain caused a severe landslide at Ramakkalmedu."
-2021-12-03,Thiruvananthapuram,Ponmudi,25.2,85.3,90,5,Cyclone,"A cyclone in the Arabian Sea brought heavy rainfall and landslips to the hill station of Ponmudi."
-2022-03-25,Wayanad,Chembra Peak,32.5,0.5,60,1,Drought,"Trekking to Chembra Peak was temporarily banned due to the high risk of forest fires caused by drought."
-2022-07-22,Kozhikode,Beypore,30.5,140.8,95,10,Flood,"The port at Beypore was forced to halt operations as the Chaliyar river flooded the entire area."
-2023-08-01,Wayanad,Sulthan Bathery,23.8,199.6,98,16,Landslide,"A landslide in a quarry near Sulthan Bathery caused significant environmental damage."
-2023-10-05,Kollam,Ashtamudi Lake,29.6,150.9,94,14,Flood,"Unusually heavy northeast monsoon rains caused Ashtamudi Lake to flood all adjacent towns and villages."
-2024-06-20,Ernakulam,Cherai Beach,30.3,165.2,97,17,Flood,"Coastal homes in Cherai were flooded after a sea wall breached during the peak of the monsoon."
+2021-08-08,Idukki,Ramakkalmedu,21.0,210.1,99,11,Landslide,High velocity winds combined with torrential rain caused a severe landslide at Ramakkalmedu.
+2021-12-03,Thiruvananthapuram,Ponmudi,25.2,85.3,90,5,Cyclone,A cyclone in the Arabian Sea brought heavy rainfall and landslips to the hill station of Ponmudi.
+2022-03-25,Wayanad,Chembra Peak,32.5,0.5,60,1,Drought,Trekking to Chembra Peak was temporarily banned due to the high risk of forest fires caused by drought.
+2022-07-22,Kozhikode,Beypore,30.5,140.8,95,10,Flood,The port at Beypore was forced to halt operations as the Chaliyar river flooded the entire area.
+2023-08-01,Wayanad,Sulthan Bathery,23.8,199.6,98,16,Landslide,A landslide in a quarry near Sulthan Bathery caused significant environmental damage.
+2023-10-05,Kollam,Ashtamudi Lake,29.6,150.9,94,14,Flood,Unusually heavy northeast monsoon rains caused Ashtamudi Lake to flood all adjacent towns and villages.
+2024-06-20,Ernakulam,Cherai Beach,30.3,165.2,97,17,Flood,Coastal homes in Cherai were flooded after a sea wall breached during the peak of the monsoon.
 2024-08-15,Malappuram,Kottakkal,28.9,188.7,98,12,Flood,"The town of Kottakkal, famous for Ayurveda, was severely flooded, disrupting medical services."
-2020-01-25,Pathanamthitta,Konni Elephant Cage,34.1,0.0,56,0,Drought,"The river flowing near the Konni Elephant Cage ran dry due to a prolonged winter drought."
+2020-01-25,Pathanamthitta,Konni Elephant Cage,34.1,0.0,56,0,Drought,The river flowing near the Konni Elephant Cage ran dry due to a prolonged winter drought.
 2020-05-28,Alappuzha,Alappuzha Beach,31.8,130.6,92,9,Cyclone,"A cyclone caused a massive storm surge, leading to the temporary closure of Alappuzha Beach."
-2020-07-20,Kottayam,Vagamon,22.7,195.3,99,14,Landslide,"The beautiful meadows of Vagamon were scarred by numerous landslides triggered by relentless rain."
-2021-04-28,Kasaragod,Bekal Fort,36.9,2.1,74,3,Heatwave,"A severe heatwave made exploring the expansive Bekal Fort a difficult and risky activity."
+2020-07-20,Kottayam,Vagamon,22.7,195.3,99,14,Landslide,The beautiful meadows of Vagamon were scarred by numerous landslides triggered by relentless rain.
+2021-04-28,Kasaragod,Bekal Fort,36.9,2.1,74,3,Heatwave,A severe heatwave made exploring the expansive Bekal Fort a difficult and risky activity.
 2021-07-14,Thrissur,Vazhachal Waterfalls,28.2,168.9,97,8,Flood,"The forest area around Vazhachal was completely flooded, posing a danger to local wildlife."
-2021-10-10,Ernakulam,Bolgatty Palace,30.4,145.2,95,16,Flood,"The entire Bolgatty island was waterlogged after a deep depression brought extreme rainfall to Kochi."
+2021-10-10,Ernakulam,Bolgatty Palace,30.4,145.2,95,16,Flood,The entire Bolgatty island was waterlogged after a deep depression brought extreme rainfall to Kochi.
 2022-02-18,Idukki,Idukki Dam,33.9,0.1,60,1,Drought,"The water level in the Idukki reservoir fell to a new low, raising concerns about power generation."
-2022-08-25,Wayanad,Banasura Sagar Dam,23.3,205.8,99,17,Landslide,"A major landslide occurred on one of the 'islands' within the Banasura Sagar Dam reservoir."
-2023-03-10,Kozhikode,Thusharagiri Waterfalls,35.1,0.3,62,2,Heatwave,"The triple cascades of Thusharagiri were reduced to a trickle during an intense pre-summer heatwave."
-2023-09-28,Pathanamthitta,Sabarimala,27.8,110.4,93,7,Flood,"Early northeast monsoon showers caused flash floods along the trekking paths to Sabarimala."
-2024-05-15,Kollam,Jatayu Earth's Center,38.0,5.5,72,10,Heatwave,"The peak of a summer heatwave saw temperatures at Jatayu Earth's Center reach life-threatening levels."
-2024-11-05,Kannur,Ezhimala,29.2,99.8,91,6,Cyclone,"A cyclone brought strong winds and heavy rain to the naval academy at Ezhimala."
+2022-08-25,Wayanad,Banasura Sagar Dam,23.3,205.8,99,17,Landslide,A major landslide occurred on one of the 'islands' within the Banasura Sagar Dam reservoir.
+2023-03-10,Kozhikode,Thusharagiri Waterfalls,35.1,0.3,62,2,Heatwave,The triple cascades of Thusharagiri were reduced to a trickle during an intense pre-summer heatwave.
+2023-09-28,Pathanamthitta,Sabarimala,27.8,110.4,93,7,Flood,Early northeast monsoon showers caused flash floods along the trekking paths to Sabarimala.
+2024-05-15,Kollam,Jatayu Earth's Center,38.0,5.5,72,10,Heatwave,The peak of a summer heatwave saw temperatures at Jatayu Earth's Center reach life-threatening levels.
+2024-11-05,Kannur,Ezhimala,29.2,99.8,91,6,Cyclone,A cyclone brought strong winds and heavy rain to the naval academy at Ezhimala.
 2020-08-18,Palakkad,Silent Valley,26.5,177.3,98,9,Flood,"Rivers inside the core zone of Silent Valley National Park were in spate, causing unprecedented flooding."
-2021-02-25,Thrissur,Guruvayur Temple,36.1,0.0,63,2,Drought,"A severe drought led to the implementation of water rationing in the temple town of Guruvayur."
-2021-05-22,Kozhikode,Vayalada,28.1,115.7,92,8,Cyclone,"A cyclone's passage caused strong winds that uprooted several trees in the Vayalada viewpoint area."
+2021-02-25,Thrissur,Guruvayur Temple,36.1,0.0,63,2,Drought,A severe drought led to the implementation of water rationing in the temple town of Guruvayur.
+2021-05-22,Kozhikode,Vayalada,28.1,115.7,92,8,Cyclone,A cyclone's passage caused strong winds that uprooted several trees in the Vayalada viewpoint area.
 2022-06-30,Alappuzha,Kuttanad,28.8,190.1,98,28,Flood,"The annual monsoon flood in Kuttanad was particularly severe, leading to a major public health crisis."
 2022-11-15,Idukki,Thekkady,27.4,80.2,89,4,Flood,"Late monsoon rains caused the Periyar river to swell, flooding areas around Thekkady."
-2023-07-25,Wayanad,Wayanad Sanctuary,24.2,185.6,98,13,Landslide,"Multiple small landslides within the Wayanad Sanctuary disrupted animal movement patterns."
-2024-04-22,Palakkad,Malampuzha Dam,39.1,0.8,66,9,Heatwave,"Palakkad district recorded its highest temperature of the year near Malampuzha Dam during a brutal heatwave."
-2024-08-05,Kottayam,Kottayam Town,28.5,202.4,98,26,Flood,"A 'Red Alert' was issued for Kottayam as the town was completely submerged by floodwaters."
-2020-11-10,Kasaragod,Ranipuram Hills,27.1,70.5,85,2,Landslide,"A minor landslip was reported on the trekking path at Ranipuram Hills after moderate rains."
-2021-01-05,Wayanad,Sulthan Bathery,31.5,0.0,58,0,Drought,"The agricultural town of Sulthan Bathery faced a severe water crisis due to a failed monsoon."
-2021-09-20,Thrissur,Peechi Dam,29.9,105.3,92,8,Flood,"Continuous rainfall in the catchment area forced authorities to open the Peechi Dam spillway."
-2022-05-01,Malappuram,Nilambur Teak Museum,36.8,4.2,76,5,Heatwave,"An intense heatwave threatened the health of the ancient teak trees in the Nilambur plantation."
-2022-09-01,Alappuzha,Alleppey Backwaters,29.3,88.9,93,11,Flood,"Heavy rains at the end of the monsoon season caused a fresh wave of flooding in the Alleppey backwaters."
-2023-02-15,Pathanamthitta,Perunthenaruvi Waterfalls,34.8,0.1,59,1,Drought,"The flow of Perunthenaruvi Waterfalls was reduced to a bare minimum due to severe drought."
-2023-06-15,Idukki,Idukki Dam,23.5,160.7,97,10,Flood,"The monsoon's vigorous start led to a rapid increase in the water level of the Idukki reservoir."
+2023-07-25,Wayanad,Wayanad Sanctuary,24.2,185.6,98,13,Landslide,Multiple small landslides within the Wayanad Sanctuary disrupted animal movement patterns.
+2024-04-22,Palakkad,Malampuzha Dam,39.1,0.8,66,9,Heatwave,Palakkad district recorded its highest temperature of the year near Malampuzha Dam during a brutal heatwave.
+2024-08-05,Kottayam,Kottayam Town,28.5,202.4,98,26,Flood,A 'Red Alert' was issued for Kottayam as the town was completely submerged by floodwaters.
+2020-11-10,Kasaragod,Ranipuram Hills,27.1,70.5,85,2,Landslide,A minor landslip was reported on the trekking path at Ranipuram Hills after moderate rains.
+2021-01-05,Wayanad,Sulthan Bathery,31.5,0.0,58,0,Drought,The agricultural town of Sulthan Bathery faced a severe water crisis due to a failed monsoon.
+2021-09-20,Thrissur,Peechi Dam,29.9,105.3,92,8,Flood,Continuous rainfall in the catchment area forced authorities to open the Peechi Dam spillway.
+2022-05-01,Malappuram,Nilambur Teak Museum,36.8,4.2,76,5,Heatwave,An intense heatwave threatened the health of the ancient teak trees in the Nilambur plantation.
+2022-09-01,Alappuzha,Alleppey Backwaters,29.3,88.9,93,11,Flood,Heavy rains at the end of the monsoon season caused a fresh wave of flooding in the Alleppey backwaters.
+2023-02-15,Pathanamthitta,Perunthenaruvi Waterfalls,34.8,0.1,59,1,Drought,The flow of Perunthenaruvi Waterfalls was reduced to a bare minimum due to severe drought.
+2023-06-15,Idukki,Idukki Dam,23.5,160.7,97,10,Flood,The monsoon's vigorous start led to a rapid increase in the water level of the Idukki reservoir.
 2024-03-01,Kollam,Thenmala,37.1,0.5,64,4,Heatwave,"The Thenmala region experienced a prolonged heatwave, leading to the cancellation of several eco-tourism activities."
-2024-10-20,Thiruvananthapuram,Ponmudi,24.9,155.8,96,9,Landslide,"The road to Ponmudi was closed for a week due to multiple landslides caused by the northeast monsoon."
-2020-03-05,Ernakulam,Fort Kochi,35.8,1.8,77,3,Heatwave,"The historic lanes of Fort Kochi baked in a severe heatwave that gripped the central Kerala region."
-2020-12-15,Kannur,Payyambalam Beach,28.4,15.2,80,2,Cyclone,"The distant effects of a cyclone resulted in unusually high tides at Payyambalam Beach."
-2021-07-30,Kasaragod,Bekal Fort,29.6,180.1,97,15,Flood,"The area surrounding Bekal Fort experienced severe flooding as the monsoon reached its peak intensity."
-2022-01-20,Kottayam,Illikkal Kallu,29.5,0.2,61,0,Drought,"The rocky landscape of Illikkal Kallu became extremely dry and arid during the winter drought."
+2024-10-20,Thiruvananthapuram,Ponmudi,24.9,155.8,96,9,Landslide,The road to Ponmudi was closed for a week due to multiple landslides caused by the northeast monsoon.
+2020-03-05,Ernakulam,Fort Kochi,35.8,1.8,77,3,Heatwave,The historic lanes of Fort Kochi baked in a severe heatwave that gripped the central Kerala region.
+2020-12-15,Kannur,Payyambalam Beach,28.4,15.2,80,2,Cyclone,The distant effects of a cyclone resulted in unusually high tides at Payyambalam Beach.
+2021-07-30,Kasaragod,Bekal Fort,29.6,180.1,97,15,Flood,The area surrounding Bekal Fort experienced severe flooding as the monsoon reached its peak intensity.
+2022-01-20,Kottayam,Illikkal Kallu,29.5,0.2,61,0,Drought,The rocky landscape of Illikkal Kallu became extremely dry and arid during the winter drought.
 2022-10-30,Pathanamthitta,Gavi,26.7,170.4,97,11,Landslide,"A landslide in Gavi trapped a bus full of tourists, necessitating a major rescue operation."
-2023-04-18,Thrissur,Athirappilly Waterfalls,37.9,3.1,70,6,Heatwave,"A punishing heatwave drastically reduced tourism to Athirappilly as the waterfall's flow diminished."
+2023-04-18,Thrissur,Athirappilly Waterfalls,37.9,3.1,70,6,Heatwave,A punishing heatwave drastically reduced tourism to Athirappilly as the waterfall's flow diminished.
 2023-08-28,Malappuram,Kadalundi Bird Sanctuary,29.5,148.2,96,9,Flood,"The annual flooding of the Kadalundi Bird Sanctuary was more extensive than usual, affecting nesting sites."
-2024-07-28,Wayanad,Chembra Peak,23.1,225.9,99,22,Landslide,"A massive section of a hillside on Chembra Peak collapsed after absorbing over 200mm of rain in a day."
-2024-09-25,Ernakulam,Mattancherry,30.0,120.5,94,18,Flood,"The commercial hub of Mattancherry was brought to a standstill by severe urban flooding."
+2024-07-28,Wayanad,Chembra Peak,23.1,225.9,99,22,Landslide,A massive section of a hillside on Chembra Peak collapsed after absorbing over 200mm of rain in a day.
+2024-09-25,Ernakulam,Mattancherry,30.0,120.5,94,18,Flood,The commercial hub of Mattancherry was brought to a standstill by severe urban flooding.
 2020-09-01,Kollam,Ashtamudi Lake,29.7,80.1,90,7,Flood,"The Kallada River, which feeds Ashtamudi Lake, overflowed, causing flooding along its banks."
 2021-11-25,Idukki,Ramakkalmedu,24.1,95.6,92,6,Cyclone,"A cyclone's remnant brought strong winds and heavy, unseasonal rain to the high-altitude region of Ramakkalmedu."
-2022-07-10,Kannur,Muzhappilangad Beach,29.8,195.2,98,18,Flood,"The entire stretch of Muzhappilangad drive-in beach was closed as it was completely inundated by monsoon floodwaters."
+2022-07-10,Kannur,Muzhappilangad Beach,29.8,195.2,98,18,Flood,The entire stretch of Muzhappilangad drive-in beach was closed as it was completely inundated by monsoon floodwaters.
 2023-01-30,Kasaragod,Ranipuram Hills,32.8,0.0,54,0,Drought,"The prolonged absence of rain led to severe drought conditions, increasing the fire risk in Ranipuram's forests."
 2023-07-07,Kottayam,Kumarakom,28.7,199.8,98,27,Flood,"A 'once in a century' flood event submerged almost all of Kumarakom, causing widespread devastation."
-2024-02-10,Wayanad,Edakkal Caves,34.2,0.0,57,1,Drought,"The area around Edakkal Caves faced an acute water shortage as the region reeled under a severe drought."
+2024-02-10,Wayanad,Edakkal Caves,34.2,0.0,57,1,Drought,The area around Edakkal Caves faced an acute water shortage as the region reeled under a severe drought.
 2024-08-20,Thrissur,Guruvayur Temple,29.4,160.3,96,15,Flood,"The temple town of Guruvayur was heavily flooded, disrupting daily rituals and causing hardship for pilgrims."

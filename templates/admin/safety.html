@@ -3,22 +3,15 @@
 {% block title %}District Safety Analysis{% endblock %}
 
 {% block extra_css %}
-    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
     <style>
-        /* All page-specific CSS for the safety dashboard */
         .container { max-width: 1200px; margin: auto; padding-top: 20px; }
         #bar-chart-section { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 2rem; height: 450px; }
         .chart-title { text-align: center; margin-top: 0; margin-bottom: 20px; font-size: 1.4rem; color: #1a202c; }
         .header { text-align: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #e0e0e0; }
         .header h1 { color: #2d3748; }
         .header .subtitle { font-size: 1rem; color: #718096; }
-        #filter-section {
-            background-color: #fff; padding: 15px 20px; border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 2rem;
-            display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 1rem;
-        }
+        #filter-section { background-color: #fff; padding: 15px 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 2rem; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 1rem; }
         #filter-section label { font-weight: 600; margin-right: 10px; color: #2d3748; }
         #districtFilter { padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; min-width: 250px; font-size: 1rem; }
         .detail-title { grid-column: 1 / -1; text-align: center; color: #2d3748; margin-bottom: 1rem; font-size: 1.5rem; }
@@ -53,7 +46,7 @@
 <div class="container">
     <div class="header">
         <h1>📊 District & Place Safety Analysis</h1>
-        <p class="subtitle">View overall district risk or select a district to analyze its individual places.</p>
+        <p class="subtitle">View overall district risk or select a district to analyze its individual places. Analysis is based on events from the last two years.</p>
     </div>
 
     <div id="filter-section">
@@ -66,7 +59,7 @@
     </div>
 
     <div id="bar-chart-section">
-        <h2 class="chart-title">Overall District Risk Score Comparison</h2>
+        <h2 class="chart-title" id="chartTitle">Overall District Risk Score Comparison</h2>
         <canvas id="safetyBarChart"></canvas>
     </div>
 
@@ -84,55 +77,64 @@
         const allData = {{ safety_data|tojson|safe }};
         const container = document.getElementById('safety-grid-container');
         const districtFilter = document.getElementById('districtFilter');
+        const chartTitleElement = document.getElementById('chartTitle');
         let safetyChart = null;
+        
+        const MAX_RISK_SCORE = 75;
 
         if (!allData || allData.length === 0) {
             document.getElementById('bar-chart-section').style.display = 'none';
             document.getElementById('filter-section').style.display = 'none';
             container.innerHTML = '<p style="text-align: center; color: #718096;">No safety data available to analyze.</p>';
-            return; // Stop execution if no data
+            return;
         }
 
-        // Aggregate data by district
-        const districtScores = allData.reduce((acc, item) => {
+        const twoYearsAgo = new Date();
+        twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
+        const recentData = allData.filter(item => item.date && new Date(item.date) >= twoYearsAgo);
+        
+        if (recentData.length === 0) {
+            document.getElementById('bar-chart-section').style.display = 'none';
+            container.innerHTML = '<p style="text-align: center; color: #718096;">No recent safety events (last 2 years) to analyze.</p>';
+            const allDistricts = [...new Set(allData.map(item => item.district))].filter(Boolean).sort();
+            allDistricts.forEach(d => districtFilter.add(new Option(d, d)));
+            return;
+        }
+
+        const districtScores = recentData.reduce((acc, item) => {
             const district = item.district;
             if (!district) return acc;
             if (!acc[district]) {
-                acc[district] = { score: 0, disasterCount: 0, diseaseCases: 0, weatherAlerts: 0, latestDate: null };
+                acc[district] = { score: 0, disasterCount: 0, diseaseIncidents: 0, weatherAlerts: 0, latestDate: null };
             }
             let eventOccurred = false;
-            if (item.disaster_event && item.disaster_event.toLowerCase() !== 'none' && item.disaster_event.trim() !== '') { acc[district].score += 5; acc[district].disasterCount += 1; eventOccurred = true; }
-            const cases = parseInt(item.disease_cases, 10) || 0;
-            if (cases > 0) { acc[district].score += Math.min(cases, 10); acc[district].diseaseCases += cases; eventOccurred = true; }
-            const temp = parseFloat(item.temperature_c) || 0;
-            const rain = parseFloat(item.rainfall_mm) || 0;
-            if (temp > 34) { acc[district].score += 1; acc[district].weatherAlerts += 1; eventOccurred = true; }
-            if (rain > 60) { acc[district].score += 2; acc[district].weatherAlerts += 1; eventOccurred = true; }
+            if (item.disaster_event && item.disaster_event.toLowerCase() !== 'none' && item.disaster_event.trim() !== '') { 
+                acc[district].score += 5; acc[district].disasterCount += 1; eventOccurred = true; 
+            }
+            if ((parseInt(item.disease_cases, 10) || 0) > 0) { 
+                acc[district].score += 3; acc[district].diseaseIncidents += 1; eventOccurred = true;
+            }
+            if ((parseFloat(item.temperature_c) || 0) > 34) { acc[district].score += 1; acc[district].weatherAlerts += 1; eventOccurred = true; }
+            if ((parseFloat(item.rainfall_mm) || 0) > 60) { acc[district].score += 2; acc[district].weatherAlerts += 1; eventOccurred = true; }
             if (eventOccurred && item.date && (!acc[district].latestDate || item.date > acc[district].latestDate)) {
                 acc[district].latestDate = item.date;
             }
             return acc;
         }, {});
 
-        // Populate the filter dropdown with districts
         Object.keys(districtScores).sort().forEach(districtName => {
-            const option = document.createElement('option');
-            option.value = districtName;
-            option.textContent = districtName;
-            districtFilter.appendChild(option);
+            districtFilter.add(new Option(districtName, districtName));
         });
 
-        function getSafetyLevel(score) {
-            if (score > 40) return { level: 'High Risk', cssClass: 'status-high-risk' };
-            if (score > 15) return { level: 'Moderate Risk', cssClass: 'status-moderate-risk' };
+        function getSafetyLevel(rawScore) {
+            if (rawScore > MAX_RISK_SCORE * 0.60) return { level: 'High Risk', cssClass: 'status-high-risk' };
+            if (rawScore > MAX_RISK_SCORE * 0.25) return { level: 'Moderate Risk', cssClass: 'status-moderate-risk' };
             return { level: 'Low Risk', cssClass: 'status-low-risk' };
         }
 
         function formatDate(dateString) {
             if (!dateString) return '';
-            return new Date(dateString).toLocaleDateString(undefined, {
-                year: 'numeric', month: 'short', day: 'numeric'
-            });
+            return new Date(dateString).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
         }
 
         function renderAllDistrictsView() {
@@ -140,18 +142,19 @@
             Object.keys(districtScores).sort().forEach(districtName => {
                 const data = districtScores[districtName];
                 const safetyInfo = getSafetyLevel(data.score);
+                const displayScore = Math.min(Math.round((data.score / MAX_RISK_SCORE) * 100), 100);
                 const card = document.createElement('div');
                 card.className = `safety-card ${safetyInfo.cssClass}`;
                 const formattedDate = formatDate(data.latestDate);
                 const dateHtml = formattedDate ? `<p class="last-event-date"><i class="fas fa-calendar-alt"></i> Last Event: ${formattedDate}</p>` : '';
                 card.innerHTML = `<div class="card-header"><h3>${districtName}</h3><span class="status-badge">${safetyInfo.level}</span></div>
                     <div class="card-body">
-                        <p class="score">Risk Score: <strong>${data.score}</strong></p>
+                        <p class="score">Risk Score: <strong>${displayScore} / 100</strong></p>
                         ${dateHtml}
                         <ul class="breakdown">
-                            <li><i class="fas fa-exclamation-triangle"></i> ${data.disasterCount} Total Disaster Events</li>
-                            <li><i class="fas fa-notes-medical"></i> ${data.diseaseCases} Total Disease Cases</li>
-                            <li><i class="fas fa-cloud-sun-rain"></i> ${data.weatherAlerts} Total Weather Alerts</li>
+                            <li><i class="fas fa-exclamation-triangle"></i> ${data.disasterCount} Disaster Events</li>
+                            <li><i class="fas fa-notes-medical"></i> ${data.diseaseIncidents} Disease Incidents</li>
+                            <li><i class="fas fa-cloud-sun-rain"></i> ${data.weatherAlerts} Weather Alerts</li>
                         </ul>
                     </div>`;
                 container.appendChild(card);
@@ -160,21 +163,22 @@
 
         function renderPlaceLevelView(districtName) {
             container.innerHTML = `<h2 class="detail-title">Safety Levels for Places in ${districtName}</h2>`;
-            const districtData = allData.filter(item => item.district === districtName);
-            const placeScores = districtData.reduce((acc, item) => {
+            const placeData = recentData.filter(item => item.district === districtName);
+            const placeScores = placeData.reduce((acc, item) => {
                 const place = item.place;
                 if (!place) return acc;
                 if (!acc[place]) {
-                    acc[place] = { score: 0, disasterCount: 0, diseaseCases: 0, weatherAlerts: 0, latestDate: null };
+                    acc[place] = { score: 0, disasterCount: 0, diseaseIncidents: 0, weatherAlerts: 0, latestDate: null };
                 }
                 let eventOccurred = false;
-                if (item.disaster_event && item.disaster_event.toLowerCase() !== 'none' && item.disaster_event.trim() !== '') { acc[place].score += 5; acc[place].disasterCount += 1; eventOccurred = true; }
-                const cases = parseInt(item.disease_cases, 10) || 0;
-                if (cases > 0) { acc[place].score += Math.min(cases, 10); acc[place].diseaseCases += cases; eventOccurred = true; }
-                const temp = parseFloat(item.temperature_c) || 0;
-                const rain = parseFloat(item.rainfall_mm) || 0;
-                if (temp > 34) { acc[place].score += 1; acc[place].weatherAlerts += 1; eventOccurred = true; }
-                if (rain > 60) { acc[place].score += 2; acc[place].weatherAlerts += 1; eventOccurred = true; }
+                if (item.disaster_event && item.disaster_event.toLowerCase() !== 'none' && item.disaster_event.trim() !== '') { 
+                    acc[place].score += 5; acc[place].disasterCount += 1; eventOccurred = true; 
+                }
+                if ((parseInt(item.disease_cases, 10) || 0) > 0) { 
+                    acc[place].score += 3; acc[place].diseaseIncidents += 1; eventOccurred = true; 
+                }
+                if ((parseFloat(item.temperature_c) || 0) > 34) { acc[place].score += 1; acc[place].weatherAlerts += 1; eventOccurred = true; }
+                if ((parseFloat(item.rainfall_mm) || 0) > 60) { acc[place].score += 2; acc[place].weatherAlerts += 1; eventOccurred = true; }
                 if (eventOccurred && item.date && (!acc[place].latestDate || item.date > acc[place].latestDate)) {
                     acc[place].latestDate = item.date;
                 }
@@ -182,74 +186,108 @@
             }, {});
 
             if (Object.keys(placeScores).length === 0) {
-                container.innerHTML += '<p style="text-align:center; color:#718096; grid-column: 1 / -1;">No places with data found for this district.</p>';
+                container.innerHTML += '<p style="text-align:center; color:#718096; grid-column: 1 / -1;">No recent events found for any places in this district.</p>';
                 return;
             }
 
             Object.keys(placeScores).sort().forEach(placeName => {
                 const data = placeScores[placeName];
                 const safetyInfo = getSafetyLevel(data.score);
+                const displayScore = Math.min(Math.round((data.score / MAX_RISK_SCORE) * 100), 100);
                 const card = document.createElement('div');
                 card.className = `safety-card ${safetyInfo.cssClass}`;
                 const formattedDate = formatDate(data.latestDate);
                 const dateHtml = formattedDate ? `<p class="last-event-date"><i class="fas fa-calendar-alt"></i> Last Event: ${formattedDate}</p>` : '';
                 card.innerHTML = `<div class="card-header"><h3>${placeName}</h3><span class="status-badge">${safetyInfo.level}</span></div>
                     <div class="card-body">
-                        <p class="score">Risk Score: <strong>${data.score}</strong></p>
+                        <p class="score">Risk Score: <strong>${displayScore} / 100</strong></p>
                         ${dateHtml}
                         <ul class="breakdown">
                             <li><i class="fas fa-exclamation-triangle"></i> ${data.disasterCount} Disaster Events</li>
-                            <li><i class="fas fa-notes-medical"></i> ${data.diseaseCases} Disease Cases</li>
+                            <li><i class="fas fa-notes-medical"></i> ${data.diseaseIncidents} Disease Incidents</li>
                             <li><i class="fas fa-cloud-sun-rain"></i> ${data.weatherAlerts} Weather Alerts</li>
                         </ul>
                     </div>`;
                 container.appendChild(card);
             });
         }
-
-        function renderSafetyBarChart() {
+        
+        // FIX: Refactored function to be generic for any bar chart data
+        function renderSafetyBarChart(title, labels, data) {
             if (safetyChart) safetyChart.destroy();
-            const sortedDistricts = Object.keys(districtScores).sort();
-            const labels = sortedDistricts;
-            const data = sortedDistricts.map(district => districtScores[district].score);
+            
+            chartTitleElement.textContent = title; // Update the chart title
+
             const backgroundColors = data.map(score => {
-                const level = getSafetyLevel(score).level;
-                if (level === 'High Risk') return 'rgba(220, 53, 69, 0.7)';
-                if (level === 'Moderate Risk') return 'rgba(255, 193, 7, 0.7)';
+                if (score > 60) return 'rgba(220, 53, 69, 0.7)';
+                if (score > 25) return 'rgba(255, 193, 7, 0.7)';
                 return 'rgba(25, 135, 84, 0.7)';
             });
 
             const ctx = document.getElementById('safetyBarChart').getContext('2d');
             safetyChart = new Chart(ctx, {
                 type: 'bar',
-                data: {
-                    labels,
-                    datasets: [{ label: 'Risk Score', data, backgroundColor: backgroundColors, borderWidth: 1 }]
-                },
+                data: { labels, datasets: [{ label: 'Risk Score', data, backgroundColor: backgroundColors, borderWidth: 1 }] },
                 options: {
                     responsive: true, maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        y: { beginAtZero: true, title: { display: true, text: 'Calculated Risk Score (Higher is Less Safe)' } },
+                        y: { beginAtZero: true, max: 100, title: { display: true, text: 'Normalized Risk Score (0-100)' } },
                         x: { ticks: { maxRotation: 45, minRotation: 45 } }
                     }
                 }
             });
         }
 
-        // Add event listener for the filter
         districtFilter.addEventListener('change', (event) => {
             const selectedDistrict = event.target.value;
+            
             if (selectedDistrict === 'all') {
                 renderAllDistrictsView();
+                // FIX: Prepare and render the district summary chart
+                const sortedDistricts = Object.keys(districtScores).sort();
+                const chartLabels = sortedDistricts;
+                const chartData = sortedDistricts.map(d => {
+                    const rawScore = districtScores[d].score;
+                    return Math.min(Math.round((rawScore / MAX_RISK_SCORE) * 100), 100);
+                });
+                renderSafetyBarChart('Overall District Risk Score Comparison', chartLabels, chartData);
+
             } else {
                 renderPlaceLevelView(selectedDistrict);
+                // FIX: Prepare and render the place-level chart for the selected district
+                const placeData = recentData.filter(item => item.district === selectedDistrict);
+                const placeScores = placeData.reduce((acc, item) => {
+                    const place = item.place;
+                    if (!place) return acc;
+                    if (!acc[place]) acc[place] = { score: 0 };
+                    if (item.disaster_event && item.disaster_event.toLowerCase() !== 'none' && item.disaster_event.trim() !== '') acc[place].score += 5;
+                    if ((parseInt(item.disease_cases, 10) || 0) > 0) acc[place].score += 3;
+                    if ((parseFloat(item.temperature_c) || 0) > 34) acc[place].score += 1;
+                    if ((parseFloat(item.rainfall_mm) || 0) > 60) acc[place].score += 2;
+                    return acc;
+                }, {});
+
+                const sortedPlaces = Object.keys(placeScores).sort();
+                const chartLabels = sortedPlaces;
+                const chartData = sortedPlaces.map(p => {
+                    const rawScore = placeScores[p].score;
+                    return Math.min(Math.round((rawScore / MAX_RISK_SCORE) * 100), 100);
+                });
+                renderSafetyBarChart(`Risk Score Comparison for Places in ${selectedDistrict}`, chartLabels, chartData);
             }
         });
 
-        // Initial render on page load
-        renderSafetyBarChart();
+        // Initial render on page load for the district summary
         renderAllDistrictsView();
+        const initialSortedDistricts = Object.keys(districtScores).sort();
+        const initialChartLabels = initialSortedDistricts;
+        const initialChartData = initialSortedDistricts.map(d => {
+            const rawScore = districtScores[d].score;
+            return Math.min(Math.round((rawScore / MAX_RISK_SCORE) * 100), 100);
+        });
+        renderSafetyBarChart('Overall District Risk Score Comparison', initialChartLabels, initialChartData);
+
     });
 </script>
 {% endblock %}
