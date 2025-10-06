@@ -35,11 +35,33 @@ class Destination(db.Model):
     Description = db.Column(db.Text, nullable=True)
     Create_id = db.Column(db.DateTime, nullable=False, default=datetime.datetime.now) 
     budget = db.Column(db.Integer, nullable=True)
-    
-    # ### MODIFIED/ADDED COLUMNS ###
     search_count = db.Column(db.Integer, nullable=False, default=0)
     image_url = db.Column(db.String(255), nullable=True)
 
+    @property
+    def safety_ratings(self):
+        """
+        Dynamic property that returns safety rating data calculated from CSV.
+        This maintains compatibility with templates expecting safety_ratings[0].overall_safety.
+        """
+        try:
+            # Import here to avoid circular imports
+            from backend.aiservice import calculate_safety_from_csv
+            safety_info = calculate_safety_from_csv(self.Name, self.Place)
+            
+            # Return a list with a single mock safety rating object for template compatibility
+            class MockSafetyRating:
+                def __init__(self, overall_safety):
+                    self.overall_safety = overall_safety
+            
+            return [MockSafetyRating(safety_info['text'])]
+        except Exception as e:
+            print(f"Error calculating safety for {self.Name}, {self.Place}: {e}")
+            # Return default safety rating if calculation fails
+            class MockSafetyRating:
+                def __init__(self, overall_safety):
+                    self.overall_safety = overall_safety
+            return [MockSafetyRating('Moderate')]
 
     def __repr__(self):
         return f'<Destination {self.Name}>'
