@@ -34,7 +34,7 @@
     .route-card h4 { font-size: 1.2rem; font-weight: 600; margin-top: 0; margin-bottom: 15px; color: var(--dark-text); }
     .route-summary-details p { margin: 5px 0; font-size: 0.95rem; }
     .route-summary-details strong { color: var(--dark-text); }
-    .tip-card { background-color: #d4edda; border-left: 5px solid #28a745; border-radius: 8px; padding: 15px 20px; display: flex; align-items: flex-start; margin-top: 25px; }
+    .tip-card { background-color: #d4edda; border-left: 5px solid #28a745; border-radius: 8px; padding: 15px 20px; display: flex; align-items: flex-start; }
     .tip-card i { color: #28a745; font-size: 1.5rem; margin-right: 15px; }
     .tip-card p { font-size: 0.95rem; color: #155724; margin: 0; }
     .stop-card { flex: 1; min-width: 250px; background-color: #f8f9fa; border-radius: 10px; padding: 15px; border: 1px solid #e9ecef; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
@@ -47,6 +47,55 @@
     .favorite-btn.favorited { color: #ff4d4d; }
     .favorite-btn.not-favorited { color: #ccc; }
     .favorite-btn i { pointer-events: none; }
+
+    /* --- STYLES FOR AI PREDICTION CARD --- */
+    .prediction-card {
+        background-color: #fffbeb;
+        border-left: 5px solid #f59e0b;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 25px; /* Spacing between this and the tip card */
+    }
+    .prediction-card h4 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        color: #b45309;
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+    }
+    .prediction-card h4 i {
+        margin-right: 10px;
+    }
+    .prediction-alert {
+        margin-bottom: 15px;
+        display: flex;
+        align-items: flex-start;
+    }
+    .prediction-alert:last-child {
+        margin-bottom: 0;
+    }
+    .prediction-alert i {
+        font-size: 1.1rem;
+        margin-right: 12px;
+        color: #d97706;
+        padding-top: 4px;
+    }
+    .prediction-alert div {
+        flex: 1;
+    }
+    .prediction-alert p {
+        margin: 0;
+        font-size: 0.95rem;
+        color: #92400e;
+        line-height: 1.6;
+    }
+    .prediction-alert strong {
+        display: block;
+        margin-bottom: 3px;
+        font-weight: 600;
+        color: #b45309;
+    }
 </style>
 {% endblock %}
 
@@ -292,6 +341,28 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>`;
         }).join('');
 
+        const predictionHTML = `
+            <div class="prediction-card">
+                <h4><i class="fas fa-exclamation-triangle"></i> Risk Alert for ${routeData.destination}</h4>
+                <div class="prediction-alert">
+                    <i class="fas fa-cloud-showers-heavy"></i>
+                    <div>
+                        <strong>Disaster Outlook</strong>
+                        <p>${routeData.prediction.disaster_alert}</p>
+                    </div>
+                </div>
+                <div class="prediction-alert">
+                    <i class="fas fa-syringe"></i>
+                    <div>
+                        <strong>Health Outlook</strong>
+                        <p>${routeData.prediction.disease_alert}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // --- FINAL LAYOUT FIX ---
+        // The prediction card is now correctly placed inside the details column.
         routeSection.innerHTML = `
             <div class="route-header"><i class="fas fa-check-square"></i> Safe Route Generated</div>
             <div class="route-layout">
@@ -306,12 +377,15 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                     </div>
                     <div class="route-card">
-                        <h4>Recommended Stop on Route</h4>
+                        <h4>Recommended Stops on Route</h4>
                         <div class="recommended-stops">${stopsHTML}</div>
                     </div>
+                    <!-- The prediction card is now here -->
+                    ${predictionHTML}
                     <div class="tip-card"><i class="fas fa-info-circle"></i><p>${routeData.tip}</p></div>
                 </div>
-            </div>`;
+            </div>
+            `;
         setTimeout(() => { initMapAndRoute(routeData.source, routeData.destination); }, 100);
     }
 
