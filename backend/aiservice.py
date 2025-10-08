@@ -147,32 +147,49 @@ def calculate_safety_from_csv(district_name, place_name=None):
 @ai_bp.route('/api/generate-route', methods=['POST'])
 def generate_ai_route():
     data = request.get_json()
-    source_district, dest_district = data.get('source'), data.get('destination')
-    interest, budget_str = data.get('interest'), data.get('budget')
-    
+    source_district, dest_district = data.get('source'), data.get('destination') # Required fields
+    interest = data.get('interest') # Optional
+    budget_str = data.get('budget') # Optional
     model = _get_gemini_model()
 
     try:
         source_index = KERALA_DISTRICTS_ORDER.index(source_district)
         dest_index = KERALA_DISTRICTS_ORDER.index(dest_district)
-        user_budget = int(budget_str)
-    except (ValueError, TypeError):
-        return jsonify({'success': False, 'message': 'Invalid source, destination, or budget provided.'}), 400
+    except ValueError:
+        return jsonify({'success': False, 'message': 'Invalid source or destination provided.'}), 400
 
     if source_index < dest_index:
         travel_path_districts = KERALA_DISTRICTS_ORDER[source_index : dest_index + 1]
     else:
         travel_path_districts = list(reversed(KERALA_DISTRICTS_ORDER[dest_index : source_index + 1]))
     districts_for_stops = travel_path_districts[1:]
-    
-    potential_stops = Destination.query.filter(
+
+    # --- MODIFIED: Conditionally build the query for stops ---
+    query = Destination.query.filter(
         Destination.Name.in_(districts_for_stops),
-        Destination.Type == interest,
-        Destination.budget <= user_budget
-    ).all()
+    )
+    if interest:
+        query = query.filter(Destination.Type == interest)
+
+    user_budget = None
+    if budget_str:
+        try:
+            user_budget = int(budget_str)
+            query = query.filter(Destination.budget <= user_budget)
+        except (ValueError, TypeError):
+            pass # Ignore invalid budget
+
+    potential_stops = query.all()
 
     if not potential_stops:
-        msg = f'No stops matching your interest "{interest.capitalize()}" and budget (under ₹{user_budget:,}) were found between {source_district} and {dest_district}.'
+        # MODIFIED: Dynamic message for no stops found
+        msg_parts = []
+        if interest:
+            msg_parts.append(f'interest "{interest.capitalize()}"')
+        if user_budget:
+            msg_parts.append(f'budget (under ₹{user_budget:,})')
+        criteria_str = " and ".join(msg_parts) if msg_parts else "your criteria"
+        msg = f'No stops matching {criteria_str} were found between {source_district} and {dest_district}.'
         return jsonify({'success': False, 'message': msg})
 
     analyzed_stops = []
@@ -219,7 +236,7 @@ def generate_ai_route():
         prediction_alerts = _generate_ai_prediction(dest_district, model)
 
     final_route = {
-        'source': source_district, 'destination': dest_district, 'interest': interest.capitalize(),
+        'source': source_district, 'destination': dest_district, 'interest': interest.capitalize() if interest else 'Any',
         'overall_safety_text': overall_safety_text, 'overall_safety_class': status_map.get(overall_safety_text, 'caution'),
         'stops': best_stops, 'alerts': alerts, 'tip': tip,
         'prediction': prediction_alerts  # Add the new prediction data here
