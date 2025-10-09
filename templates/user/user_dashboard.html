@@ -4,7 +4,6 @@
 
 {% block extra_styles %}
 <style>
-    /* All the specific styles for the dashboard content are kept here */
     .header-card { background-image: url("{{ url_for('static', filename='Images/image.png') }}"); background-size: cover; background-position: center; border-radius: 12px; padding: 40px; color: var(--white); text-align: center; margin-bottom: 40px; position: relative; overflow: hidden; box-shadow: var(--shadow); }
     .header-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)); z-index: 1; }
     .header-card-content { position: relative; z-index: 2; }
@@ -115,115 +114,163 @@
 {% block extra_scripts %}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
-
 <script>
-// Initialize data directly from the backend to avoid hardcoding in JavaScript
-const favoriteIds = new Set({{ favorite_ids_json | tojson | safe }});
-const districtCoordinates = {{ districts_coords_json | tojson | safe }};
+    const favoriteIds = new Set({{ favorite_ids_json | tojson | safe }});
+    const districtCoordinates = {{ districts_coords_json | tojson | safe }};
 
-document.addEventListener('DOMContentLoaded', function() {
-    let leafletMap;
-    let currentRouteData = null; 
+    document.addEventListener('DOMContentLoaded', function() {
+        let leafletMap;
+        let currentRouteData = null;
 
-    document.getElementById('planTripForm').addEventListener('submit', async function(event) {
-        event.preventDefault();
-        const source = document.getElementById('sourceDistrict').value;
-        const destination = document.getElementById('destinationDistrict').value;
-        const budget = document.getElementById('budget').value;
-        const interest = document.getElementById('interest').value;
+        document.getElementById('planTripForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const source = document.getElementById('sourceDistrict').value;
+            const destination = document.getElementById('destinationDistrict').value;
+            const budget = document.getElementById('budget').value;
+            const interest = document.getElementById('interest').value;
 
-        if (!source || !destination || !budget || !interest) {
-            alert('Please fill out all fields.');
-            return;
-        }
-        if (source === destination) {
-            alert('Source and Destination cannot be the same.');
-            return;
-        }
-
-        const generateBtn = document.getElementById('generateBtn');
-        const btnText = document.getElementById('btn-text');
-        const btnSpinner = document.getElementById('btn-spinner');
-        generateBtn.disabled = true;
-        btnText.style.display = 'none';
-        btnSpinner.style.display = 'inline';
-
-        try {
-            const response = await fetch('/api/generate-route', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ source, destination, budget, interest })
-            });
-            const data = await response.json();
-            const routeSection = document.getElementById('generatedRouteSection');
-
-            if (data.success) {
-                currentRouteData = data.route;
-                renderRoute(currentRouteData);
-            } else {
-                renderFallbackRoute(source, destination, data.message);
+            if (!source || !destination || !budget || !interest) {
+                alert('Please fill out all fields.');
+                return;
             }
-            routeSection.classList.add('active');
-            routeSection.scrollIntoView({ behavior: 'smooth' });
+            if (source === destination) {
+                alert('Source and Destination cannot be the same.');
+                return;
+            }
 
-        } catch (error) {
-            console.error('Error fetching route:', error);
-            alert('An error occurred while generating the route. Please try again.');
-        } finally {
-            generateBtn.disabled = false;
-            btnText.style.display = 'inline';
-            btnSpinner.style.display = 'none';
-        }
-    });
+            const generateBtn = document.getElementById('generateBtn');
+            const btnText = document.getElementById('btn-text');
+            const btnSpinner = document.getElementById('btn-spinner');
+            generateBtn.disabled = true;
+            btnText.style.display = 'none';
+            btnSpinner.style.display = 'inline';
 
-    function initMapAndRoute(source, destination, isFallback = false) {
-        if (leafletMap) { leafletMap.remove(); }
-        
-        const sourceCoords = districtCoordinates[source];
-        const destCoords = districtCoordinates[destination];
-        if (!sourceCoords || !destCoords) { 
-            document.getElementById("map").innerHTML = "<p>Could not find coordinates for the selected districts.</p>"; 
-            return; 
-        }
-        
-        leafletMap = L.map('map').setView([10.8505, 76.2711], 7);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' }).addTo(leafletMap);
-        
-        const routingControl = L.Routing.control({
-            waypoints: [ L.latLng(sourceCoords.lat, sourceCoords.lng), L.latLng(destCoords.lat, destCoords.lng) ],
-            routeWhileDragging: false, 
-            addWaypoints: false, 
-            draggableWaypoints: false,
-            lineOptions: { styles: [{ color: 'var(--primary-color)', opacity: 0.8, weight: 6 }] }
-        }).addTo(leafletMap);
+            try {
+                const response = await fetch('/api/generate-route', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ source, destination, budget, interest })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentRouteData = data.route;
 
-        if (!isFallback) {
-            routingControl.on('routesfound', function(e) {
-                const routes = e.routes;
-                if (routes && routes.length > 0) {
-                    const summary = routes[0].summary;
-                    const totalDistanceKm = (summary.totalDistance / 1000).toFixed(1);
-                    const totalTimeSeconds = summary.totalTime;
-                    const costPerKm = 15; 
-                    const estimatedTravelCost = (totalDistanceKm * costPerKm).toLocaleString('en-IN', {
-                        style: 'currency', currency: 'INR', maximumFractionDigits: 0
-                    });
-                    updateRouteSummaryWithTravelDetails(totalDistanceKm, estimatedTravelCost, totalTimeSeconds);
-                    adjustStopBudgets(totalDistanceKm); 
+                    // --- Logic to save a list of up to 5 routes ---
+                    const MAX_ROUTES = 5;
+                    let previousRoutes = JSON.parse(sessionStorage.getItem('previousRoutes')) || [];
+                    previousRoutes.unshift(data.route);
+                    if (previousRoutes.length > MAX_ROUTES) {
+                        previousRoutes.pop();
+                    }
+                    sessionStorage.setItem('previousRoutes', JSON.stringify(previousRoutes));
+                    // --- End of saving logic ---
+
+                    renderRoute(currentRouteData);
                 } else {
-                     console.warn("No routes found by Leaflet Routing Machine.");
-                     updateRouteSummaryWithTravelDetails('N/A', 'N/A');
+                    renderFallbackRoute(source, destination, data.message);
                 }
-            }).on('routingerror', function(e) {
-                console.error('Leaflet Routing Error:', e.error.message);
-                updateRouteSummaryWithTravelDetails('Error', 'Error');
+                document.getElementById('generatedRouteSection').classList.add('active');
+                document.getElementById('generatedRouteSection').scrollIntoView({ behavior: 'smooth' });
+
+            } catch (error) {
+                console.error('Error fetching route:', error);
+                alert('An error occurred while generating the route. Please try again.');
+            } finally {
+                generateBtn.disabled = false;
+                btnText.style.display = 'inline';
+                btnSpinner.style.display = 'none';
+            }
+        });
+
+        const routeSectionContainer = document.getElementById('generatedRouteSection');
+        if (routeSectionContainer) {
+            routeSectionContainer.addEventListener('click', async (event) => {
+                const favoriteButton = event.target.closest('.favorite-btn');
+                if (!favoriteButton) return;
+
+                const destId = parseInt(favoriteButton.dataset.id, 10);
+                const isFavorited = favoriteButton.classList.contains('favorited');
+                const url = isFavorited ? `/api/favorites/remove/${destId}` : `/api/favorites/add/${destId}`;
+
+                try {
+                    const response = await fetch(url, { method: 'POST' });
+                    const result = await response.json();
+
+                    if (result.success) {
+                        favoriteButton.classList.toggle('favorited');
+                        favoriteButton.classList.toggle('not-favorited');
+                        favoriteButton.title = favoriteButton.classList.contains('favorited') ?
+                            'Remove from Favorites' :
+                            'Add to Favorites';
+
+                        if (favoriteButton.classList.contains('favorited')) {
+                            favoriteIds.add(destId);
+                        } else {
+                            favoriteIds.delete(destId);
+                        }
+                    } else {
+                        alert(result.message || 'An error occurred.');
+                    }
+                } catch (error) {
+                    console.error('Favorite toggle error:', error);
+                    alert('Could not update favorite status. Please try again.');
+                }
             });
         }
-    }
 
-    function updateRouteSummaryWithTravelDetails(distanceKm, estimatedCost, totalTimeSeconds) {
-        const routeSummaryDetails = document.querySelector('.route-summary-details');
-        if (routeSummaryDetails) {
+        function initMapAndRoute(source, destination, isFallback = false) {
+            if (leafletMap) { leafletMap.remove(); }
+            const mapDiv = document.getElementById("map");
+            if (!mapDiv) { console.error("Map container not found!"); return; }
+
+            const sourceCoords = districtCoordinates[source];
+            const destCoords = districtCoordinates[destination];
+            if (!sourceCoords || !destCoords) {
+                mapDiv.innerHTML = "<p>Could not find coordinates for the selected districts.</p>";
+                return;
+            }
+
+            leafletMap = L.map('map').setView([10.8505, 76.2711], 7);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' }).addTo(leafletMap);
+
+            const routingControl = L.Routing.control({
+                waypoints: [L.latLng(sourceCoords.lat, sourceCoords.lng), L.latLng(destCoords.lat, destCoords.lng)],
+                routeWhileDragging: false,
+                addWaypoints: false,
+                draggableWaypoints: false,
+                lineOptions: { styles: [{ color: 'var(--primary-color)', opacity: 0.8, weight: 6 }] }
+            }).addTo(leafletMap);
+
+            if (!isFallback) {
+                routingControl.on('routesfound', function(e) {
+                    const routes = e.routes;
+                    if (routes && routes.length > 0) {
+                        const summary = routes[0].summary;
+                        const totalDistanceKm = (summary.totalDistance / 1000).toFixed(1);
+                        const totalTimeSeconds = summary.totalTime;
+                        const costPerKm = 15;
+                        const estimatedTravelCost = (totalDistanceKm * costPerKm).toLocaleString('en-IN', {
+                            style: 'currency',
+                            currency: 'INR',
+                            maximumFractionDigits: 0
+                        });
+                        updateRouteSummaryWithTravelDetails(totalDistanceKm, estimatedTravelCost, totalTimeSeconds);
+                        adjustStopBudgets(totalDistanceKm);
+                    } else {
+                        updateRouteSummaryWithTravelDetails('N/A', 'N/A');
+                    }
+                }).on('routingerror', function(e) {
+                    console.error('Leaflet Routing Error:', e.error.message);
+                    updateRouteSummaryWithTravelDetails('Error', 'Error');
+                });
+            }
+        }
+
+        function updateRouteSummaryWithTravelDetails(distanceKm, estimatedCost, totalTimeSeconds) {
+            const routeSummaryDetails = document.querySelector('.route-summary-details');
+            if (!routeSummaryDetails) return;
+
             let distanceP = routeSummaryDetails.querySelector('#route-distance') || document.createElement('p');
             distanceP.id = 'route-distance';
             distanceP.innerHTML = `Distance: <strong>${distanceKm} km</strong>`;
@@ -231,7 +278,7 @@ document.addEventListener('DOMContentLoaded', function() {
             let costP = routeSummaryDetails.querySelector('#route-cost') || document.createElement('p');
             costP.id = 'route-cost';
             costP.innerHTML = `Est. Travel Cost: <strong>${estimatedCost}</strong>`;
-            
+
             let timeP = routeSummaryDetails.querySelector('#route-time') || document.createElement('p');
             timeP.id = 'route-time';
             if (totalTimeSeconds) {
@@ -244,127 +291,88 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (!routeSummaryDetails.querySelector('#route-distance')) {
                 const interestP = routeSummaryDetails.querySelector('p:nth-child(2)');
-                interestP.after(timeP);
-                interestP.after(costP);
-                interestP.after(distanceP);
+                if (interestP) {
+                    interestP.after(timeP, costP, distanceP);
+                }
             }
         }
-    }
 
-    function adjustStopBudgets(distanceInKm) {
-        const budgetElements = document.querySelectorAll('.stop-budget');
-        if (budgetElements.length === 0 || !currentRouteData || !currentRouteData.stops) return;
-
-        let budgetMultiplier = 1.0;
-        let adjustmentNote = '';
-        if (distanceInKm > 300) { budgetMultiplier = 0.85; adjustmentNote = 'Reduced for long distance'; } 
-        else if (distanceInKm < 150) { budgetMultiplier = 1.10; adjustmentNote = 'Increased for short distance'; }
-
-        budgetElements.forEach((el, index) => {
-            const originalBudget = currentRouteData.stops[index] ? currentRouteData.stops[index].budget : 0; 
-            if (!isNaN(originalBudget) && originalBudget > 0) {
-                const adjustedBudget = Math.round((originalBudget * budgetMultiplier) / 50) * 50;
-                let noteHtml = adjustmentNote ? `<span title="${adjustmentNote}" style="font-size: 0.8em; color: var(--secondary-color); cursor: help;"> (adjusted)</span>` : '';
-                el.innerHTML = `Est. Budget: ₹${adjustedBudget.toLocaleString()}${noteHtml}`;
-            } else {
-                el.innerHTML = `Est. Budget: N/A`;
-            }
-        });
-    }
-
-    function renderRoute(routeData) {
-        const routeSection = document.getElementById('generatedRouteSection');
-        
-        const stopsHTML = routeData.stops.map(stop => {
-            const isFavorited = favoriteIds.has(stop.id);
-            const favClass = isFavorited ? 'favorited' : 'not-favorited';
-            const favTitle = isFavorited ? 'Remove from Favorites' : 'Add to Favorites';
-
-            return `
-            <div class="stop-card">
-                <button class="favorite-btn ${favClass}" data-id="${stop.id}" title="${favTitle}">
-                    <i class="fas fa-heart"></i>
-                </button>
-                <h5>${stop.name}</h5>
-                <p>${stop.type}</p>
-                <p class="stop-budget">Est. Budget: ₹${stop.budget ? stop.budget.toLocaleString() : 'N/A'}</p>
-                <span class="status-badge ${stop.safety_class}">${stop.safety_text}</span>
-            </div>`;
-        }).join('');
-
-        routeSection.innerHTML = `
-            <div class="route-header"><i class="fas fa-check-square"></i> Safe Route Generated</div>
-            <div class="route-layout">
-                <div id="map"></div>
-                <div id="route-details">
-                    <div class="route-card">
-                        <h4>Route Summary</h4>
-                        <div class="route-summary-details">
-                            <p><strong>${routeData.source}</strong> <i class="fas fa-arrow-right"></i> <strong>${routeData.destination}</strong></p>
-                            <p>Interest: <strong>${routeData.interest}</strong></p>
-                            <span class="status-badge ${routeData.overall_safety_class}">Overall Safety: ${routeData.overall_safety_text}</span>
-                        </div>
-                    </div>
-                    <div class="route-card">
-                        <h4>Recommended Stop on Route</h4>
-                        <div class="recommended-stops">${stopsHTML}</div>
-                    </div>
-                    <div class="tip-card"><i class="fas fa-info-circle"></i><p>${routeData.tip}</p></div>
-                </div>
-            </div>`;
-        setTimeout(() => { initMapAndRoute(routeData.source, routeData.destination); }, 100);
-    }
-
-    function renderFallbackRoute(source, destination, message) {
-        const routeSection = document.getElementById('generatedRouteSection');
-        const fallbackMessage = message || "We couldn't generate a full safe route. Here is the direct route map.";
-        routeSection.innerHTML = `
-            <div class="route-header" style="color: var(--warning-color);"><i class="fas fa-map-signs"></i> Basic Route Map</div>
-            <div class="route-layout">
-                <div id="map"></div>
-                <div id="route-details">
-                     <div class="route-card"><h4>Route Summary</h4><p><strong>${source}</strong> <i class="fas fa-arrow-right"></i> <strong>${destination}</strong></p></div>
-                     <div class="tip-card" style="background-color: #fff3cd; border-color: #ffc107;">
-                         <i class="fas fa-info-circle" style="color: #856404;"></i><p style="color: #856404;">${fallbackMessage}</p>
-                     </div>
-                </div>
-            </div>`;
-        setTimeout(() => { initMapAndRoute(source, destination, true); }, 100);
-    }
-
-    const routeSectionContainer = document.getElementById('generatedRouteSection');
-    routeSectionContainer.addEventListener('click', async (event) => {
-        const favoriteButton = event.target.closest('.favorite-btn');
-        if (!favoriteButton) return; 
-
-        const destId = parseInt(favoriteButton.dataset.id, 10);
-        const isFavorited = favoriteButton.classList.contains('favorited');
-        const url = isFavorited ? `/api/favorites/remove/${destId}` : `/api/favorites/add/${destId}`;
-
-        try {
-            const response = await fetch(url, { method: 'POST' });
-            const result = await response.json();
-
-            if (result.success) {
-                favoriteButton.classList.toggle('favorited');
-                favoriteButton.classList.toggle('not-favorited');
-                favoriteButton.title = favoriteButton.classList.contains('favorited') 
-                    ? 'Remove from Favorites' 
-                    : 'Add to Favorites';
-                
-                if (favoriteButton.classList.contains('favorited')) {
-                    favoriteIds.add(destId);
+        function adjustStopBudgets(distanceInKm) {
+            const budgetElements = document.querySelectorAll('.stop-budget');
+            if (budgetElements.length === 0 || !currentRouteData || !currentRouteData.stops) return;
+            let budgetMultiplier = 1.0;
+            let adjustmentNote = '';
+            if (distanceInKm > 300) { budgetMultiplier = 0.85; adjustmentNote = 'Reduced for long distance'; } 
+            else if (distanceInKm < 150) { budgetMultiplier = 1.10; adjustmentNote = 'Increased for short distance'; }
+            budgetElements.forEach((el, index) => {
+                const originalBudget = currentRouteData.stops[index] ? currentRouteData.stops[index].budget : 0;
+                if (!isNaN(originalBudget) && originalBudget > 0) {
+                    const adjustedBudget = Math.round((originalBudget * budgetMultiplier) / 50) * 50;
+                    let noteHtml = adjustmentNote ? `<span title="${adjustmentNote}" style="font-size: 0.8em; color: var(--secondary-color); cursor: help;"> (adjusted)</span>` : '';
+                    el.innerHTML = `Est. Budget: ₹${adjustedBudget.toLocaleString()}${noteHtml}`;
                 } else {
-                    favoriteIds.delete(destId);
+                    el.innerHTML = `Est. Budget: N/A`;
                 }
-            } else {
-                alert(result.message || 'An error occurred.');
-            }
-        } catch (error) {
-            console.error('Favorite toggle error:', error);
-            alert('Could not update favorite status. Please try again.');
+            });
+        }
+
+        function renderRoute(routeData) {
+            const routeSection = document.getElementById('generatedRouteSection');
+            if (!routeSection) return;
+
+            const stopsHTML = routeData.stops.map(stop => {
+                const isFavorited = favoriteIds.has(stop.id);
+                const favClass = isFavorited ? 'favorited' : 'not-favorited';
+                const favTitle = isFavorited ? 'Remove from Favorites' : 'Add to Favorites';
+                return `
+                <div class="stop-card">
+                    <button class="favorite-btn ${favClass}" data-id="${stop.id}" title="${favTitle}"><i class="fas fa-heart"></i></button>
+                    <h5>${stop.name}</h5>
+                    <p>${stop.type}</p>
+                    <p class="stop-budget">Est. Budget: ₹${stop.budget ? stop.budget.toLocaleString() : 'N/A'}</p>
+                    <span class="status-badge ${stop.safety_class}">${stop.safety_text}</span>
+                </div>`;
+            }).join('');
+            routeSection.innerHTML = `
+                <div class="route-header"><i class="fas fa-check-square"></i> Safe Route Generated</div>
+                <div class="route-layout">
+                    <div id="map"></div>
+                    <div id="route-details">
+                        <div class="route-card">
+                            <h4>Route Summary</h4>
+                            <div class="route-summary-details">
+                                <p><strong>${routeData.source}</strong> <i class="fas fa-arrow-right"></i> <strong>${routeData.destination}</strong></p>
+                                <p>Interest: <strong>${routeData.interest}</strong></p>
+                                <span class="status-badge ${routeData.overall_safety_class}">Overall Safety: ${routeData.overall_safety_text}</span>
+                            </div>
+                        </div>
+                        <div class="route-card">
+                            <h4>Recommended Stop on Route</h4>
+                            <div class="recommended-stops">${stopsHTML}</div>
+                        </div>
+                        <div class="tip-card"><i class="fas fa-info-circle"></i><p>${routeData.tip}</p></div>
+                    </div>
+                </div>`;
+            setTimeout(() => { initMapAndRoute(routeData.source, routeData.destination); }, 100);
+        }
+
+        function renderFallbackRoute(source, destination, message) {
+            const routeSection = document.getElementById('generatedRouteSection');
+            if (!routeSection) return;
+            const fallbackMessage = message || "We couldn't generate a full safe route. Here is the direct route map.";
+            routeSection.innerHTML = `
+                <div class="route-header" style="color: var(--warning-color);"><i class="fas fa-map-signs"></i> Basic Route Map</div>
+                <div class="route-layout">
+                    <div id="map"></div>
+                    <div id="route-details">
+                         <div class="route-card"><h4>Route Summary</h4><p><strong>${source}</strong> <i class="fas fa-arrow-right"></i> <strong>${destination}</strong></p></div>
+                         <div class="tip-card" style="background-color: #fff3cd; border-color: #ffc107;">
+                             <i class="fas fa-info-circle" style="color: #856404;"></i><p style="color: #856404;">${fallbackMessage}</p>
+                         </div>
+                    </div>
+                </div>`;
+            setTimeout(() => { initMapAndRoute(source, destination, true); }, 100);
         }
     });
-});
 </script>
 {% endblock %}

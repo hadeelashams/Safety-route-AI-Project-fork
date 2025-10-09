@@ -6,13 +6,9 @@
     <title>{% block user_title %}Safe Route{% endblock %}</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    
-    <!-- Leaflet JS (used on some pages) -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
-
     <style>
-        /* --- Base Styles for User Area --- */
         :root {
             --sidebar-width: 240px;
             --primary-color: #007bff;
@@ -76,8 +72,6 @@
         .logout-link:hover { color: #0056b3; }
         .logout-link i { margin-right: 15px; width: 20px; text-align: center; }
         .main-content { flex-grow: 1; padding: 30px; overflow-y: auto; }
-
-        /* ### START: AI CHATBOT STYLES ### */
         .chat-toggle-button { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background-color: var(--primary-color); color: white; border-radius: 50%; border: none; display: flex; justify-content: center; align-items: center; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); cursor: pointer; transition: transform 0.2s ease; z-index: 1000; }
         .chat-toggle-button:hover { transform: scale(1.1); }
         .chat-popup { display: none; position: fixed; bottom: 100px; right: 30px; width: 350px; height: 450px; background-color: var(--white); border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); flex-direction: column; overflow: hidden; z-index: 1000; }
@@ -93,11 +87,7 @@
         .chat-form input { flex-grow: 1; border: none; padding: 10px; font-size: 1rem; background: transparent; }
         .chat-form input:focus { outline: none; }
         .chat-form button { background: none; border: none; color: var(--primary-color); font-size: 1.2rem; cursor: pointer; padding: 0 10px; }
-        /* ### END: AI CHATBOT STYLES ### */
-
     </style>
-    
-    <!-- Block for page-specific styles -->
     {% block extra_styles %}{% endblock %}
 </head>
 <body>
@@ -108,8 +98,7 @@
                 <ul>
                     <li><a href="{{ url_for('views.dashboard') }}" class="{% if active_page == 'dashboard' %}active{% endif %}"><i class="fas fa-home"></i> Home</a></li>
                     <li><a href="{{ url_for('views.search') }}" class="{% if active_page == 'search' %}active{% endif %}"><i class="fas fa-search"></i> Search Destination</a></li>
-                    <li><a href="#"><i class="fas fa-history"></i> Previous Routes</a></li>
-                    <!-- MODIFIED: Correctly linked Favorite page -->
+                    <li><a href="{{ url_for('views.previous') }}" class="{% if active_page == 'previous' %}active{% endif %}"><i class="fas fa-history"></i> Previous Routes</a></li>
                     <li><a href="{{ url_for('views.favorites') }}" class="{% if active_page == 'favorite' %}active{% endif %}"><i class="fas fa-heart"></i> Favorite</a></li>
                 </ul>
             </nav>
@@ -120,13 +109,9 @@
             </a>
         </div>
     </div>
-
     <main class="main-content">
-        <!-- Block for page-specific content -->
         {% block user_content %}{% endblock %}
     </main>
-
-    <!-- ### START: ADDED CHATBOT HTML ### -->
     <div class="chatbot-container">
         <button class="chat-toggle-button" id="chat-toggle">
             <i class="fas fa-comment-dots"></i>
@@ -142,17 +127,8 @@
             </form>
         </div>
     </div>
-    <!-- ### END: ADDED CHATBOT HTML ### -->
-
-
-    <!-- ### START: ADDED CHATBOT SCRIPT DEPENDENCY ### -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <!-- ### END: ADDED CHATBOT SCRIPT DEPENDENCY ### -->
-
-    <!-- Block for page-specific scripts -->
     {% block extra_scripts %}{% endblock %}
-
-    <!-- ### START: ADDED CHATBOT JAVASCRIPT LOGIC ### -->
     <script>
         const chatToggleButton = document.getElementById('chat-toggle');
         const chatPopup = document.getElementById('chat-popup');
@@ -160,49 +136,47 @@
         const chatInput = document.getElementById('chat-input');
         const chatMessages = document.getElementById('chat-messages');
 
-        chatToggleButton.addEventListener('click', () => {
-            chatPopup.classList.toggle('active');
-        });
-
-        chatForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const userMessage = chatInput.value.trim();
-            if (!userMessage) return;
-
-            addMessage(userMessage, 'user');
-            chatInput.value = '';
-
-            try {
-                const response = await fetch('/api/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: userMessage })
-                });
-                const data = await response.json();
-                if (data.success) {
-                    addMessage(data.reply, 'bot');
-                } else {
-                    addMessage(data.error || 'Sorry, something went wrong.', 'bot');
+        if (chatToggleButton) {
+            chatToggleButton.addEventListener('click', () => {
+                chatPopup.classList.toggle('active');
+            });
+        }
+        if (chatForm) {
+            chatForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const userMessage = chatInput.value.trim();
+                if (!userMessage) return;
+                addMessage(userMessage, 'user');
+                chatInput.value = '';
+                try {
+                    const response = await fetch('/api/chat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message: userMessage })
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        addMessage(data.reply, 'bot');
+                    } else {
+                        addMessage(data.error || 'Sorry, something went wrong.', 'bot');
+                    }
+                } catch (error) {
+                    console.error('Chat error:', error);
+                    addMessage('I am unable to connect right now. Please check your connection.', 'bot');
                 }
-            } catch (error) {
-                console.error('Chat error:', error);
-                addMessage('I am unable to connect right now. Please check your connection.', 'bot');
-            }
-        });
-
+            });
+        }
         function addMessage(text, sender) {
             const messageElement = document.createElement('div');
             messageElement.classList.add('message', `${sender}-message`);
             if (sender === 'bot') {
-                messageElement.innerHTML = marked.parse(text); // Use marked.js for bot responses
+                messageElement.innerHTML = marked.parse(text);
             } else {
-                messageElement.textContent = text; // Keep user messages as plain text
+                messageElement.textContent = text;
             }
             chatMessages.appendChild(messageElement);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
     </script>
-    <!-- ### END: ADDED CHATBOT JAVASCRIPT LOGIC ### -->
-
 </body>
 </html>
