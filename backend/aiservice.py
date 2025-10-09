@@ -5,6 +5,7 @@ from models import db, Destination # SafetyRating model is no longer needed
 import pandas as pd
 import datetime
 import google.generativeai as genai
+import json # ADDED: For parsing AI's JSON response
 
 ai_bp = Blueprint('ai_service', __name__)
 
@@ -35,6 +36,59 @@ def _build_travel_tip(stop_names: list[str] | None) -> str:
     tip_locations = ", ".join(stop_names) if stop_names else "your destinations"
     return f"Enjoy your journey! When travelling through {tip_locations}, always check local news for the latest updates on weather and road conditions."
 
+# --- NEW: AI Prediction Helper Function ---
+def _generate_ai_prediction(destination_district: str, model):
+    """
+    Uses the AI model to predict future risks based on historical data.
+    """
+    if risk_log_df.empty:
+        return {'disaster_alert': 'Historical data is unavailable for analysis.', 'disease_alert': 'Historical data is unavailable for analysis.'}
+
+    # 1. Filter data for the destination district from the last 2 years
+    two_years_ago = datetime.datetime.now() - datetime.timedelta(days=730)
+    district_data = risk_log_df[
+        (risk_log_df['district'].str.lower() == destination_district.lower()) &
+        (risk_log_df['date'] > two_years_ago)
+    ]
+
+    if district_data.empty:
+        return {'disaster_alert': f'No significant events recorded for {destination_district} in the last two years. General caution is advised.', 'disease_alert': 'No specific disease outbreaks reported recently.'}
+
+    # 2. Summarize the historical data
+    disaster_counts = district_data[district_data['disaster_event'].str.lower() != 'none']['disaster_event'].value_counts().to_dict()
+    disease_total = district_data['disease_cases'].sum()
+    recent_event_date = district_data['date'].max().strftime('%B %Y') if not district_data.empty else "N/A"
+    
+    summary = (
+        f"Historical data for {destination_district}, Kerala:\n"
+        f"- Recent disaster events: {str(disaster_counts) if disaster_counts else 'None significant'}.\n"
+        f"- Total disease cases in 2 years: {disease_total}.\n"
+        f"- Most recent event was in: {recent_event_date}.\n"
+        f"- Current month is {datetime.datetime.now().strftime('%B')}.\n"
+    )
+
+    # 3. Create a powerful prompt for the AI
+    prompt = f"""
+    You are a travel risk assessment AI for Kerala, India. Analyze the provided historical data summary and consider common seasonal patterns (e.g., monsoon is June-September).
+    Based on this data: "{summary}"
+    Generate a short, helpful, predictive alert for a traveler visiting {destination_district}.
+    Your response MUST be a simple JSON object with two keys: "disaster_alert" and "disease_alert".
+    - "disaster_alert": A 1-2 sentence prediction about potential environmental or weather risks.
+    - "disease_alert": A 1-2 sentence prediction about potential health risks.
+    If risk is low, state that clearly. Provide a forward-looking advisory, not just a summary of the past.
+    Example: {{"disaster_alert": "Given the history of landslides and the current monsoon season, travelers should monitor weather forecasts.", "disease_alert": "A slight increase in water-borne diseases is possible. Drink bottled water."}}
+    """
+    
+    # 4. Call the AI and parse the response
+    try:
+        response = model.generate_content(prompt)
+        cleaned_response = response.text.strip().replace("```json", "").replace("```", "")
+        prediction = json.loads(cleaned_response)
+        return prediction
+    except Exception as e:
+        print(f"AI Prediction ERROR: {e}")
+        return {'disaster_alert': 'Could not generate a prediction. Always check local news and weather reports.', 'disease_alert': 'General health precautions are recommended.'}
+
 # --- Data Loading ---
 KERALA_DISTRICTS_ORDER = [
     "Thiruvananthapuram", "Kollam", "Pathanamthitta", "Alappuzha", "Kottayam",
@@ -56,12 +110,12 @@ except Exception as e:
 def calculate_safety_from_csv(district_name, place_name=None):
     """
     Calculates a safety score and text based on historical data from risklog.csv.
-    This function is the single source of truth for safety assessments.
+    This now returns the raw score for sorting purposes.
     """
-    status_map = {'Very Safe': 'safe', 'Safe': 'safe', 'Moderate': 'caution', 'Risky': 'unsafe'}
+    status_map = {'High Risk': 'unsafe', 'Moderate Risk': 'caution', 'Low Risk': 'safe'}
     
     if risk_log_df.empty:
-        return {'text': 'Moderate', 'class': 'caution'}
+        return {'text': 'Moderate Risk', 'class': 'caution', 'score': 20}
 
     two_years_ago = datetime.datetime.now() - datetime.timedelta(days=730)
     
@@ -72,50 +126,70 @@ def calculate_safety_from_csv(district_name, place_name=None):
     relevant_events = risk_log_df[mask]
     
     if relevant_events.empty:
-        return {'text': 'Very Safe', 'class': 'safe'}
+        return {'text': 'Low Risk', 'class': 'safe', 'score': 0}
 
     risk_score = 0
     risk_score += (relevant_events['disaster_event'].str.lower() != 'none').sum() * 5
-    risk_score += relevant_events['disease_cases'].sum() * 0.5
-    risk_score += (relevant_events['temperature_c'] > 35).sum() * 1
-    risk_score += (relevant_events['rainfall_mm'] > 100).sum() * 2
+    risk_score += (relevant_events['disease_cases'] > 0).sum() * 3
+    risk_score += (relevant_events['temperature_c'] > 34).sum() * 1
+    risk_score += (relevant_events['rainfall_mm'] > 60).sum() * 2
 
-    if risk_score == 0: safety_text = "Very Safe"
-    elif risk_score <= 5: safety_text = "Safe"
-    elif risk_score <= 15: safety_text = "Moderate"
-    else: safety_text = "Risky"
+    if risk_score > 45:
+        safety_text = "High Risk"
+    elif risk_score > 18:
+        safety_text = "Moderate Risk"
+    else:
+        safety_text = "Low Risk"
         
-    return {'text': safety_text, 'class': status_map.get(safety_text, 'caution')}
-
+    return {'text': safety_text, 'class': status_map.get(safety_text, 'caution'), 'score': risk_score}
 
 # --- API Endpoints ---
 @ai_bp.route('/api/generate-route', methods=['POST'])
 def generate_ai_route():
     data = request.get_json()
-    source_district, dest_district = data.get('source'), data.get('destination')
-    interest, budget_str = data.get('interest'), data.get('budget')
+    source_district, dest_district = data.get('source'), data.get('destination') # Required fields
+    interest = data.get('interest') # Optional
+    budget_str = data.get('budget') # Optional
+    model = _get_gemini_model()
 
     try:
         source_index = KERALA_DISTRICTS_ORDER.index(source_district)
         dest_index = KERALA_DISTRICTS_ORDER.index(dest_district)
-        user_budget = int(budget_str)
-    except (ValueError, TypeError):
-        return jsonify({'success': False, 'message': 'Invalid source, destination, or budget provided.'}), 400
+    except ValueError:
+        return jsonify({'success': False, 'message': 'Invalid source or destination provided.'}), 400
 
     if source_index < dest_index:
         travel_path_districts = KERALA_DISTRICTS_ORDER[source_index : dest_index + 1]
     else:
         travel_path_districts = list(reversed(KERALA_DISTRICTS_ORDER[dest_index : source_index + 1]))
     districts_for_stops = travel_path_districts[1:]
-    
-    potential_stops = Destination.query.filter(
+
+    # --- MODIFIED: Conditionally build the query for stops ---
+    query = Destination.query.filter(
         Destination.Name.in_(districts_for_stops),
-        Destination.Type == interest,
-        Destination.budget <= user_budget
-    ).all()
+    )
+    if interest:
+        query = query.filter(Destination.Type == interest)
+
+    user_budget = None
+    if budget_str:
+        try:
+            user_budget = int(budget_str)
+            query = query.filter(Destination.budget <= user_budget)
+        except (ValueError, TypeError):
+            pass # Ignore invalid budget
+
+    potential_stops = query.all()
 
     if not potential_stops:
-        msg = f'No stops matching your interest "{interest.capitalize()}" and budget (under ₹{user_budget:,}) were found between {source_district} and {dest_district}.'
+        # MODIFIED: Dynamic message for no stops found
+        msg_parts = []
+        if interest:
+            msg_parts.append(f'interest "{interest.capitalize()}"')
+        if user_budget:
+            msg_parts.append(f'budget (under ₹{user_budget:,})')
+        criteria_str = " and ".join(msg_parts) if msg_parts else "your criteria"
+        msg = f'No stops matching {criteria_str} were found between {source_district} and {dest_district}.'
         return jsonify({'success': False, 'message': msg})
 
     analyzed_stops = []
@@ -126,8 +200,8 @@ def generate_ai_route():
             'type': stop.Type.capitalize(), 'budget': stop.budget,
             'safety_text': safety_info['text'], 'safety_class': safety_info['class']
         })
-
-    safety_order = {'Very Safe': 0, 'Safe': 1, 'Moderate': 2, 'Risky': 3}
+    
+    safety_order = {'Low Risk': 0, 'Moderate Risk': 1, 'High Risk': 2}
     sorted_stops = sorted(analyzed_stops, key=lambda x: safety_order.get(x['safety_text'], 99))
     best_stops = sorted_stops[:3]
 
@@ -151,15 +225,21 @@ def generate_ai_route():
 
     tip = _build_travel_tip(stop_names_for_tip)
     
-    overall_safety_text = "Safe"
-    if any(s['safety_class'] == 'unsafe' for s in best_stops): overall_safety_text = "Risky"
-    elif any(s['safety_class'] == 'caution' for s in best_stops): overall_safety_text = "Moderate"
-    status_map = {'Very Safe': 'safe', 'Safe': 'safe', 'Moderate': 'caution', 'Risky': 'unsafe'}
+    overall_safety_text = "Low Risk"
+    if any(s['safety_class'] == 'unsafe' for s in best_stops): overall_safety_text = "High Risk"
+    elif any(s['safety_class'] == 'caution' for s in best_stops): overall_safety_text = "Moderate Risk"
+    status_map = {'Low Risk': 'safe', 'Moderate Risk': 'caution', 'High Risk': 'unsafe'}
+
+    # Call the prediction function and add it to the final response
+    prediction_alerts = {'disaster_alert': 'AI analysis not available.', 'disease_alert': 'AI analysis not available.'}
+    if model:
+        prediction_alerts = _generate_ai_prediction(dest_district, model)
 
     final_route = {
-        'source': source_district, 'destination': dest_district, 'interest': interest.capitalize(),
+        'source': source_district, 'destination': dest_district, 'interest': interest.capitalize() if interest else 'Any',
         'overall_safety_text': overall_safety_text, 'overall_safety_class': status_map.get(overall_safety_text, 'caution'),
-        'stops': best_stops, 'alerts': alerts, 'tip': tip
+        'stops': best_stops, 'alerts': alerts, 'tip': tip,
+        'prediction': prediction_alerts  # Add the new prediction data here
     }
     return jsonify({'success': True, 'route': final_route})
 

@@ -1,0 +1,20 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Kerala"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [74.8, 12.8], [76.5, 12.8], [77.3, 11.0], [77.5, 10.0],
+            [77.2, 8.3], [76.5, 8.3], [75.0, 11.5], [74.8, 12.8]
+          ]
+        ]
+      }
+    }
+  ]
+}
