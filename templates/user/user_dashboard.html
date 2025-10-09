@@ -4,48 +4,76 @@
 
 {% block extra_styles %}
 <style>
+    /* --- GENERAL STYLES --- */
     .header-card { background-image: url("{{ url_for('static', filename='Images/image.png') }}"); background-size: cover; background-position: center; border-radius: 12px; padding: 40px; color: var(--white); text-align: center; margin-bottom: 40px; position: relative; overflow: hidden; box-shadow: var(--shadow); }
     .header-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)); z-index: 1; }
     .header-card-content { position: relative; z-index: 2; }
     .header-card h2 { font-size: 2.5rem; font-weight: 700; margin-bottom: 15px; }
     .header-card p { font-size: 1.1rem; line-height: 1.6; max-width: 600px; margin: 0 auto; }
-    .plan-trip-section { background-color: var(--white); border-radius: 12px; padding: 30px; margin-bottom: 40px; box-shadow: var(--shadow); }
-    .plan-trip-section h3 { font-size: 1.8rem; font-weight: 600; margin-bottom: 25px; color: var(--dark-text); }
-    .form-row { display: flex; gap: 20px; align-items: flex-end; margin-bottom: 20px; flex-wrap: wrap; }
-    .form-group { flex: 1; display: flex; flex-direction: column; min-width: 200px;}
-    .form-group label { font-weight: 500; margin-bottom: 8px; color: var(--secondary-color); }
-    .form-group select { width: 100%; padding: 10px 15px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; background-color: var(--light-bg); appearance: none; -webkit-appearance: none; -moz-appearance: none; background-image: url('data:image/svg+xml;utf8,<svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>'); background-repeat: no-repeat; background-position: right 15px center; background-size: 1.2em; }
-    .btn-primary { background-color: var(--primary-color); color: var(--white); padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 600; transition: background-color 0.2s ease; white-space: nowrap; }
-    .btn-primary:hover { background-color: #0056b3; }
-    .route-layout { display: flex; gap: 30px; flex-wrap: wrap; }
-    #map { height: 500px; flex: 1; min-width: 300px; border-radius: 8px; border: 1px solid var(--border-color); z-index: 1; }
-    #route-details { flex: 1; min-width: 300px; }
     .leaflet-routing-container { display: none !important; }
-    .status-badge { display: inline-block; padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin-right: 10px; }
-    .status-badge.safe, .status-badge.status-safe { background-color: var(--success-color); color: var(--white); }
-    .status-badge.caution { background-color: var(--warning-color); color: var(--dark-text); }
-    .status-badge.unsafe { background-color: var(--danger-color); color: var(--white); }
-    .generated-route-section { background-color: var(--white); border-radius: 12px; padding: 30px; margin-bottom: 40px; box-shadow: var(--shadow); display: none; }
+
+    /* --- REVAMPED PLANNING SECTION --- */
+    .plan-trip-section { background-color: var(--white); border-radius: 16px; padding: 40px; margin-bottom: 40px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); text-align: center; }
+    .plan-trip-section h3 { font-size: 2rem; font-weight: 600; margin-bottom: 30px; color: var(--dark-text); }
+    .form-row { display: flex; gap: 25px; align-items: flex-end; margin-bottom: 25px; flex-wrap: wrap; justify-content: center; }
+    .form-group { flex: 1; display: flex; flex-direction: column; min-width: 220px; text-align: left;}
+    .form-group label { font-weight: 500; margin-bottom: 8px; color: var(--secondary-color); }
+    .form-group select { width: 100%; padding: 12px 18px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; background-color: var(--light-bg); appearance: none; -webkit-appearance: none; -moz-appearance: none; background-image: url('data:image/svg+xml;utf8,<svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>'); background-repeat: no-repeat; background-position: right 15px center; background-size: 1.2em; transition: border-color 0.2s; }
+    .form-group select:focus { outline: none; border-color: var(--primary-color); }
+    .btn-primary { background: linear-gradient(to right, #007bff, #0056b3); color: var(--white); padding: 14px 35px; border: none; border-radius: 8px; cursor: pointer; font-size: 1.1rem; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0, 123, 255, 0.3); }
+
+    /* --- REVAMPED GENERATED TRIP REPORT SECTION --- */
+    .generated-route-section { display: none; }
     .generated-route-section.active { display: block; }
-    .route-header { display: flex; align-items: center; margin-bottom: 25px; color: var(--success-color); font-size: 1.5rem; font-weight: 600; }
-    .route-header i { margin-right: 10px; }
-    .route-card { background-color: var(--light-bg); border-radius: 10px; padding: 20px; margin-bottom: 25px; border: 1px solid var(--border-color); }
-    .route-card h4 { font-size: 1.2rem; font-weight: 600; margin-top: 0; margin-bottom: 15px; color: var(--dark-text); }
-    .route-summary-details p { margin: 5px 0; font-size: 0.95rem; }
-    .route-summary-details strong { color: var(--dark-text); }
-    .tip-card { background-color: #d4edda; border-left: 5px solid #28a745; border-radius: 8px; padding: 15px 20px; display: flex; align-items: flex-start; margin-top: 25px; }
-    .tip-card i { color: #28a745; font-size: 1.5rem; margin-right: 15px; }
-    .tip-card p { font-size: 0.95rem; color: #155724; margin: 0; }
-    .stop-card { flex: 1; min-width: 250px; background-color: #f8f9fa; border-radius: 10px; padding: 15px; border: 1px solid #e9ecef; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
+
+    .trip-report-container { background-color: var(--white); border-radius: 16px; padding: 40px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .report-header { text-align: center; margin-bottom: 30px; }
+    .report-header h2 { font-size: 2.2rem; font-weight: 700; color: var(--dark-text); margin-bottom: 5px; }
+    .report-header h2 i { color: var(--success-color); }
+    .report-header p { font-size: 1.1rem; color: var(--secondary-color); margin-top: 0; }
+
+    /* AI Prediction Card */
+    .prediction-card { background-color: #fffbeb; border-left: 5px solid #f59e0b; border-radius: 8px; padding: 25px; margin-bottom: 30px; }
+    .prediction-card h4 { margin-top: 0; margin-bottom: 20px; color: #b45309; font-size: 1.3rem; display: flex; align-items: center; }
+    .prediction-card h4 i { margin-right: 12px; }
+    .prediction-alert { margin-bottom: 15px; display: flex; align-items: flex-start; }
+    .prediction-alert:last-child { margin-bottom: 0; }
+    .prediction-alert i { font-size: 1.2rem; margin-right: 15px; color: #d97706; padding-top: 4px; }
+    .prediction-alert div p { margin: 0; font-size: 0.95rem; color: #92400e; line-height: 1.6; }
+    .prediction-alert div strong { display: block; margin-bottom: 4px; font-weight: 600; color: #b45309; }
+    
+    /* Redesigned Route Summary */
+    .route-summary-card { background-color: #f8f9fa; border-radius: 12px; padding: 30px; margin-bottom: 30px; border: 1px solid var(--border-color); }
+    .route-summary-details { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 25px; text-align: center; margin-bottom: 25px; }
+    .summary-item { font-size: 1rem; color: var(--secondary-color); }
+    .summary-item strong { display: block; font-size: 1.1rem; color: var(--dark-text); margin-top: 5px; }
+    .summary-item .fas { font-size: 1.6rem; color: var(--primary-color); margin-bottom: 10px; }
+    .summary-item .status-badge { margin-top: 5px; font-size: 0.9rem; padding: 8px 16px; border-radius: 30px; }
+    .status-badge.safe { background-color: #d4edda; color: #155724; }
+    .status-badge.caution { background-color: #fff3cd; color: #856404; }
+    .status-badge.unsafe { background-color: #f8d7da; color: #721c24; }
+    .tip-card { margin-top: 25px; padding: 20px; background-color: #eef5ff; border-left: 5px solid var(--primary-color); border-radius: 8px; display: flex; align-items: flex-start; }
+    .tip-card i { color: var(--primary-color); font-size: 1.5rem; margin-right: 15px; }
+    .tip-card p { color: #004085; font-size: 0.95rem; margin: 0; }
+
+    /* Details Layout (Map & Stops) */
+    .details-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
+    #map { height: 550px; border-radius: 12px; border: 1px solid var(--border-color); z-index: 1; }
+    .stops-section h4 { font-size: 1.5rem; font-weight: 600; color: var(--dark-text); margin-top: 0; margin-bottom: 20px; }
+    .recommended-stops { display: flex; flex-direction: column; gap: 15px; }
+    .stop-card { background-color: #f8f9fa; border-radius: 10px; padding: 20px; border: 1px solid #e9ecef; position: relative; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    .stop-card:hover { transform: translateY(-3px); box-shadow: 0 4px 8px rgba(0,0,0,0.05); }
     .stop-card h5 { font-size: 1.1rem; font-weight: 600; margin-top: 0; margin-bottom: 5px; color: var(--dark-text); }
-    .stop-card p { font-size: 0.9rem; margin-bottom: 5px; }
-    .stop-card .status-badge { margin-top: 10px; margin-right: 0; }
-    .recommended-stops { display: flex; gap: 20px; margin-top: 20px; flex-wrap: wrap; }
-    .favorite-btn { position: absolute; top: 10px; right: 10px; background: rgba(255, 255, 255, 0.7); border: none; border-radius: 50%; width: 36px; height: 36px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 1rem; transition: transform 0.2s, color 0.2s; z-index: 10; }
+    .stop-card p.stop-location { font-size: 0.9rem; margin-bottom: 10px; color: var(--secondary-color); }
+    .stop-card p.stop-location strong { color: var(--dark-text); }
+    .stop-card p.stop-budget { font-size: 0.9rem; margin-bottom: 15px; }
+    .favorite-btn { position: absolute; top: 15px; right: 15px; background: rgba(255, 255, 255, 0.7); border: none; border-radius: 50%; width: 36px; height: 36px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 1rem; transition: transform 0.2s, color 0.2s; z-index: 10; }
     .favorite-btn:hover { transform: scale(1.1); }
     .favorite-btn.favorited { color: #ff4d4d; }
     .favorite-btn.not-favorited { color: #ccc; }
-    .favorite-btn i { pointer-events: none; }
+    @media (max-width: 992px) { .details-layout { grid-template-columns: 1fr; } #map { height: 400px; } }
+    @media (max-width: 768px) { .form-row { flex-direction: column; align-items: stretch; } }
 </style>
 {% endblock %}
 
@@ -59,7 +87,7 @@
 </div>
 
 <div class="plan-trip-section">
-    <h3>Plan Your Safe Trip</h3>
+    <h3><i class="fas fa-route"></i> Plan Your Safe Trip</h3>
     <form id="planTripForm">
         <div class="form-row">
             <div class="form-group">
@@ -77,31 +105,29 @@
                 </select>
             </div>
             <div class="form-group">
-                <label for="interest">Interest:</label>
-                <select id="interest" name="interest" required>
-                    <option value="">Choose...</option>
+                <label for="interest">Interest (Optional):</label>
+                <select id="interest" name="interest">
+                    <option value="">Any</option>
                     {% for interest in interests %}
-                    <option value="{{ interest }}">{{ interest | capitalize }}</option>
+                        <option value="{{ interest }}">{{ interest | capitalize }}</option>
                     {% endfor %}
                 </select>
             </div>
-        </div>
-        <div class="form-row">
             <div class="form-group">
-                <label for="budget">Budget (₹):</label>
-                <select id="budget" name="budget" required>
-                    <option value="">Choose...</option>
-                    <option value="5000">₹5,000</option>
-                    <option value="10000">₹10,000</option>
-                    <option value="15000">₹15,000</option>
+                <label for="budget">Budget (Optional):</label>
+                <select id="budget" name="budget">
+                    <option value="">Any</option>
+                    <option value="5000">Under ₹5,000</option>
+                    <option value="10000">Under ₹10,000</option>
+                    <option value="15000">Under ₹15,000</option>
                     <option value="20000">₹20,000+</option>
                 </select>
             </div>
-            <button type="submit" class="btn-primary" id="generateBtn">
-                <span id="btn-text">Generate Safe Route</span>
-                <span id="btn-spinner" style="display:none"><i class="fas fa-spinner fa-spin"></i> Generating...</span>
-            </button>
         </div>
+        <button type="submit" class="btn-primary" id="generateBtn">
+            <span id="btn-text"><i class="fas fa-paper-plane"></i> Generate Safe Route</span>
+            <span id="btn-spinner" style="display:none"><i class="fas fa-spinner fa-spin"></i> Generating...</span>
+        </button>
     </form>
 </div>
 
@@ -136,6 +162,36 @@
             if (source === destination) {
                 alert('Source and Destination cannot be the same.');
                 return;
+        if (!source || !destination) {
+            alert('Please select a source and destination district.');
+            return;
+        }
+        if (source === destination) {
+            alert('Source and Destination cannot be the same.');
+            return;
+        }
+
+        const generateBtn = document.getElementById('generateBtn');
+        const btnText = document.getElementById('btn-text');
+        const btnSpinner = document.getElementById('btn-spinner');
+        generateBtn.disabled = true;
+        btnText.style.display = 'none';
+        btnSpinner.style.display = 'inline';
+
+        try {
+            const response = await fetch('/api/generate-route', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ source, destination, budget, interest })
+            });
+            const data = await response.json();
+            const routeSection = document.getElementById('generatedRouteSection');
+
+            if (data.success) {
+                currentRouteData = data.route;
+                renderRoute(currentRouteData);
+            } else {
+                renderFallbackRoute(source, destination, data.message);
             }
 
             const generateBtn = document.getElementById('generateBtn');
@@ -216,6 +272,12 @@
                     console.error('Favorite toggle error:', error);
                     alert('Could not update favorite status. Please try again.');
                 }
+                     console.warn("No routes found by Leaflet Routing Machine.");
+                     updateRouteSummaryWithTravelDetails('N/A', 'N/A', 'N/A');
+                }
+            }).on('routingerror', function(e) {
+                console.error('Leaflet Routing Error:', e.error.message);
+                updateRouteSummaryWithTravelDetails('Error', 'Error', 'Error');
             });
         }
 
@@ -295,6 +357,19 @@
                     interestP.after(timeP, costP, distanceP);
                 }
             }
+    function updateRouteSummaryWithTravelDetails(distanceKm, estimatedCost, totalTimeSeconds) {
+        const distanceEl = document.querySelector('#summary-distance strong');
+        const timeEl = document.querySelector('#summary-time strong');
+        const costEl = document.querySelector('#summary-cost strong');
+
+        if (distanceEl) { distanceEl.textContent = distanceKm !== 'Error' ? `${distanceKm} km` : 'N/A'; }
+        if (costEl) { costEl.textContent = estimatedCost !== 'Error' ? estimatedCost : 'N/A'; }
+        if (timeEl) {
+            if (totalTimeSeconds && totalTimeSeconds !== 'Error') {
+                const hours = Math.floor(totalTimeSeconds / 3600);
+                const minutes = Math.round((totalTimeSeconds % 3600) / 60);
+                timeEl.textContent = `${hours}h ${minutes}m`;
+            } else { timeEl.textContent = 'N/A'; }
         }
 
         function adjustStopBudgets(distanceInKm) {
@@ -310,6 +385,131 @@
                     const adjustedBudget = Math.round((originalBudget * budgetMultiplier) / 50) * 50;
                     let noteHtml = adjustmentNote ? `<span title="${adjustmentNote}" style="font-size: 0.8em; color: var(--secondary-color); cursor: help;"> (adjusted)</span>` : '';
                     el.innerHTML = `Est. Budget: ₹${adjustedBudget.toLocaleString()}${noteHtml}`;
+    function adjustStopBudgets(distanceInKm) {
+        const budgetElements = document.querySelectorAll('.stop-budget');
+        if (budgetElements.length === 0 || !currentRouteData || !currentRouteData.stops) return;
+
+        let budgetMultiplier = 1.0;
+        let adjustmentNote = '';
+        if (distanceInKm > 300) { budgetMultiplier = 0.85; adjustmentNote = 'Reduced for long distance'; } 
+        else if (distanceInKm < 150) { budgetMultiplier = 1.10; adjustmentNote = 'Increased for short distance'; }
+
+        budgetElements.forEach((el, index) => {
+            const originalBudget = currentRouteData.stops[index] ? currentRouteData.stops[index].budget : 0; 
+            if (!isNaN(originalBudget) && originalBudget > 0) {
+                const adjustedBudget = Math.round((originalBudget * budgetMultiplier) / 50) * 50;
+                let noteHtml = adjustmentNote ? `<span title="${adjustmentNote}" style="font-size: 0.8em; color: var(--secondary-color); cursor: help;"> (adjusted)</span>` : '';
+                el.innerHTML = `Est. Budget: ₹${adjustedBudget.toLocaleString()}${noteHtml}`;
+            } else {
+                el.innerHTML = `Est. Budget: N/A`;
+            }
+        });
+    }
+
+    function renderRoute(routeData) {
+        const routeSection = document.getElementById('generatedRouteSection');  
+
+        const stopsHTML = routeData.stops.map(stop => {
+            const isFavorited = favoriteIds.has(stop.id);
+            const favClass = isFavorited ? 'favorited' : 'not-favorited';
+            const favTitle = isFavorited ? 'Remove from Favorites' : 'Add to Favorites';
+            let locationText = stop.type;
+            if (stop.district !== routeData.source && stop.district !== routeData.destination) {
+                locationText += ` • <strong>${stop.district}</strong>`;
+            }
+            return `
+            <div class="stop-card">
+                <button class="favorite-btn ${favClass}" data-id="${stop.id}" title="${favTitle}"><i class="fas fa-heart"></i></button>
+                <h5>${stop.name}</h5>
+                <p class="stop-location">${locationText}</p>
+                <p class="stop-budget">Est. Budget: ₹${stop.budget ? stop.budget.toLocaleString() : 'N/A'}</p>
+                <span class="status-badge ${stop.safety_class}">${stop.safety_text}</span>
+            </div>`;
+        }).join('');
+
+        const predictionHTML = `
+            <div class="prediction-card">
+                <h4><i class="fas fa-shield-alt"></i> AI Risk Alert for ${routeData.destination}</h4>
+                <div class="prediction-alert">
+                    <i class="fas fa-cloud-showers-heavy"></i>
+                    <div><strong>Disaster Outlook</strong><p>${routeData.prediction.disaster_alert}</p></div>
+                </div>
+                <div class="prediction-alert">
+                    <i class="fas fa-syringe"></i>
+                    <div><strong>Health Outlook</strong><p>${routeData.prediction.disease_alert}</p></div>
+                </div>
+            </div>`;
+
+        const summaryHTML = `
+            <div class="route-summary-card">
+                <div class="route-summary-details">
+                    <div class="summary-item"><i class="fas fa-map-marker-alt"></i><p>From</p><strong>${routeData.source}</strong></div>
+                    <div class="summary-item"><i class="fas fa-flag-checkered"></i><p>To</p><strong>${routeData.destination}</strong></div>
+                    <div class="summary-item"><i class="fas fa-lightbulb"></i><p>Interest</p><strong>${routeData.interest}</strong></div>
+                    <div class="summary-item" id="summary-distance"><i class="fas fa-road"></i><p>Distance</p><strong>...</strong></div>
+                    <div class="summary-item" id="summary-time"><i class="fas fa-clock"></i><p>Travel Time</p><strong>...</strong></div>
+                    <div class="summary-item" id="summary-cost"><i class="fas fa-rupee-sign"></i><p>Est. Travel Cost</p><strong>...</strong></div>
+                    <div class="summary-item"><p>Overall Safety</p><span class="status-badge ${routeData.overall_safety_class}">${routeData.overall_safety_text}</span></div>
+                </div>
+                <div class="tip-card"><i class="fas fa-info-circle"></i><p>${routeData.tip}</p></div>
+            </div>`;
+
+        routeSection.innerHTML = `
+            <div class="trip-report-container">
+                <div class="report-header">
+                    <h2><i class="fas fa-check-square"></i> Your Safe Route is Ready!</h2>
+                    <p>A personalized and safety-conscious itinerary from ${routeData.source} to ${routeData.destination}</p>
+                </div>
+                ${predictionHTML}
+                ${summaryHTML}
+                <div class="details-layout">
+                    <div id="map"></div>
+                    <div class="stops-section">
+                        <h4><i class="fas fa-star"></i> Recommended Stops</h4>
+                        <div class="recommended-stops">${stopsHTML}</div>
+                    </div>
+                </div>
+            </div>`;
+
+        setTimeout(() => { initMapAndRoute(routeData.source, routeData.destination); }, 100);
+    }
+
+    function renderFallbackRoute(source, destination, message) {
+        const routeSection = document.getElementById('generatedRouteSection');
+        const fallbackMessage = message || "We couldn't generate a full safe route. Here is the direct route map.";
+        routeSection.innerHTML = `
+            <div class="trip-report-container">
+                <div class="report-header" style="color: var(--warning-color);"><i class="fas fa-map-signs"></i><h2>Basic Route Map</h2></div>
+                <div class="tip-card" style="background-color: #fff3cd; border-color: #ffc107; margin-bottom: 30px;">
+                    <i class="fas fa-info-circle" style="color: #856404;"></i><p style="color: #856404;">${fallbackMessage}</p>
+                </div>
+                <div id="map" style="height: 500px; border-radius: 12px;"></div>
+            </div>`;
+        setTimeout(() => { initMapAndRoute(source, destination, true); }, 100);
+    }
+
+    const routeSectionContainer = document.getElementById('generatedRouteSection');
+    routeSectionContainer.addEventListener('click', async (event) => {
+        const favoriteButton = event.target.closest('.favorite-btn');
+        if (!favoriteButton) return; 
+
+        const destId = parseInt(favoriteButton.dataset.id, 10);
+        const isFavorited = favoriteButton.classList.contains('favorited');
+        const url = isFavorited ? `/api/favorites/remove/${destId}` : `/api/favorites/add/${destId}`;
+
+        try {
+            const response = await fetch(url, { method: 'POST' });
+            const result = await response.json();
+
+            if (result.success) {
+                favoriteButton.classList.toggle('favorited');
+                favoriteButton.classList.toggle('not-favorited');
+                favoriteButton.title = favoriteButton.classList.contains('favorited') 
+                    ? 'Remove from Favorites' 
+                    : 'Add to Favorites';
+                
+                if (favoriteButton.classList.contains('favorited')) {
+                    favoriteIds.add(destId);
                 } else {
                     el.innerHTML = `Est. Budget: N/A`;
                 }
@@ -372,6 +572,10 @@
                     </div>
                 </div>`;
             setTimeout(() => { initMapAndRoute(source, destination, true); }, 100);
+            } else { alert(result.message || 'An error occurred.'); }
+        } catch (error) {
+            console.error('Favorite toggle error:', error);
+            alert('Could not update favorite status. Please try again.');
         }
     });
 </script>

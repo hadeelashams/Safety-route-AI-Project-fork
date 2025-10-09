@@ -63,7 +63,7 @@
                  data-budget="{{ dest.budget }}"
                  data-image_url="{{ dest.image_url }}"
                  data-safety-text="{{ dest.safety_ratings[0].overall_safety if dest.safety_ratings and dest.safety_ratings[0] else 'Not Rated' }}"
-                 data-safety-class="{{ {'Very Safe': 'safe', 'Safe': 'safe', 'Moderate': 'caution', 'Risky': 'unsafe'}.get(dest.safety_ratings[0].overall_safety if dest.safety_ratings and dest.safety_ratings[0], 'caution') }}"
+                 data-safety-class="{{ {'Low Risk': 'safe', 'Moderate Risk': 'caution', 'High Risk': 'unsafe'}.get(dest.safety_ratings[0].overall_safety if dest.safety_ratings and dest.safety_ratings[0], 'caution') }}"
                  role="button" tabindex="0">
 
                 <button class="favorite-btn" data-id="{{ dest.Destination_id }}" title="Remove from Favorites">
@@ -83,7 +83,7 @@
                     <!-- ADDED: Safety status to the footer for consistency -->
                     {% if dest.safety_ratings and dest.safety_ratings[0] %}
                         {% set rating = dest.safety_ratings[0] %}
-                        {% set status_map = {'Very Safe': 'safe', 'Safe': 'safe', 'Moderate': 'caution', 'Risky': 'unsafe'} %}
+                        {% set status_map = {'Low Risk': 'safe', 'Moderate Risk': 'caution', 'High Risk': 'unsafe'} %}
                         <span class="status-badge {{ status_map.get(rating.overall_safety, 'caution') }}">{{ rating.overall_safety }}</span>
                     {% else %}
                         <span class="status-badge caution">Not Rated</span>

@@ -25,12 +25,17 @@
         body {
             font-family: 'Poppins', sans-serif;
             margin: 0;
-            display: flex;
+            /* display: flex;  This is no longer strictly necessary but doesn't hurt */
             min-height: 100vh;
             background-color: var(--light-bg);
             color: var(--dark-text);
         }
         .sidebar { 
+            position: fixed; /* MODIFIED: Fixes the sidebar to the viewport */
+            top: 0;          /* MODIFIED: Aligns to the top */
+            left: 0;         /* MODIFIED: Aligns to the left */
+            height: 100vh;   /* MODIFIED: Makes it full height */
+            z-index: 100;    /* MODIFIED: Ensures it's on top */
             width: var(--sidebar-width); 
             background-color: var(--white); 
             box-shadow: var(--shadow); 
@@ -38,7 +43,6 @@
             display: flex; 
             flex-direction: column; 
             border-right: 1px solid var(--border-color);
-            flex-shrink: 0;
             justify-content: space-between;
         }
         .sidebar-header { 
@@ -72,6 +76,15 @@
         .logout-link:hover { color: #0056b3; }
         .logout-link i { margin-right: 15px; width: 20px; text-align: center; }
         .main-content { flex-grow: 1; padding: 30px; overflow-y: auto; }
+        
+        .main-content { 
+            flex-grow: 1; 
+            padding: 30px; 
+            overflow-y: auto; 
+            margin-left: var(--sidebar-width); /* MODIFIED: Prevents content from being hidden by the fixed sidebar */
+        }
+
+        /* ### START: AI CHATBOT STYLES ### */
         .chat-toggle-button { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background-color: var(--primary-color); color: white; border-radius: 50%; border: none; display: flex; justify-content: center; align-items: center; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); cursor: pointer; transition: transform 0.2s ease; z-index: 1000; }
         .chat-toggle-button:hover { transform: scale(1.1); }
         .chat-popup { display: none; position: fixed; bottom: 100px; right: 30px; width: 350px; height: 450px; background-color: var(--white); border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); flex-direction: column; overflow: hidden; z-index: 1000; }
