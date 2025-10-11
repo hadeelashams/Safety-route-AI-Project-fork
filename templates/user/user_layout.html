@@ -118,7 +118,7 @@
                 <ul>
                     <li><a href="{{ url_for('views.dashboard') }}" class="{% if active_page == 'dashboard' %}active{% endif %}"><i class="fas fa-home"></i> Home</a></li>
                     <li><a href="{{ url_for('views.search') }}" class="{% if active_page == 'search' %}active{% endif %}"><i class="fas fa-search"></i> Search Destination</a></li>
-                    <li><a href="#"><i class="fas fa-history"></i> Previous Routes</a></li>
+                    <li><a href="{{ url_for('views.previous_routes') }}" class="{% if active_page == 'previous_routes' %}active{% endif %}"><i class="fas fa-history"></i> Previous Routes</a></li>
                     <!-- MODIFIED: Correctly linked Favorite page -->
                     <li><a href="{{ url_for('views.favorites') }}" class="{% if active_page == 'favorite' %}active{% endif %}"><i class="fas fa-heart"></i> Favorite</a></li>
                 </ul>

@@ -1,6 +1,7 @@
 # models.py
 from db import db
 import datetime
+import json
 
 # NEW: Association table for the many-to-many relationship between users and favorites
 user_favorites = db.Table('user_favorites',
@@ -22,6 +23,10 @@ class User(db.Model):
     # ADDED: Relationship to favorite destinations
     favorites = db.relationship('Destination', secondary=user_favorites, lazy='subquery',
                                 backref=db.backref('favorited_by', lazy=True))
+
+    # NEW: Relationship to route history
+    route_histories = db.relationship('RouteHistory', backref='user', lazy=True, cascade="all, delete-orphan")
+
 
     def __repr__(self):
         return f'<User {self.Username}>'
@@ -65,3 +70,24 @@ class Destination(db.Model):
 
     def __repr__(self):
         return f'<Destination {self.Name}>'
+
+
+# NEW: Model to store generated route history
+class RouteHistory(db.Model):
+    __tablename__ = 'route_history'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('User_table.User_id'), nullable=False)
+    source = db.Column(db.String(100), nullable=False)
+    destination = db.Column(db.String(100), nullable=False)
+    interest = db.Column(db.String(50), nullable=True)
+    budget = db.Column(db.String(50), nullable=True)
+    stops_data = db.Column(db.Text, nullable=False)  # Store stops as a JSON string
+    created_at = db.Column(db.DateTime, default=datetime.datetime.now)
+
+    @property
+    def stops(self):
+        """Returns the stops data from JSON string."""
+        return json.loads(self.stops_data) if self.stops_data else []
+
+    def __repr__(self):
+        return f'<RouteHistory {self.id} for User {self.user_id}>'

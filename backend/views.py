@@ -3,8 +3,8 @@
 from flask import render_template, flash, jsonify, request, session, redirect, url_for
 from functools import wraps
 from . import views_bp
-from models import db, Destination, User # SafetyRating model is no longer needed
-from sqlalchemy import func
+from models import db, Destination, User, RouteHistory # ADDED: RouteHistory
+from sqlalchemy import func, desc
 from sqlalchemy.orm import joinedload
 # Import the centralized safety calculation function from the AI service
 from backend.aiservice import calculate_safety_from_csv 
@@ -94,6 +94,20 @@ def favorites():
     return render_template('user/favorites.html', 
                            destinations=favorite_destinations, 
                            active_page='favorite')
+
+
+# --- NEW: Previous Routes Page ---
+@views_bp.route('/previous-routes')
+@login_required
+def previous_routes():
+    """Renders the user's previously generated routes."""
+    user = User.query.get(session['user_id'])
+    # Query histories and order by most recent first
+    histories = RouteHistory.query.filter_by(user_id=user.User_id).order_by(desc(RouteHistory.created_at)).all()
+    
+    return render_template('user/previous_routes.html', 
+                           histories=histories, 
+                           active_page='previous_routes')
 
 
 # --- API Endpoints ---

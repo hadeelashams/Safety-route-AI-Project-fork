@@ -1,7 +1,7 @@
 # backend/aiservice.py
 
-from flask import Blueprint, jsonify, request, current_app
-from models import db, Destination # SafetyRating model is no longer needed
+from flask import Blueprint, jsonify, request, current_app, session
+from models import db, Destination, User, RouteHistory # ADDED: User, RouteHistory
 import pandas as pd
 import datetime
 import google.generativeai as genai
@@ -241,6 +241,25 @@ def generate_ai_route():
         'stops': best_stops, 'alerts': alerts, 'tip': tip,
         'prediction': prediction_alerts  # Add the new prediction data here
     }
+    
+    # --- NEW: Save the route to history for logged-in user ---
+    if 'user_id' in session:
+        try:
+            new_history = RouteHistory(
+                user_id=session['user_id'],
+                source=source_district,
+                destination=dest_district,
+                interest=(interest or 'Any'),
+                budget=(budget_str or 'Any'),
+                stops_data=json.dumps(best_stops) # Store the stops as a JSON string
+            )
+            db.session.add(new_history)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            print(f"ERROR: Could not save route history. {e}")
+    # --- END NEW ---
+    
     return jsonify({'success': True, 'route': final_route})
 
 @ai_bp.route('/api/chat', methods=['POST'])
