@@ -45,7 +45,6 @@
         color: var(--dark-text);
         box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.17);
     }
-    /* MODIFIED: Font size reduced */
     .hero-content-card h1 { font-size: 2.5rem; font-weight: 700; line-height: 1.2; margin-bottom: 15px; }
     .hero-content-card p { font-size: 1.1rem; color: #343a40; margin-bottom: 30px; }
     .hero-buttons .btn { padding: 12px 25px; font-weight: 600; font-size: 1rem; }
@@ -78,7 +77,6 @@
 
     .trip-report-container { background-color: var(--white); border-radius: 16px; padding: 30px; box-shadow: var(--shadow); }
     .report-header { text-align: center; margin-bottom: 25px; }
-    /* MODIFIED: Font size reduced */
     .report-header h2 { font-size: 1.8rem; font-weight: 700; color: var(--dark-text); margin-bottom: 5px; }
     .report-header h2 i { color: var(--success-color); }
     .report-header p { font-size: 1rem; color: var(--secondary-text); margin-top: 0; }
@@ -237,8 +235,6 @@
 <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
 
 <script>
-// The JavaScript code is complete and functional.
-
 const favoriteIds = new Set({{ favorite_ids_json | tojson | safe }});
 const districtCoordinates = {{ districts_coords_json | tojson | safe }};
 
@@ -305,30 +301,22 @@ document.addEventListener('DOMContentLoaded', function() {
         leafletMap = L.map('map').setView([10.8505, 76.2711], 7);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' }).addTo(leafletMap);
         
-        // MODIFIED: Capture the routing control to listen for events
         const routingControl = L.Routing.control({
             waypoints: [ L.latLng(sourceCoords.lat, sourceCoords.lng), L.latLng(destCoords.lat, destCoords.lng) ],
             routeWhileDragging: false, addWaypoints: false, draggableWaypoints: false,
             lineOptions: { styles: [{ color: 'var(--primary-blue)', opacity: 0.8, weight: 6 }] }
         }).addTo(leafletMap);
 
-        // MODIFIED: Event listener to update summary details when route is found
         if (!isFallback) {
             routingControl.on('routesfound', function(e) {
                 const summary = e.routes[0].summary;
-                
-                // Format Distance
                 const distance = (summary.totalDistance / 1000).toFixed(1);
                 document.querySelector('#summary-distance strong').textContent = `${distance} km`;
-
-                // Format Time
                 const totalMinutes = Math.round(summary.totalTime / 60);
                 const hours = Math.floor(totalMinutes / 60);
                 const minutes = totalMinutes % 60;
                 const formattedTime = (hours > 0 ? `${hours} hr ` : '') + `${minutes} min`;
                 document.querySelector('#summary-time strong').textContent = formattedTime;
-
-                // Estimate and Format Cost (assuming ₹100/L fuel and 15 km/L mileage)
                 const estimatedCost = Math.round((distance / 15) * 100);
                 document.querySelector('#summary-cost strong').textContent = `₹${estimatedCost.toLocaleString()}`;
             });

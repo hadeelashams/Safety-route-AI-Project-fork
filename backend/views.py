@@ -3,11 +3,10 @@
 from flask import render_template, flash, jsonify, request, session, redirect, url_for
 from functools import wraps
 from . import views_bp
-from models import db, Destination, User, RouteHistory # ADDED: RouteHistory
+from models import db, Destination, User, RouteHistory
 from sqlalchemy import func, desc
 from sqlalchemy.orm import joinedload
-# Import the centralized safety calculation function from the AI service
-from backend.aiservice import calculate_safety_from_csv 
+from backend.aiservice import calculate_safety 
 
 # Centralized district data with coordinates for the map
 KERALA_DISTRICTS_COORDS = {
@@ -87,16 +86,13 @@ def favorites():
     user = User.query.get(session['user_id'])
     favorite_destinations = user.favorites 
     
-    # Manually attach safety info from the CSV to each favorite destination
-    for dest in favorite_destinations:
-        dest.safety_info = calculate_safety_from_csv(dest.Name, dest.Place)
+    # The model property `dest.safety_info` now handles the calculation automatically.
+    # No extra logic is needed here.
 
     return render_template('user/favorites.html', 
                            destinations=favorite_destinations, 
                            active_page='favorite')
 
-
-# --- NEW: Previous Routes Page ---
 @views_bp.route('/previous-routes')
 @login_required
 def previous_routes():
@@ -108,7 +104,6 @@ def previous_routes():
     return render_template('user/previous_routes.html', 
                            histories=histories, 
                            active_page='previous_routes')
-
 
 # --- API Endpoints ---
 
@@ -128,8 +123,8 @@ def api_search_destinations():
 
     results_list = []
     for dest in search_results:
-        # Calculate safety dynamically for each search result
-        safety_info = calculate_safety_from_csv(dest.Name, dest.Place)
+        # Return the full safety info object from the model property
+        safety_info = dest.safety_info
         results_list.append({
             'id': dest.Destination_id, 'place': dest.Place, 'name': dest.Name,
             'type': dest.Type.capitalize() if dest.Type else 'N/A',
@@ -138,7 +133,6 @@ def api_search_destinations():
         })
 
     return jsonify(results_list)
-
 
 @views_bp.route('/api/increment-search-count/<int:dest_id>', methods=['POST'])
 def increment_search_count(dest_id):
