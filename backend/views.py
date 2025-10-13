@@ -178,3 +178,23 @@ def remove_favorite(dest_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'message': f'Server error: {str(e)}'}), 500
+
+# ### ADDED: API endpoint to delete route history ###
+@views_bp.route('/api/delete-route-history/<int:history_id>', methods=['POST'])
+@login_required
+def delete_route_history(history_id):
+    """API endpoint to delete a specific route history item for the logged-in user."""
+    try:
+        # Query for the item, ensuring it belongs to the current user for security
+        history_item = RouteHistory.query.filter_by(id=history_id, user_id=session['user_id']).first()
+        
+        if not history_item:
+            return jsonify({'success': False, 'message': 'Route history not found or permission denied.'}), 404
+            
+        db.session.delete(history_item)
+        db.session.commit()
+        
+        return jsonify({'success': True, 'message': 'Route history deleted.'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Server Error: {str(e)}'}), 500

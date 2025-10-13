@@ -233,7 +233,6 @@
 {% block extra_scripts %}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
-
 <script>
 const favoriteIds = new Set({{ favorite_ids_json | tojson | safe }});
 const districtCoordinates = {{ districts_coords_json | tojson | safe }};
@@ -254,8 +253,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const destination = document.getElementById('destinationDistrict').value;
         const budget = document.getElementById('budget').value;
         const interest = document.getElementById('interest').value;
-        if (!source || !destination) { alert('Please select a source and destination district.'); return; }
-        if (source === destination) { alert('Source and Destination cannot be the same.'); return; }
+        
+        if (!source || !destination) {
+            alert('Please select a source and destination district.');
+            return;
+        }
+        if (source === destination) {
+            alert('Source and Destination cannot be the same.');
+            return;
+        }
 
         const generateBtn = document.getElementById('generateBtn');
         const btnText = document.getElementById('btn-text');
@@ -428,7 +434,6 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('Could not update favorite status. Please try again.');
         }
     });
-
 });
 </script>
 {% endblock %}
