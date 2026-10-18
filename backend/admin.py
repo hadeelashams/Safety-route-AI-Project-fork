@@ -189,8 +189,11 @@ def safety_analysis():
         flash('risklog.csv not found. Safety analysis data is unavailable.', 'warning')
     except Exception as e:
         flash(f'An error occurred while reading safety data: {str(e)}', 'danger')
+    
+    # --- THIS IS THE FIX: Pass the complete list of districts to the template ---
     return render_template('admin/safety.html', 
                            safety_data=safety_data,
+                           all_districts=KERALA_DISTRICTS,
                            active_page='safety_analysis')
 
 # --- User Management Routes ---

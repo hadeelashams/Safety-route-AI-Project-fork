@@ -16,7 +16,10 @@
       font-family: 'Inter', sans-serif;
       margin: 0;
       background-color: #f9fafb;
-      display: flex;
+      
+      /* --- FIX 1: ACTIVATE FLEXBOX LAYOUT --- */
+      display: flex; /* This was the missing piece */
+      
       flex-direction: column;
       min-height: 100vh;
       color: #333;
@@ -26,10 +29,16 @@
     header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      
       padding: 1rem 2rem;
       background-color: #fff;
       border-bottom: 1px solid #e5e7eb;
+      
+      /* --- FIX 2: MAKE THE HEADER STICKY --- */
+      position: sticky; /* Keeps the header at the top */
+      top: 0;           /* Specifies to stick to the very top */
+      width: 100%;      /* Ensures it spans the full width */
+      z-index: 100;     /* Keeps it above other content when scrolling */
     }
 
     .logo {
@@ -64,19 +73,18 @@
       flex: 1; /* Allows the main content to take up available vertical space */
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 3rem 2rem;
-      text-align: center;
+      /* Changed to align items to the center horizontally */
+      align-items: center; 
+      /* Text alignment can be handled by child elements if needed */
     }
 
     /* Flash Messages Styling (for consistency) */
     .flashes {
-        list-style-type: none;
-        padding: 0;
-        margin-bottom: 15px;
-        width: 100%; /* Ensure it spans the width of its parent */
-        max-width: 600px; /* Limit width for better readability */
+        list-style: none; /* Removed bullet points */
+        padding: 0;       /* Removed default padding */
+        margin-top: 20px; /* Added some space from the header */
+        width: 100%; 
+        max-width: 600px;
         text-align: left;
     }
     .flashes li {

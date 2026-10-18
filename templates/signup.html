@@ -4,156 +4,347 @@
 
 {% block content %}
 <style>
-  /* You can place the specific styles for the signup form here */
+  /* Import Google Fonts and Font Awesome */
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+  @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+
+  /* Define color variables for consistency */
+  :root {
+    --primary-color: #2E4F4F;
+    --primary-hover: #1d3d3d;
+    --secondary-text: #6c757d;
+    --border-color: #ced4da;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --light-bg: #f8f9fa;
+  }
+
+  /* Override base styles for a full-page centered form */
+  main {
+    width: 100%;
+    min-height: calc(100vh - 140px); /* Adjust based on header/footer height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* Background decorative circles */
+  .bg-circle {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.1;
+    z-index: 0;
+  }
+  .circle1 {
+    width: 350px;
+    height: 350px;
+    background: var(--primary-color);
+    top: -100px;
+    left: -120px;
+  }
+  .circle2 {
+    width: 250px;
+    height: 250px;
+    background: #A7C8A7;
+    bottom: -80px;
+    right: -100px;
+  }
+
+  /* The main registration card */
   .register-container {
     background: white;
     padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    width: 400px; /* Increased width for better layout */
+    border-radius: 20px;
+    box-shadow: 0 8px 24px rgba(46, 79, 79, 0.1);
+    width: 100%;
+    max-width: 420px;
     text-align: center;
+    position: relative;
+    z-index: 1;
   }
 
-  .register-container h2 {
-    color: #2E4F4F;
-    margin-bottom: 10px;
-  }
-
-  .register-container p {
-    color: #555;
-    margin-bottom: 25px;
+  /* Logo icon above the card */
+  .register-logo {
+    width: 80px;
+    height: 80px;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    margin: -80px auto 20px auto; /* Pulls the logo up */
   }
   
-  .register-container .logo {
-      font-size: 24px;
-      font-weight: bold;
-      color: #2E4F4F;
-      margin-bottom: 20px;
+  /* Typography */
+  .register-container h2 {
+    color: var(--primary-color);
+    margin-bottom: 8px;
+    font-weight: 600;
   }
-
-  .register-container input,
-  .register-container select {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px; /* Consistent margin */
-    border: 1px solid #ccc;
-    border-radius: 8px;
+  .register-container p {
+    color: var(--secondary-text);
+    margin-bottom: 30px;
+    font-size: 15px;
+  }
+  
+  /* Form element styles */
+  .form-group {
+    margin-bottom: 18px;
+    text-align: left;
+  }
+  .form-group label {
+    display: block;
     font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 6px;
   }
 
+  /* Input fields with icons */
+  .input-wrapper {
+    position: relative;
+  }
+  .input-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--border-color);
+    transition: color 0.2s ease;
+  }
+  .register-container input {
+    width: 100%;
+    padding: 12px 15px 12px 45px; /* Left padding for icon */
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    font-size: 15px;
+    font-family: 'Poppins', sans-serif;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .register-container input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(46, 79, 79, 0.15);
+  }
+  .register-container input:focus + .input-icon {
+    color: var(--primary-color);
+  }
+
+  /* Registration button */
   .register-container button {
     width: 100%;
-    padding: 12px;
-    background: #2E4F4F;
+    padding: 14px;
+    background: var(--primary-color);
     color: white;
     font-size: 16px;
+    font-weight: 600;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
-    transition: background 0.3s ease;
-  }
-  .register-container button:hover { background: #1d3d3d; }
-
-  .register-container .links {
+    transition: all 0.3s ease;
     margin-top: 15px;
+  }
+  .register-container button:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(46, 79, 79, 0.2);
+  }
+
+  /* Bottom links */
+  .register-container .links {
+    margin-top: 20px;
     font-size: 14px;
   }
   .register-container .links a {
-    color: #2E4F4F;
+    color: var(--primary-color);
     text-decoration: none;
-    font-weight: bold;
+    font-weight: 600;
   }
   .register-container .links a:hover { text-decoration: underline; }
 
-  /* ### START: Styles for Email Autocomplete ### */
-  .email-autocomplete-container {
-    position: relative;
-    width: 100%;
-    margin-bottom: 15px; /* Keep spacing consistent */
+  /* Improved Password Validation UI */
+  #password-requirements {
+    font-size: 12px;
+    margin-top: 12px;
+    color: var(--secondary-text);
   }
-  .email-autocomplete-container #email-input {
-      background: transparent;
-      position: relative;
-      z-index: 2;
-      margin: 0;
+  #password-requirements ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px 15px;
   }
-  #email-suggestion {
-      position: absolute;
-      top: 1px;  /* Align with input's border */
-      left: 1px; /* Align with input's border */
-      padding: 10px; /* Must match input padding */
-      color: #ccc;
-      pointer-events: none;
-      z-index: 1;
-      font-size: 14px;
-      white-space: pre; /* Preserve whitespace for alignment */
+  #password-requirements li {
+    transition: color 0.3s ease;
+    display: flex;
+    align-items: center;
   }
-  /* ### END: Styles for Email Autocomplete ### */
-
+  #password-requirements li::before {
+    content: '\f00d'; /* Font Awesome cross icon */
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    margin-right: 6px;
+    color: var(--danger-color);
+    font-size: 11px;
+  }
+  #password-requirements li.valid {
+    color: var(--success-color);
+  }
+  #password-requirements li.valid::before {
+    content: '\f00c'; /* Font Awesome check icon */
+    color: var(--success-color);
+  }
 </style>
 
+<!-- Decorative background elements -->
+<div class="bg-circle circle1"></div>
+<div class="bg-circle circle2"></div>
+
 <div class="register-container">
-  <div class="logo">Safe RouteAI</div>
-  <h2>Register</h2>
-  <p>Create your account to start planning safe trips</p>
+  <div class="register-logo">
+    <i class="fas fa-shield-alt"></i>
+  </div>
+  <h2>Create Account</h2>
+  <p>Join Safe RouteAI to plan your safest journey</p>
 
   <form method="post" action="{{ url_for('auth.signup') }}">
     
-    <input type="text" name="fullname" placeholder="Full Name" required>
+    <div class="form-group">
+      <label for="fullname">Full Name</label>
+      <div class="input-wrapper">
+        <input type="text" id="fullname" name="fullname"  required>
+        <i class="fas fa-user input-icon"></i>
+      </div>
+    </div>
     
-    <div class="email-autocomplete-container">
-      <input type="email" name="email" id="email-input" placeholder="Email Address" required autocomplete="off">
-      <span id="email-suggestion"></span>
+    <div class="form-group">
+      <label for="email-input">Email Address</label>
+      <div class="input-wrapper">
+        <input type="email" name="email" id="email-input"  required autocomplete="off">
+        <i class="fas fa-envelope input-icon"></i>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label for="username">Username</label>
+      <div class="input-wrapper">
+        <input type="text" id="username" name="username"  required>
+        <i class="fas fa-at input-icon"></i>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label for="password">Password</label>
+      <div class="input-wrapper">
+        <input type="password" id="password" name="password"  required>
+        <i class="fas fa-lock input-icon"></i>
+      </div>
+      <!-- Password requirements list -->
+      <div id="password-requirements">
+        <ul>
+            <li id="length">8+ characters</li>
+            <li id="uppercase">Uppercase</li>
+            <li id="lowercase">Lowercase</li>
+            <li id="number">Number</li>
+            <li id="special">Special</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label for="confirm_password">Confirm Password</label>
+      <div class="input-wrapper">
+        <input type="password" id="confirm_password" name="confirm_password" placeholder="••••••••" required>
+        <i class="fas fa-check-circle input-icon"></i>
+      </div>
     </div>
 
-    <input type="text" name="username" placeholder="Username" required>
-    <input type="password" name="password" placeholder="Password" required>
-    <input type="password" name="confirm_password" placeholder="Confirm Password" required>
-
-    <button type="submit">Register</button>
+    <button type="submit">Create Account</button>
   </form>
 
   <div class="links">
-    <p>Already have an account? <a href="{{ url_for('auth.login') }}">Login</a></p>
+    <p>Already have an account? <a href="{{ url_for('auth.login') }}">Log In</a></p>
   </div>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const emailInput = document.getElementById('email-input');
-    const emailSuggestion = document.getElementById('email-suggestion');
-    // ### MODIFIED: Only suggest gmail.com ###
-    const domainToSuggest = 'gmail.com';
+    // --- START: Real-time Password Validation ---
+    const passwordInput = document.getElementById('password');
+    const requirements = {
+        length: document.getElementById('length'),
+        uppercase: document.getElementById('uppercase'),
+        lowercase: document.getElementById('lowercase'),
+        number: document.getElementById('number'),
+        special: document.getElementById('special')
+    };
 
-    emailInput.addEventListener('input', function() {
+    passwordInput.addEventListener('input', function() {
         const value = this.value;
-        emailSuggestion.textContent = ''; // Clear previous suggestion
-
-        const atIndex = value.indexOf('@');
-        if (atIndex === -1) return;
-
-        const localPart = value.substring(0, atIndex);
-        const domainPart = value.substring(atIndex + 1);
-
-        if (domainPart.length === 0) return;
         
-        // ### MODIFIED: Simplified logic for a single domain ###
-        if (domainToSuggest.startsWith(domainPart)) {
-            const suggestedText = localPart + '@' + domainToSuggest;
-            emailSuggestion.textContent = suggestedText;
-        }
-    });
+        // Length check
+        requirements.length.classList.toggle('valid', value.length >= 8);
 
-    emailInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Tab' && emailSuggestion.textContent && this.value !== emailSuggestion.textContent) {
-            e.preventDefault(); 
-            this.value = emailSuggestion.textContent;
-            emailSuggestion.textContent = '';
-        }
-    });
+        // Uppercase check
+        requirements.uppercase.classList.toggle('valid', /[A-Z]/.test(value));
+        
+        // Lowercase check
+        requirements.lowercase.classList.toggle('valid', /[a-z]/.test(value));
 
-    emailInput.addEventListener('blur', function() { emailSuggestion.textContent = ''; });
-    emailInput.form.addEventListener('reset', function() { emailSuggestion.textContent = ''; });
+        // Number check
+        requirements.number.classList.toggle('valid', /[0-9]/.test(value));
+        
+        // Special character check
+        requirements.special.classList.toggle('valid', /[!@#$%^&*()]/.test(value));
+    });
+    // --- END: Real-time Password Validation ---
+
+
+    // --- START: Email Validation (Modified for @gmail.com only) ---
+    const emailInput = document.getElementById('email-input');
+    const emailFormGroup = emailInput.closest('.form-group');
+    let emailError = document.createElement('div');
+    emailError.className = 'email-error-message';
+    emailError.style.color = 'var(--danger-color)';
+    emailError.style.fontSize = '12px';
+    emailError.style.marginTop = '5px';
+    emailError.style.display = 'none';
+    emailFormGroup.appendChild(emailError);
+
+    const validateEmail = function() {
+        const emailValue = emailInput.value;
+        // Modified regex to specifically allow only @gmail.com
+        const gmailComRegex = /^[^\s@]+@gmail\.com$/; 
+
+        if (emailValue === "") {
+            emailError.textContent = 'Email address is required.';
+            emailError.style.display = 'block';
+            emailInput.style.borderColor = 'var(--danger-color)';
+        } else if (!gmailComRegex.test(emailValue)) {
+            emailError.textContent = 'Please enter a valid @gmail.com email address.';
+            emailError.style.display = 'block';
+            emailInput.style.borderColor = 'var(--danger-color)';
+        } else {
+            emailError.style.display = 'none';
+            emailInput.style.borderColor = 'var(--border-color)';
+        }
+    };
+
+    emailInput.addEventListener('input', validateEmail);
+    emailInput.addEventListener('blur', validateEmail);
+    emailInput.addEventListener('focus', function() {
+        // Reset border on focus, but validation will re-run on input/blur
+        emailInput.style.borderColor = 'var(--border-color)'; 
+    });
+    // --- END: Email Validation ---
 });
 </script>
 {% endblock %}

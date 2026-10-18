@@ -112,6 +112,13 @@ def api_search_destinations():
     """API endpoint for live searching destinations."""
     query = request.args.get('q', '', type=str)
     
+    # --- ADDED: Get current user's favorites to include in the response ---
+    favorite_ids = set()
+    if 'user_id' in session:
+        user = User.query.get(session['user_id'])
+        if user:
+            favorite_ids = {dest.Destination_id for dest in user.favorites}
+    
     base_query = Destination.query
     if query:
         search_term = f"%{query}%"
@@ -129,7 +136,9 @@ def api_search_destinations():
             'id': dest.Destination_id, 'place': dest.Place, 'name': dest.Name,
             'type': dest.Type.capitalize() if dest.Type else 'N/A',
             'description': dest.Description, 'budget': dest.budget, 'image_url': dest.image_url,
-            'safety': {'text': safety_info['text'], 'class_name': safety_info['class']}
+            'safety': {'text': safety_info['text'], 'class_name': safety_info['class']},
+            # --- ADDED: Include favorite status in API response ---
+            'is_favourite': dest.Destination_id in favorite_ids
         })
 
     return jsonify(results_list)

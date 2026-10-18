@@ -11,6 +11,40 @@
     .alert-danger, .alert-error { background: #fee2e2; color: #991b1b; border-left: 5px solid #dc2626; }
     .alert-warning { background: #fef9c3; color: #854d0e; border-left: 5px solid #facc15; }
 
+    /* --- ADDED: Header with Search Bar --- */
+    .header-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    .search-container {
+        position: relative;
+        flex-grow: 1;
+        max-width: 400px;
+    }
+    #searchInput {
+        width: 100%;
+        padding: 10px 15px 10px 40px; /* Space for icon */
+        border-radius: 20px;
+        border: 1px solid #d1e7d8;
+        font-size: 0.95rem;
+        background-color: #f9fdfb;
+    }
+    #searchInput:focus {
+        outline: none;
+        border-color: #2f855a;
+        box-shadow: 0 0 0 3px rgba(47, 133, 90, 0.1);
+    }
+    .search-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #888;
+        pointer-events: none;
+    }
+
     /* Form Section */
     .form-card { background: #fff; padding: 1.5rem; border-radius: 1rem; box-shadow: 0 2px 6px rgba(0,0,0,0.08); margin-bottom: 2rem; border: 1px solid #d1e7d8; }
     .form-card h3 { margin-top: 0; margin-bottom: 1.5rem; color: #2f855a; }
@@ -38,7 +72,8 @@
     /* Modal Styles */
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.45); justify-content: center; align-items: center; z-index: 1000; }
     .modal-content { background: #fff; padding: 1.6rem; border-radius: 1rem; box-shadow: 0 8px 20px rgba(0,0,0,0.25); width: 800px; max-width: 95%; }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid #eee; padding-bottom: 1rem;}
+    .modal-header h3 { margin: 0; color: #2f855a; }
     .close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; }
     .modal-actions { margin-top: 1.5rem; display: flex; gap: 0.6rem; justify-content: flex-end; }
 </style>
@@ -46,7 +81,14 @@
 
 
 {% block content %}
-<h2 class="page-title">🛡️ Manage Risk Log </h2>
+<div class="header-controls">
+    <h2 class="page-title">🛡️ Manage Risk Log </h2>
+    <!-- === ADDED SEARCH BAR === -->
+    <div class="search-container">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search by district, place, or event...">
+    </div>
+</div>
 
 {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
@@ -64,6 +106,7 @@
             <div class="form-group"><label for="add_date">Date</label><input type="date" id="add_date" name="date" required></div>
             <div class="form-group"><label for="add_district">District</label>
                 <select id="add_district" name="district" required>
+                    <option value="" disabled selected>Select a District</option>
                     {% for district in all_districts %}<option value="{{ district }}">{{ district }}</option>{% endfor %}
                 </select>
             </div>
@@ -92,7 +135,8 @@
         <th>Date</th><th>District</th><th>Place</th><th>Temp</th><th>Rain</th><th>Humidity</th><th>Cases</th><th>Event</th><th>Actions</th>
       </tr>
     </thead>
-    <tbody>
+    <!-- === ADDED ID TO TBODY === -->
+    <tbody id="riskLogTableBody">
       {% for row in risk_log_data %}
       <tr>
         <td>{{ row.date }}</td>
@@ -104,7 +148,6 @@
         <td>{{ row.disease_cases }}</td>
         <td>{{ row.disaster_event }}</td>
         <td class="actions">
-            <!-- ### FIX: Store data in data-row attribute and call function with 'this' ### -->
             <button class="btn btn-secondary" 
                     data-row='{{ row|tojson|safe }}' 
                     onclick="openEditModal(this)">Edit</button>
@@ -114,20 +157,52 @@
         </td>
       </tr>
       {% else %}
-      <tr><td colspan="6" style="text-align: center; padding: 2rem;">No risk log data found.</td></tr>
+      <tr><td colspan="9" style="text-align: center; padding: 2rem;">No risk log data found.</td></tr>
       {% endfor %}
     </tbody>
   </table>
 </div>
 
-<!-- ... (Edit Modal and Scripts are unchanged from your provided code) ... -->
+<!-- Edit Modal (unchanged) -->
 <div id="editModal" class="modal">
-    <!-- ... modal content ... -->
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-edit"></i> Edit Risk Entry</h3>
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+        </div>
+        <form action="{{ url_for('admin.update_risk_log_row') }}" method="POST">
+            <input type="hidden" id="edit_row_index" name="row_index">
+            <div class="form-grid">
+                <div class="form-group"><label for="edit_date">Date</label><input type="date" id="edit_date" name="date" required></div>
+                <div class="form-group"><label for="edit_district">District</label>
+                    <select id="edit_district" name="district" required>
+                        {% for district in all_districts %}<option value="{{ district }}">{{ district }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="form-group"><label for="edit_place">Place</label><input type="text" id="edit_place" name="place" required></div>
+                <div class="form-group"><label for="edit_temp">Temperature (°C)</label><input type="number" step="0.1" id="edit_temp" name="temperature_c" required></div>
+                <div class="form-group"><label for="edit_rain">Rainfall (mm)</label><input type="number" step="0.1" id="edit_rain" name="rainfall_mm" required></div>
+                <div class="form-group"><label for="edit_humidity">Humidity (%)</label><input type="number" id="edit_humidity" name="humidity_percent" required></div>
+                <div class="form-group"><label for="edit_disease">Disease Cases</label><input type="number" id="edit_disease" name="disease_cases" required></div>
+                <div class="form-group"><label for="edit_event">Disaster Event</label><input type="text" id="edit_event" name="disaster_event" required></div>
+            </div>
+            <div class="form-group" style="margin-top: 1rem;">
+                <label for="edit_desc">Description</label>
+                <textarea id="edit_desc" name="description" rows="3" required></textarea>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+            </div>
+        </form>
+    </div>
 </div>
+
 {% endblock %}
 
 {% block scripts %}
 <script>
+// --- Modal Script (unchanged) ---
 const modal = document.getElementById("editModal");
 
 function openEditModal(button) {
@@ -156,6 +231,41 @@ window.onclick = function(event) {
   if (event.target == modal) {
     closeModal();
   }
+}
+
+// --- ADDED: Live Table Search/Filter Function ---
+function filterTable() {
+    // Get input element and filter value
+    const input = document.getElementById("searchInput");
+    const filter = input.value.toLowerCase();
+    
+    // Get table body and all its rows
+    const tableBody = document.getElementById("riskLogTableBody");
+    const rows = tableBody.getElementsByTagName("tr");
+
+    // Loop through all table rows, and hide those that don't match the search query
+    for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        
+        // Get the cells we want to search in (District, Place, Event)
+        const districtCell = row.cells[1];
+        const placeCell = row.cells[2];
+        const eventCell = row.cells[7];
+
+        if (districtCell && placeCell && eventCell) {
+            // Combine the text content of the searchable cells
+            const rowText = (districtCell.textContent || districtCell.innerText) +
+                          (placeCell.textContent || placeCell.innerText) +
+                          (eventCell.textContent || eventCell.innerText);
+            
+            // Check if the combined text includes the filter string
+            if (rowText.toLowerCase().indexOf(filter) > -1) {
+                row.style.display = ""; // Show row
+            } else {
+                row.style.display = "none"; // Hide row
+            }
+        }
+    }
 }
 </script>
 {% endblock %}

@@ -21,6 +21,38 @@ def admin_required(f):
     return decorated_function
 
 
+# ### ADDED: Strong Password Validator ###
+def is_strong_password(password):
+    """
+    Checks if a password meets the strength requirements and returns a descriptive error message.
+    - At least 8 characters
+    - At least one uppercase letter
+    - At least one lowercase letter
+    - At least one number
+    - At least one special character
+    """
+    errors = []
+    if len(password) < 8:
+        errors.append("be at least 8 characters long")
+    if not any(c.isupper() for c in password):
+        errors.append("contain an uppercase letter")
+    if not any(c.islower() for c in password):
+        errors.append("contain a lowercase letter")
+    if not any(c.isdigit() for c in password):
+        errors.append("contain a number")
+    
+    special_characters = "!@#$%^&*()-_=+"
+    if not any(c in special_characters for c in password):
+        errors.append(f"contain a special character (e.g., {special_characters})")
+        
+    if not errors:
+        return True, ""
+    
+    # Construct a user-friendly message
+    message = "Password must " + ", ".join(errors) + "."
+    return False, message
+
+
 @auth_bp.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
@@ -36,6 +68,12 @@ def signup():
             flash("Please enter a valid email address.", "danger")
             return render_template('signup.html')
         # ### END: Simple Email Validation ###
+
+        # ### MODIFIED: Strong Password Validation ###
+        strong_enough, message = is_strong_password(password)
+        if not strong_enough:
+            flash(message, "danger")
+            return render_template('signup.html')
 
         if password != confirm_password:
             flash("Passwords do not match.", "danger")
@@ -65,6 +103,14 @@ def signup():
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
+    # ### ADDED: Prevent access if already logged in ###
+    if 'user_id' in session:
+        flash("You are already logged in.", "info")
+        if session.get('role') == 'admin':
+            return redirect(url_for('admin.dashboard'))
+        # Default to user dashboard if role is 'user' or not explicitly admin
+        return redirect(url_for('views.dashboard'))
+    
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']

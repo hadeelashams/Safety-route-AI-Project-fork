@@ -7,6 +7,8 @@
     <title>{% block title %}Safe Route Admin{% endblock %}</title>
     
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <!-- ADDED: Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     
     {% block extra_css %}{% endblock %}
 </head>
@@ -29,10 +31,20 @@
         </div>
     </aside>
 
-    <main class="main" id="content">
-        <!-- Content from child templates will be inserted here -->
-        {% block content %}{% endblock %}
-    </main>
+    <!-- MODIFIED: Wrapped main content in a container to add a header -->
+    <div class="main-container">
+        <header class="top-header">
+            <div class="user-profile">
+                <i class="fas fa-user-circle"></i>
+                <span>{{ session.username or 'Admin' }}</span>
+            </div>
+        </header>
+
+        <main class="main" id="content">
+            <!-- Content from child templates will be inserted here -->
+            {% block content %}{% endblock %}
+        </main>
+    </div>
 
     <!-- This block allows child templates to add their own scripts -->
     {% block scripts %}{% endblock %}

@@ -52,6 +52,14 @@ def _generate_ai_prediction(destination_district: str, model):
     """
     Uses the AI model to predict future risks based on historical data.
     """
+    # Read the risk log inside the function to get the latest data
+    try:
+        risk_log_df = pd.read_csv('static/data/risklog.csv', skipinitialspace=True)
+        risk_log_df.columns = [c.strip().lower().replace(' ', '_') for c in risk_log_df.columns]
+        risk_log_df['date'] = pd.to_datetime(risk_log_df['date'], errors='coerce')
+    except Exception:
+        risk_log_df = pd.DataFrame()
+
     if risk_log_df.empty:
         return {'disaster_alert': 'Historical data is unavailable for analysis.', 'disease_alert': 'Historical data is unavailable for analysis.', 'overall_safety_level': 'Moderate Risk'}
 
@@ -103,42 +111,52 @@ def _generate_ai_prediction(destination_district: str, model):
             'overall_safety_level': 'Moderate Risk'
         }
 
-# --- Data Loading ---
+# --- Data Loading (for generate_ai_route only) ---
 KERALA_DISTRICTS_ORDER = [
     "Thiruvananthapuram", "Kollam", "Pathanamthitta", "Alappuzha", "Kottayam",
     "Idukki", "Ernakulam", "Thrissur", "Palakkad", "Malappuram",
     "Kozhikode", "Wayanad", "Kannur", "Kasaragod"
 ]
+# We still need a version here for the route generation logic to avoid reading the file multiple times in one request
 try:
     csv_path = 'static/data/risklog.csv'
     risk_log_df = pd.read_csv(csv_path, skipinitialspace=True, on_bad_lines='skip')
     risk_log_df.columns = [c.strip().lower().replace(' ', '_') for c in risk_log_df.columns]
     if 'date' in risk_log_df.columns:
         risk_log_df['date'] = pd.to_datetime(risk_log_df['date'], errors='coerce')
-    print("AI Service: Risk log CSV loaded successfully.")
+    print("AI Service: Risk log CSV loaded successfully for route generation.")
 except Exception as e:
     print(f"AI Service WARNING: Could not read {csv_path}: {e}. Risk analysis will be limited.")
     risk_log_df = pd.DataFrame()
 
-# --- UNIFIED SAFETY CALCULATION (from safety.html logic) ---
+# --- UNIFIED SAFETY CALCULATION ---
 MAX_RISK_SCORE = 75.0  # Use float for division
 
 def calculate_safety_rule_based(district_name, place_name=None):
     """
     Calculates a safety score and level based on historical data,
     replicating the logic from the admin safety analysis page for consistency.
+    THIS FUNCTION NOW READS THE FILE TO ENSURE DATA IS ALWAYS FRESH.
     """
     status_map = {'High Risk': 'unsafe', 'Moderate Risk': 'caution', 'Low Risk': 'safe'}
     
-    if risk_log_df.empty:
+    # --- THIS IS THE FIX: Read the latest CSV data every time ---
+    try:
+        live_risk_log_df = pd.read_csv('static/data/risklog.csv', skipinitialspace=True)
+        live_risk_log_df.columns = [c.strip().lower().replace(' ', '_') for c in live_risk_log_df.columns]
+        live_risk_log_df['date'] = pd.to_datetime(live_risk_log_df['date'], errors='coerce')
+    except Exception:
+        live_risk_log_df = pd.DataFrame()
+    
+    if live_risk_log_df.empty:
         return {'text': 'Moderate Risk', 'class': 'caution', 'score': 50}
 
     two_years_ago = datetime.datetime.now() - datetime.timedelta(days=730)
-    mask = (risk_log_df['district'].str.lower() == district_name.lower()) & (risk_log_df['date'] > two_years_ago)
+    mask = (live_risk_log_df['district'].str.lower() == district_name.lower()) & (live_risk_log_df['date'] > two_years_ago)
     if place_name:
-        mask &= (risk_log_df['place'].str.lower() == place_name.lower())
+        mask &= (live_risk_log_df['place'].str.lower() == place_name.lower())
     
-    relevant_events = risk_log_df[mask]
+    relevant_events = live_risk_log_df[mask]
 
     if relevant_events.empty:
         return {'text': 'Low Risk', 'class': 'safe', 'score': 0}

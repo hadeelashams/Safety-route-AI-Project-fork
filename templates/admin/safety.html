@@ -84,12 +84,14 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const allData = {{ safety_data|tojson|safe }};
+        // --- THIS IS THE FIX: Get the complete district list from the backend ---
+        const allDistricts = {{ all_districts|tojson|safe }};
         const container = document.getElementById('safety-grid-container');
         const districtFilter = document.getElementById('districtFilter');
         const chartTitleElement = document.getElementById('chartTitle');
         let safetyChart = null;
         const MAX_RISK_SCORE = 75;
-        const PLACE_CHART_LIMIT = 15; // Limit the number of places shown in the chart
+        const PLACE_CHART_LIMIT = 15;
 
         if (!allData || allData.length === 0) { 
             container.innerHTML = '<p style="text-align:center; color:#718096;">No safety data available to analyze.</p>';
@@ -104,7 +106,6 @@
         if (recentData.length === 0) {
             container.innerHTML = '<p style="text-align:center; color:#718096;">No recent safety events (last 2 years) found to analyze.</p>';
             document.getElementById('bar-chart-section').style.display = 'none';
-            return;
         }
         
         const districtScores = recentData.reduce((acc, item) => {
@@ -119,7 +120,10 @@
             return acc;
         }, {});
 
-        Object.keys(districtScores).sort().forEach(districtName => districtFilter.add(new Option(districtName, districtName)));
+        // --- THIS IS THE FIX: Populate the dropdown with the complete list ---
+        allDistricts.forEach(districtName => {
+            districtFilter.add(new Option(districtName, districtName));
+        });
         
         function getSafetyLevel(rawScore) {
             if (rawScore > MAX_RISK_SCORE * 0.60) return { level: 'High Risk', cssClass: 'status-high-risk' };
@@ -131,8 +135,9 @@
         
         function renderAllDistrictsView() {
             container.innerHTML = '';
-            Object.keys(districtScores).sort().forEach(districtName => {
-                const data = districtScores[districtName];
+            // Use the complete list to render, falling back to a default if no score exists
+            allDistricts.forEach(districtName => {
+                const data = districtScores[districtName] || { score: 0, disasterCount: 0, diseaseIncidents: 0, weatherAlerts: 0, latestDate: null };
                 const safetyInfo = getSafetyLevel(data.score);
                 const displayScore = Math.min(Math.round((data.score / MAX_RISK_SCORE) * 100), 100);
                 const card = document.createElement('div');
@@ -144,7 +149,6 @@
             });
         }
         
-        // --- CORRECTED: This function now accepts a 'placeScores' object to avoid recalculating.
         function renderPlaceLevelView(districtName, placeScores) {
             container.innerHTML = `<h2 class="detail-title">Safety Levels for Places in ${districtName}</h2>`;
             if (Object.keys(placeScores).length === 0) {
@@ -177,12 +181,11 @@
             const selectedDistrict = event.target.value;
             if (selectedDistrict === 'all') {
                 renderAllDistrictsView();
-                const sortedDistricts = Object.keys(districtScores).sort();
-                const chartData = sortedDistricts.map(d => Math.min(Math.round((districtScores[d].score / MAX_RISK_SCORE) * 100), 100));
-                renderSafetyBarChart('Overall District Risk Score Comparison', sortedDistricts, chartData);
+                const chartLabels = allDistricts;
+                const chartData = chartLabels.map(d => Math.min(Math.round(((districtScores[d] || {score:0}).score / MAX_RISK_SCORE) * 100), 100));
+                renderSafetyBarChart('Overall District Risk Score Comparison', chartLabels, chartData);
             } else {
-                // --- CORRECTED: Calculate place scores once and reuse them. ---
-                const placeData = recentData.filter(item => item.district === selectedDistrict);
+                const placeData = recentData.filter(item => item.district === selectedDistrict && item.place);
                 const placeScores = placeData.reduce((acc, item) => {
                     const place = item.place; if (!place) return acc;
                     if (!acc[place]) { acc[place] = { score: 0, disasterCount: 0, diseaseIncidents: 0, weatherAlerts: 0, latestDate: null }; }
@@ -194,11 +197,9 @@
                     if (eventOccurred && item.date && (!acc[place].latestDate || new Date(item.date) > new Date(acc[place].latestDate))) { acc[place].latestDate = item.date; }
                     return acc;
                 }, {});
-
-                // Pass the calculated scores to the view rendering function.
+                
                 renderPlaceLevelView(selectedDistrict, placeScores);
                 
-                // Use the same scores to prepare data for the chart.
                 const sortedPlaces = Object.entries(placeScores)
                     .map(([name, data]) => ({ name, score: data.score }))
                     .sort((a, b) => b.score - a.score);
@@ -209,10 +210,8 @@
                     const topPlaces = sortedPlaces.slice(0, PLACE_CHART_LIMIT);
                     const otherPlaces = sortedPlaces.slice(PLACE_CHART_LIMIT);
                     const otherPlacesAvgScore = otherPlaces.length > 0 ? otherPlaces.reduce((sum, p) => sum + p.score, 0) / otherPlaces.length : 0;
-
                     chartLabels = topPlaces.map(p => p.name);
                     chartLabels.push(`Other ${otherPlaces.length} Places (Avg)`);
-
                     chartData = topPlaces.map(p => Math.min(Math.round((p.score / MAX_RISK_SCORE) * 100), 100));
                     chartData.push(Math.min(Math.round((otherPlacesAvgScore / MAX_RISK_SCORE) * 100), 100));
                 } else {
@@ -226,9 +225,9 @@
 
         // Initial render
         renderAllDistrictsView();
-        const initialSortedDistricts = Object.keys(districtScores).sort();
-        const initialChartData = initialSortedDistricts.map(d => Math.min(Math.round((districtScores[d].score / MAX_RISK_SCORE) * 100), 100));
-        renderSafetyBarChart('Overall District Risk Score Comparison', initialSortedDistricts, initialChartData);
+        const initialChartLabels = allDistricts;
+        const initialChartData = initialChartLabels.map(d => Math.min(Math.round(((districtScores[d] || {score:0}).score / MAX_RISK_SCORE) * 100), 100));
+        renderSafetyBarChart('Overall District Risk Score Comparison', initialChartLabels, initialChartData);
     });
 </script>
 {% endblock %}

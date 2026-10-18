@@ -4,154 +4,226 @@
 
 {% block content %}
 <style>
-  body {
-    font-family: 'Poppins', sans-serif;
-    margin: 0;
-    background: #F9FAF9; /* Keep your current background */
+  /* Import Google Fonts and Font Awesome */
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+  @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+
+  /* Define color variables for consistency */
+  :root {
+    --primary-color: #2E4F4F;
+    --primary-hover: #1d3d3d;
+    --secondary-text: #6c757d;
+    --border-color: #ced4da;
+    --light-bg: #f8f9fa;
+    --text-dark: #343a40;
+  }
+  
+  /* Override base styles for a full-page centered form */
+  main {
+    width: 100%;
+    min-height: calc(100vh - 140px); /* Adjust based on header/footer height */
     display: flex;
-    justify-content: center;
     align-items: center;
-    height: 100vh;
+    justify-content: center;
+    padding: 40px 20px;
+    position: relative;
     overflow: hidden;
+    /* ADDED: More attractive gradient background */
+    background: linear-gradient(135deg, #f5f7fa, #e9f0f7);
   }
 
-  /* Background Circles */
+  /* Background decorative circles */
   .bg-circle {
     position: absolute;
     border-radius: 50%;
-    opacity: 0.2;
-    z-index: -1;
+    opacity: 0.1;
+    z-index: 0;
   }
   .circle1 {
-    width: 300px;
-    height: 300px;
-    background: #A7C8A7;
-    top: -80px;
-    left: -80px;
+    width: 350px;
+    height: 350px;
+    background: var(--primary-color);
+    top: -100px;
+    left: -120px;
   }
   .circle2 {
-    width: 200px;
-    height: 200px;
-    background: #2E4F4F;
-    bottom: -50px;
-    right: -50px;
+    width: 250px;
+    height: 250px;
+    background: #A7C8A7;
+    bottom: -80px;
+    right: -100px;
+  }
+  
+  /* ADDED: Keyframe for entry animation */
+  @keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
   }
 
-  /* Login Card */
+  /* The main login card */
   .login-card {
     background: white;
     padding: 40px;
     border-radius: 20px;
-    width: 350px;
+    box-shadow: 0 8px 32px rgba(46, 79, 79, 0.1);
+    width: 100%;
+    max-width: 400px;
     text-align: center;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
     position: relative;
+    z-index: 1;
+    /* ADDED: Apply entry animation */
+    animation: fadeInUp 0.5s ease-out forwards;
   }
 
-  /* Logo above card */
+  /* Logo icon above the card */
   .login-logo {
-    width: 90px;
-    height: 90px;
-    background: white;
+    width: 80px;
+    height: 80px;
+    background: var(--primary-color);
+    color: white;
     border-radius: 50%;
-    overflow: hidden;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    position: absolute;
-    top: -45px;
-    left: 50%;
-    transform: translateX(-50%);
     display: flex;
     justify-content: center;
     align-items: center;
-  }
-  .login-logo img {
-    width: 70%;
-    height: auto;
+    font-size: 2.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    margin: -80px auto 20px auto; /* Pulls the logo up */
   }
 
-  /* Title */
+  /* Typography */
   .login-card h2 {
-    margin-top: 50px;
-    font-size: 24px;
-    font-weight: bold;
-    color: #2E4F4F;
+    color: var(--primary-color);
+    margin-bottom: 8px;
+    font-weight: 600;
   }
   .login-card p {
-    font-size: 14px;
-    color: #555;
-    margin-bottom: 20px;
+    color: var(--secondary-text);
+    margin-bottom: 30px;
+    font-size: 15px;
   }
 
-  /* Inputs */
-  .login-card label {
-    display: block;
+  /* MODIFIED: Styles for form groups and outer labels */
+  .form-group {
+    margin-bottom: 20px;
     text-align: left;
-    font-size: 0.9rem;
-    color: #2E4F4F;
-    margin: 12px 0 6px;
+  }
+  .form-group label {
+    display: block;
+    font-size: 14px;
     font-weight: 500;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+  }
+  
+  /* Input fields with icons */
+  .input-wrapper {
+    position: relative;
+  }
+  .input-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--border-color);
+    transition: color 0.2s ease;
   }
   .login-card input {
     width: 100%;
-    padding: 12px 10px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    font-size: 14px;
+    padding: 12px 15px 12px 45px; /* Left padding for icon */
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    font-size: 15px;
+    font-family: 'Poppins', sans-serif;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .login-card input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(46, 79, 79, 0.15);
+  }
+  .login-card input:focus + .input-icon {
+    color: var(--primary-color);
   }
 
-  /* Button */
+  /* Login button */
   .login-card button {
     width: 100%;
-    padding: 12px;
-    background: #2E4F4F;
+    padding: 14px;
+    background: var(--primary-color);
     color: white;
     font-size: 16px;
+    font-weight: 600;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
+    transition: all 0.3s ease;
     margin-top: 15px;
-    transition: background 0.3s ease;
   }
   .login-card button:hover {
-    background: #1d3d3d;
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(46, 79, 79, 0.2);
   }
 
-  /* Footer text */
-  .login-card small {
-    display: block;
-    margin-top: 15px;
-    font-size: 12px;
-    color: #888;
+  /* Bottom links */
+  .login-card .links {
+    margin-top: 20px;
+    font-size: 14px;
+  }
+  .login-card .links a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+  }
+  .login-card .links a:hover { 
+    text-decoration: underline;
+    color: var(--primary-hover);
   }
 </style>
 
-<!-- Background Circles -->
+<!-- Decorative background elements -->
 <div class="bg-circle circle1"></div>
 <div class="bg-circle circle2"></div>
 
 <!-- Login Card -->
 <div class="login-card">
   <div class="login-logo">
-    <img src="{{ url_for('static', filename='image/logo.png') }}" alt="Safe RouteAI Logo">
+    <i class="fas fa-shield-alt"></i>
   </div>
-  <h2>Login</h2>
-  <p>Welcome to Safe RouteAI System</p>
+  <h2>Welcome Back!</h2>
+  <p>Log in to access your dashboard</p>
 
   <form action="{{ url_for('auth.login') }}" method="POST">
-    <label for="username">Username</label>
-    <input type="text" id="username" name="username" placeholder="Enter your username" required>
+    <!-- MODIFIED: Form group with outer label for Username -->
+    <div class="form-group">
+      <label for="username">Username</label>
+      <div class="input-wrapper">
+        <input type="text" id="username" name="username" placeholder="Enter your username" required>
+        <i class="fas fa-user input-icon"></i>
+      </div>
+    </div>
 
-    <label for="password">Password</label>
-    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+    <!-- MODIFIED: Form group with outer label for Password -->
+    <div class="form-group">
+      <label for="password">Password</label>
+      <div class="input-wrapper">
+        <input type="password" id="password" name="password" placeholder="Enter your password" required>
+        <i class="fas fa-lock input-icon"></i>
+      </div>
+    </div>
 
-    <button type="submit">Login</button>
+    <button type="submit">Log In</button>
   </form>
 
-   <!-- === NEW: REGISTER LINK === -->
-  <div class="register-link">
-    <p>Don't have an account? <a href="{{ url_for('auth.signup') }}">Register</a></p>
+  <div class="links">
+    <p>Don't have an account? <a href="{{ url_for('auth.signup') }}">Sign Up</a></p>
   </div>
-
-  <small>Safe RouteAI © 2025</small>
 </div>
 {% endblock %}
